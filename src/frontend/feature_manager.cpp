@@ -55,10 +55,6 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const ImageData &i
   if (parallax_num == 0) {
     return true;
   } else {
-    std::cout << "parallax_sum: " << parallax_sum << ", parallax_num: " << parallax_num
-              << std::endl;
-    std::cout << "current parallax: " << parallax_sum / parallax_num * g_config.camera.focal_length
-              << std::endl;
     return parallax_sum / parallax_num >=
            (g_config.estimator.min_parallax / g_config.camera.focal_length);
   }
@@ -90,9 +86,6 @@ void FeatureManager::setDepth(const VectorXd &x) {
     if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2)) continue;
 
     it_per_id.estimated_depth = 1.0 / x(++feature_index);
-    // ROS_INFO("feature id %d , start_frame %d, depth %f ",
-    // it_per_id->feature_id, it_per_id-> start_frame,
-    // it_per_id->estimated_depth);
     if (it_per_id.estimated_depth < 0) {
       it_per_id.solve_flag = 2;
     } else
