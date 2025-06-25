@@ -9,7 +9,7 @@
 #include "utility/config.h"
 #include "utility/visualizer.h"
 
-using namespace utility;
+namespace utility {
 namespace fs = std::experimental::filesystem;
 
 Visualizer::Visualizer()
@@ -65,7 +65,7 @@ bool Visualizer::initialize() {
             pangolin::ProjectionMatrix(window_width, window_height, 420, 420,  // focal length (fx, fy)
                                        window_width / 2, window_height / 2,    // principal point (cx, cy)
                                        0.1, 1000),                             // near, far planes
-            pangolin::ModelViewLookAt(-5, 0, 5,                                // camera position
+            pangolin::ModelViewLookAt(-3, 0, 3,                                // camera position
                                       0, 0, 0,                                 // look at point
                                       pangolin::AxisZ));                       // up vector
         std::cout << "Render state created" << std::endl;
@@ -586,3 +586,5 @@ void Visualizer::adjustCameraViewToFitTrajectory() {
                                                                center.x(), center.y(), center.z(), pangolin::AxisZ));
     }
 }
+
+}  // namespace utility

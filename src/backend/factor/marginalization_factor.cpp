@@ -1,6 +1,6 @@
-#include "backend/factor/marginalization_factor.h"
-
 #include <thread>
+
+#include "backend/factor/marginalization_factor.h"
 
 namespace backend {
 namespace factor {

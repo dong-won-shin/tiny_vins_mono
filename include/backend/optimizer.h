@@ -2,7 +2,6 @@
 #define OPTIMIZER_H
 
 #include <ceres/ceres.h>
-
 #include <Eigen/Dense>
 #include <iostream>
 
@@ -23,15 +22,19 @@ public:
   Optimizer(SlidingWindow* sliding_window, frontend::FeatureManager* feature_manager);
   ~Optimizer();
 
-  // Main optimization interface
-  void optimize(MarginalizationFlag marginalization_flag);
+    // Main optimization interface
+    void optimize(MarginalizationFlag marginalization_flag);
 
-  // Setter for extrinsic parameters
-  void setExtrinsicParameters(const Vector3d& t_ic, const Matrix3d& r_ic);
+    // Setter for extrinsic parameters
+    void setExtrinsicParameters(const Vector3d& t_ic, const Matrix3d& r_ic);
 
-  // Getter for extrinsic parameters
-  Vector3d getTic() const { return t_ic_; }
-  Matrix3d getRic() const { return r_ic_; }
+    // Getter for extrinsic parameters
+    Vector3d getTic() const {
+        return t_ic_;
+    }
+    Matrix3d getRic() const {
+        return r_ic_;
+    }
 
 private:
   // Optimization setup

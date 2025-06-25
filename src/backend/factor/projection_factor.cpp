@@ -1,5 +1,4 @@
 #include "backend/factor/projection_factor.h"
-
 #include "utility/utility.h"
 
 namespace backend {

@@ -103,8 +103,6 @@ void FeatureTracker::readImage(const cv::Mat &_img, double _cur_time) {
     reduceVector(ids, status);
     reduceVector(cur_un_pts, status);
     reduceVector(track_cnt, status);
-
-    std::cout << "forw_pts.size(): " << forw_pts.size() << std::endl;
   }
 
   for (auto &n : track_cnt) n++;
