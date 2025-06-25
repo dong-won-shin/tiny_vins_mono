@@ -220,7 +220,7 @@ unzip V1_01_easy.zip
   - Trajectory data is automatically saved to files `logs` folder for later analysis
   - Use `scripts/compare_trajectories.py` for trajectory evaluation
 
-
+  ![compare_trajectry](./asset/compare_trajectory.png)
 
 ## Acknowledgments
 
