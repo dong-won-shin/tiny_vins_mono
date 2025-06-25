@@ -188,12 +188,7 @@ unzip V1_01_easy.zip
    ./tiny_vins_mono ../config/config.yaml
    ```
 
-2. **With custom configuration**
-   ```bash
-   ./tiny_vins_mono ../config/my_config.yaml
-   ```
-
-3. **Expected output**
+2. **Expected output**
    ```
    IMU file: ./data/VIO_dataset/V1_01_easy/mav0/imu0/data.csv
    Image CSV file: ./data/VIO_dataset/V1_01_easy/mav0/cam0/data.csv
@@ -205,6 +200,8 @@ unzip V1_01_easy.zip
    🎯 Frame 10 | Time: 1403636580.413 | Cam Pos: [0.03, -0.01, 0.08]
    ...
    ```
+
+    ![demo](./asset/tiny_vins_mono.gif)
 
 ### Understanding the Output
 
