@@ -208,7 +208,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
                  cv::Scalar(255 * (1 - len), 0, 255 * len), 2);
     }
 
-    cv::imshow("show_img", tmp_img);
+    cv::imshow("tracking image", tmp_img);
     cv::waitKey(1);
   }
 
