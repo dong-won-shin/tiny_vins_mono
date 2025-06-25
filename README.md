@@ -217,7 +217,7 @@ unzip V1_01_easy.zip
   - Processing statistics
 
 - **Result Files**: 
-  - Trajectory data is automatically saved to files for later analysis
+  - Trajectory data is automatically saved to files `logs` folder for later analysis
   - Use `scripts/compare_trajectories.py` for trajectory evaluation
 
 
