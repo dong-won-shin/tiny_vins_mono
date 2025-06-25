@@ -2,7 +2,6 @@
 #define ESTIMATOR_H
 
 #include <ceres/ceres.h>
-
 #include <Eigen/Dense>
 #include <fstream>
 #include <iomanip>
@@ -24,65 +23,63 @@ namespace backend {
 
 class Estimator {
 public:
-  Estimator();
+    Estimator();
 
-  void setParameter();
+    void setParameter();
 
-  void processIMU(double dt, const Eigen::Vector3d& linear_acceleration,
-                  const Eigen::Vector3d& angular_velocity);
-  void processImage(const ImageData& image, double timestamp);
+    void processIMU(double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity);
+    void processImage(const ImageData& image, double timestamp);
 
-  Matrix3d r_ic_;
-  Vector3d t_ic_;
+    Matrix3d r_ic_;
+    Vector3d t_ic_;
 
-  SlidingWindow sliding_window_;
+    SlidingWindow sliding_window_;
 
-  SolverFlag solver_flag_;
-  MarginalizationFlag marginalization_flag_;
+    SolverFlag solver_flag_;
+    MarginalizationFlag marginalization_flag_;
 
-  std::vector<Eigen::Vector3d> getSlidingWindowMapPoints() const;
-
-  mutable std::mutex estimator_mutex_;
+    std::vector<Eigen::Vector3d> getSlidingWindowMapPoints() const;
 
 private:
-  void clearState();
+    void clearState();
 
-  void slideWindow();
-  void slideWindowNewGeneralFrame();
-  void slideWindowOldKeyframe();
+    void slideWindow();
+    void slideWindowNewGeneralFrame();
+    void slideWindowOldKeyframe();
 
-  void solveOdometry();
+    void solveOdometry();
 
-  void cleanupOldImageFrames(double timestamp);
-  void cleanupPreIntegration(ImageFrame& frame);
+    void cleanupOldImageFrames(double timestamp);
+    void cleanupPreIntegration(ImageFrame& frame);
 
-  void propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
-                         const Vector3d& angular_velocity);
-  void storeLastPoseInSlidingWindow();
+    void propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
+                           const Vector3d& angular_velocity);
+    void storeLastPoseInSlidingWindow();
 
-  bool first_imu_;
-  bool failure_occur_;
+    bool first_imu_;
+    bool failure_occur_;
 
-  double initial_timestamp_;
-  Vector3d prev_acc_, prev_gyro_;
-  int frame_count_;
+    double initial_timestamp_;
+    Vector3d prev_acc_, prev_gyro_;
+    int frame_count_;
 
-  Vector3d g_;
+    Vector3d g_;
 
-  backend::factor::IntegrationBase* tmp_pre_integration_;
+    backend::factor::IntegrationBase* tmp_pre_integration_;
 
-  std::map<double, ImageFrame> all_image_frame_;
+    std::map<double, ImageFrame> all_image_frame_;
 
-  FeatureManager feature_manager_;
-  MotionEstimator motion_estimator_;
+    Matrix3d last_R_end_;
+    Vector3d last_P_end_;
 
-  Matrix3d last_R_end_;
-  Vector3d last_P_end_;
+    // Core components
+    Optimizer optimizer_;
+    FailureDetector failure_detector_;
+    Initializer initializer_;
+    FeatureManager feature_manager_;
+    MotionEstimator motion_estimator_;
 
-  // Core components
-  Optimizer optimizer_;
-  FailureDetector failure_detector_;
-  Initializer initializer_;
+    mutable std::mutex estimator_mutex_;
 };
 
 }  // namespace backend
