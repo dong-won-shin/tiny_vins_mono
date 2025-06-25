@@ -172,17 +172,17 @@ void Estimator::cleanupOldImageFrames(double timestamp) {
         return;
     }
 
-  // 1. Cleanup pre_integration of current frame
-  cleanupPreIntegration(it_0->second);
+    // 1. Cleanup pre_integration of current frame
+    cleanupPreIntegration(it_0->second);
 
-  // 2. Cleanup pre_integration of previous frames
-  for (auto it = all_image_frame_.begin(); it != it_0; ++it) {
-    cleanupPreIntegration(it->second);
-  }
+    // 2. Cleanup pre_integration of previous frames
+    for (auto it = all_image_frame_.begin(); it != it_0; ++it) {
+        cleanupPreIntegration(it->second);
+    }
 
-  // 3. Remove frames
-  all_image_frame_.erase(all_image_frame_.begin(), it_0);
-  all_image_frame_.erase(timestamp);
+    // 3. Remove frames
+    all_image_frame_.erase(all_image_frame_.begin(), it_0);
+    all_image_frame_.erase(timestamp);
 }
 
 void Estimator::cleanupPreIntegration(ImageFrame& frame) {
