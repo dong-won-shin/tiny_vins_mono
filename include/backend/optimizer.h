@@ -20,7 +20,7 @@ namespace backend {
 
 class Optimizer {
 public:
-  Optimizer(SlidingWindow* sliding_window, FeatureManager* feature_manager);
+  Optimizer(SlidingWindow* sliding_window, frontend::FeatureManager* feature_manager);
   ~Optimizer();
 
   // Main optimization interface
@@ -56,7 +56,7 @@ private:
 
   // Member variables
   SlidingWindow* sliding_window_;
-  FeatureManager* feature_manager_;
+  frontend::FeatureManager* feature_manager_;
 
   // Extrinsic parameters
   Vector3d t_ic_;

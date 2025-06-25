@@ -30,7 +30,7 @@ bool MeasurementProcessor::initialize(const std::string& imu_filepath,
   g_config.print();
 
   // Initialize feature tracker
-  feature_tracker_.reset(new feature_tracker::FeatureTracker());
+  feature_tracker_.reset(new frontend::FeatureTracker());
   feature_tracker_->readIntrinsicParameter(config_filepath);
 
   // Load data

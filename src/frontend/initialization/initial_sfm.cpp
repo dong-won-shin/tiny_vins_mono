@@ -1,5 +1,7 @@
 #include "frontend/initialization/initial_sfm.h"
 
+namespace frontend {
+
 GlobalSFM::GlobalSFM() {}
 
 void GlobalSFM::triangulatePoint(Eigen::Matrix<double, 3, 4> &Pose0,
@@ -257,3 +259,5 @@ bool GlobalSFM::construct(int frame_num, Quaterniond *q, Vector3d *T, int l,
   }
   return true;
 }
+
+}  // namespace frontend

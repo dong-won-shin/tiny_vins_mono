@@ -14,6 +14,8 @@ using namespace Eigen;
 #include "common/image_frame.h"
 #include "utility/config.h"
 
+namespace frontend {
+
 class FeaturePerFrame {
 public:
   FeaturePerFrame(const Eigen::Matrix<double, 7, 1> &_point) {
@@ -89,5 +91,7 @@ public:
 private:
   double compensatedParallax2(const FeaturePerId &it_per_id, int frame_count);
 };
+
+}  // namespace frontend
 
 #endif

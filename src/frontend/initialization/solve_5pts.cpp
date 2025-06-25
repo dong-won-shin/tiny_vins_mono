@@ -176,6 +176,8 @@ int recoverPose(InputArray E, InputArray _points1, InputArray _points2, OutputAr
 }
 }  // namespace cv
 
+namespace frontend {
+
 bool MotionEstimator::solveRelativeRT(const vector<pair<Vector3d, Vector3d>> &corres,
                                       Matrix3d &Rotation, Vector3d &Translation) {
   if (corres.size() >= 15) {
@@ -207,3 +209,5 @@ bool MotionEstimator::solveRelativeRT(const vector<pair<Vector3d, Vector3d>> &co
   }
   return false;
 }
+
+}  // namespace frontend

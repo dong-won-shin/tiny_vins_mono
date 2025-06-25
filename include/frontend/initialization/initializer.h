@@ -11,6 +11,8 @@
 #include "frontend/initialization/initial_sfm.h"
 #include "frontend/initialization/solve_5pts.h"
 
+namespace frontend {
+
 class Estimator;  // Forward declaration
 
 class Initializer {
@@ -42,5 +44,7 @@ private:
   const Matrix3d* r_ic_;
   const Vector3d* t_ic_;
 };
+
+}  // namespace frontend
 
 #endif  // INITIALIZER_H

@@ -19,7 +19,7 @@ using namespace std;
 using namespace camodocal;
 using namespace Eigen;
 
-namespace feature_tracker {
+namespace frontend {
 
 bool inBorder(const cv::Point2f &pt);
 
@@ -62,5 +62,5 @@ public:
   static int n_id;
 };
 
-}  // namespace feature_tracker
+}  // namespace frontend
 #endif  // FEATURE_TRACKER_H

@@ -77,7 +77,7 @@ private:
   double prev_image_timestamp_;
 
   // Feature tracker related
-  std::unique_ptr<feature_tracker::FeatureTracker> feature_tracker_;
+  std::unique_ptr<frontend::FeatureTracker> feature_tracker_;
 
   // Extract image features
   ImageFeatureMsg extractImageFeatures(const ImageFileData& image_data);

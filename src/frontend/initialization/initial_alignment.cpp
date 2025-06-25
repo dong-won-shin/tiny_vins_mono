@@ -10,7 +10,7 @@
 
 #include "utility/config.h"
 
-namespace initial_alignment {
+namespace frontend {
 
 void solveGyroscopeBias(map<double, ImageFrame> const &all_image_frame,
                         backend::SlidingWindow &sliding_window) {
@@ -214,4 +214,4 @@ bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame,
   else
     return false;
 }
-}  // namespace initial_alignment
+}  // namespace frontend

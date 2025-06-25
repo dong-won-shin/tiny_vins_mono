@@ -7,6 +7,8 @@
 #include "backend/sliding_window.h"
 #include "frontend/feature_manager.h"
 
+namespace frontend {
+
 class FailureDetector {
 public:
   FailureDetector(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager);
@@ -43,5 +45,7 @@ private:
   double z_translation_threshold_;
   double rotation_threshold_;
 };
+
+}  // namespace frontend
 
 #endif  // FAILURE_DETECTOR_H

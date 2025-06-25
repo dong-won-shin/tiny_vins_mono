@@ -1,5 +1,7 @@
 #include "frontend/failure_detector.h"
 
+namespace frontend {
+
 FailureDetector::FailureDetector(backend::SlidingWindow* sliding_window,
                                  FeatureManager* feature_manager)
     : sliding_window_(sliding_window),
@@ -97,3 +99,5 @@ bool FailureDetector::detectRotationFailure(const Matrix3d& last_R_end) {
   }
   return false;
 }
+
+}  // namespace frontend
