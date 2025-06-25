@@ -41,5 +41,6 @@ build
 .vscode
 data
 compile_commands.json
-logs
+logs/*
+!.gitkeep
 .clang-format
