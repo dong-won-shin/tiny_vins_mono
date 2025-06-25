@@ -90,6 +90,7 @@ add_executable(tiny_vins_mono
     src/utility/measurement_reader.cpp 
     src/utility/measurement_processor.cpp
     src/utility/visualizer.cpp
+    src/utility/test_result_logger.cpp
 )
 target_link_libraries(tiny_vins_mono 
     ${OpenCV_LIBS} 

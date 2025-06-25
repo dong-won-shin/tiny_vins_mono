@@ -1,5 +1,6 @@
 #include "utility/visualizer.h"
 #include "utility/config.h"
+#include "utility/test_result_logger.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -11,79 +12,49 @@
 using namespace utility;
 namespace fs = std::experimental::filesystem;
 
-namespace {
-std::string getTimestampString() {
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&in_time_t), "%Y%m%d_%H%M%S");
-    return ss.str();
-}
-}
-
 Visualizer::Visualizer() 
-    : running_(false), g_s_cam_(nullptr), g_d_cam_(nullptr), log_dir_("") {
+    : running_(false), g_s_cam_(nullptr), g_d_cam_(nullptr), logger_(nullptr) {
 }
 
 Visualizer::~Visualizer() {
     stop();
 }
 
-bool Visualizer::initialize(const std::string& config_path) {
+bool Visualizer::initialize(const std::string& config_path, utility::TestResultLogger* logger) {
     try {
         std::cout << "=== Visualizer Initialization Start ===" << std::endl;
         
-        // DISPLAY 환경 변수 확인
+        // Store logger reference
+        logger_ = logger;
+        
+        // DISPLAY environment variable check
         const char* display = getenv("DISPLAY");
         std::cout << "DISPLAY: " << (display ? display : "NOT SET") << std::endl;
         
-        // Pangolin 창 생성 (기존과 동일한 크기)
+        // Create Pangolin window
         std::cout << "Creating Pangolin window..." << std::endl;
         pangolin::CreateWindowAndBind("Visualizer Test", 1024, 768);
         std::cout << "Window created successfully" << std::endl;
         
-        // OpenGL 설정 (기존과 동일)
+        // OpenGL settings
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         std::cout << "OpenGL depth test and blend enabled" << std::endl;
         
-        // Create log directory
-        log_dir_ = "logs/" + getTimestampString();
-        if (fs::create_directories(log_dir_)) {
-            std::cout << "Log directory created: " << log_dir_ << std::endl;
-        } else {
-            std::cout << "Log directory already exists or failed to create: " << log_dir_ << std::endl;
-        }
-
-        // Copy config file
-        try {
-            fs::path src_path(config_path);
-            if (fs::exists(src_path)) {
-                fs::path dst_path = fs::path(log_dir_) / src_path.filename();
-                fs::copy_file(src_path, dst_path, fs::copy_options::overwrite_existing);
-                std::cout << "✅ Copied config file to " << dst_path << std::endl;
-            } else {
-                std::cerr << "⚠️ Config file not found at " << config_path << ", skipping copy." << std::endl;
-            }
-        } catch (const fs::filesystem_error& e) {
-            std::cerr << "❌ Failed to copy config file: " << e.what() << std::endl;
-        }
-        
-        // 렌더 상태 설정 (기존과 동일한 카메라 위치)
+        // Render state setup
         g_s_cam_ = new pangolin::OpenGlRenderState(
             pangolin::ProjectionMatrix(1024, 768, 500, 500, 512, 389, 0.1, 1000),
-            pangolin::ModelViewLookAt(-3, 0, 0, 2, 0, 0, pangolin::AxisZ)  // 기존과 동일
+            pangolin::ModelViewLookAt(-3, 0, 0, 2, 0, 0, pangolin::AxisZ)
         );
         std::cout << "Render state created" << std::endl;
         
-        // 뷰 설정 (기존과 동일한 레이아웃)
+        // View setup
         g_d_cam_ = &pangolin::CreateDisplay()
             .SetBounds(0.0, 1.0, 0.0, 0.7, -1024.0f/768.0f)
             .SetHandler(new pangolin::Handler3D(*g_s_cam_));
         std::cout << "Display created" << std::endl;
         
-        // running_은 start()에서 설정
         std::cout << "=== Visualizer Initialization Complete ===" << std::endl;
         return true;
         
@@ -411,7 +382,7 @@ void Visualizer::drawFeaturePoints3D() {
 void Visualizer::updateCameraPose(const Eigen::Vector3d& position, const Eigen::Matrix3d& rotation, double timestamp) {
     std::lock_guard<std::mutex> lock(pose_mutex_);
     
-    // 데이터 유효성 검사 추가
+    // Validate input data
     if (!position.allFinite() || !rotation.allFinite()) {
         std::cerr << "Visualizer: Invalid pose data received!" << std::endl;
         return;
@@ -421,7 +392,12 @@ void Visualizer::updateCameraPose(const Eigen::Vector3d& position, const Eigen::
     camera_rotations_.push_back(rotation);
     trajectory_timestamps_.push_back(timestamp);
     
-    // 데이터 개수 확인 (간헐적으로만 출력)
+    // Forward to logger if available
+    if (logger_) {
+        logger_->addPose(position, rotation, timestamp);
+    }
+    
+    // Log progress occasionally
     static int log_counter = 0;
     if (++log_counter % 10 == 0) {
         std::cout << "Visualizer received pose " << camera_poses_.size() 
@@ -453,7 +429,7 @@ void Visualizer::updateFeaturePoints3D(const std::vector<Eigen::Vector3d>& point
 void Visualizer::testWithSimpleData() {
     std::cout << "=== Testing with simple trajectory ===" << std::endl;
     
-    // 간단한 원형 궤적 생성
+    // Generate simple circular trajectory
     for (int i = 0; i < 50; i++) {
         double angle = i * 0.1;
         Eigen::Vector3d pos(cos(angle), sin(angle), 0.1 * i);
@@ -462,59 +438,10 @@ void Visualizer::testWithSimpleData() {
         
         updateCameraPose(pos, rot, timestamp);
         
-        // 간단한 렌더링 테스트
+        // Simple rendering test
         if (i % 10 == 0) {
             std::cout << "Test pose " << i << ": [" << pos.x() << ", " << pos.y() << ", " << pos.z() << "]" << std::endl;
         }
-    }
-}
-
-void Visualizer::saveTrajectoryToFile() {
-    std::lock_guard<std::mutex> lock(pose_mutex_);
-    
-    if (camera_poses_.empty() || trajectory_timestamps_.empty() || camera_rotations_.empty()) {
-        std::cout << "No trajectory data to save." << std::endl;
-        return;
-    }
-    
-    try {
-        if (log_dir_.empty()) {
-            std::cerr << "Log directory not initialized. Cannot save trajectory." << std::endl;
-            return;
-        }
-
-        std::string file_path = log_dir_ + "/visualizer_pose.txt";
-        std::ofstream pose_file(file_path);
-
-        if (!pose_file.is_open()) {
-            std::cerr << "Failed to open " << file_path << " for writing" << std::endl;
-            return;
-        }
-        
-        pose_file << "# timestamp tx ty tz qx qy qz qw" << std::endl;
-        
-        // Ensure we don't exceed the bounds
-        size_t num_poses = std::min({camera_poses_.size(), camera_rotations_.size(), trajectory_timestamps_.size()});
-        
-        for (size_t i = 0; i < num_poses; i++) {
-            const auto& pos = camera_poses_[i];
-            const auto& rot = camera_rotations_[i];
-            double timestamp = trajectory_timestamps_[i];
-            
-            if (pos.allFinite() && rot.allFinite()) {
-                Eigen::Quaterniond q(rot);
-                pose_file << std::fixed << std::setprecision(9) << timestamp << " "
-                          << std::fixed << std::setprecision(6) 
-                          << pos.x() << " " << pos.y() << " " << pos.z() << " "
-                          << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << std::endl;
-            }
-        }
-        
-        pose_file.close();
-        std::cout << "✅ Visualizer trajectory saved to " << file_path << " (" << num_poses << " poses)" << std::endl;
-        
-    } catch (const std::exception& e) {
-        std::cerr << "Error saving trajectory to file: " << e.what() << std::endl;
     }
 }
 

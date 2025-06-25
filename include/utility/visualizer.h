@@ -9,13 +9,18 @@
 #include <condition_variable>
 #include <string>
 
+// Forward declaration
+namespace utility {
+    class TestResultLogger;
+}
+
 class Visualizer {
 public:
     Visualizer();
     ~Visualizer();
     
     // Initialize and start the viewer
-    bool initialize(const std::string& config_path);
+    bool initialize(const std::string& config_path, utility::TestResultLogger* logger = nullptr);
     bool start();
     void stop();
     
@@ -24,9 +29,6 @@ public:
     
     // Update 3D feature points
     void updateFeaturePoints3D(const std::vector<Eigen::Vector3d>& points);
-    
-    // Save trajectory to file
-    void saveTrajectoryToFile();
     
     // Check if viewer is running
     bool isRunning() const { return running_; }
@@ -55,6 +57,9 @@ private:
     pangolin::OpenGlRenderState* g_s_cam_;
     pangolin::View* g_d_cam_;
     
+    // Reference to logger
+    utility::TestResultLogger* logger_;
+    
     // Private methods
     void setupPangolinViewer();
     void drawCameraTrajectory();
@@ -66,8 +71,6 @@ private:
     std::condition_variable render_ready_cv_;
     std::mutex render_ready_mutex_;
     bool render_ready_ = false;
-
-    std::string log_dir_;
 };
 
 #endif // VISUALIZER_H 

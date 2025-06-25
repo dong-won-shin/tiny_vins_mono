@@ -5,9 +5,11 @@
 #include "backend/estimator.h"
 #include "utility/measurement_processor.h"
 #include "utility/visualizer.h"
+#include "utility/test_result_logger.h"
 
 Estimator vio_estimator;
 Visualizer visualizer;
+utility::TestResultLogger result_logger;
 
 void setParameters() {
     vio_estimator.setParameter();
@@ -39,7 +41,7 @@ void updateCameraPose(double timestamp) {
         }
         static size_t last_saved_count = 0;
         if (temp_poses.size() > last_saved_count && temp_poses.size() % 50 == 0) {
-            visualizer.saveTrajectoryToFile();
+            result_logger.saveTrajectoryToFile();
             last_saved_count = temp_poses.size();
         }
     }
@@ -115,7 +117,7 @@ void process()
                 ry = imu_data.angular_vel_y;
                 rz = imu_data.angular_vel_z;
                 vio_estimator.processIMU(dt, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
-            } 
+            }
             else {
                 double dt_1 = img_t - current_time;
                 double dt_2 = t - img_t;
@@ -155,7 +157,7 @@ void process()
         updateVisualization(image_msg.timestamp);
     }
     std::cout << "\n🎯 Saving final complete trajectory..." << std::endl;
-    visualizer.saveTrajectoryToFile();
+    result_logger.saveTrajectoryToFile();
 }
 
 int main(int argc, char* argv[]) {
@@ -174,8 +176,17 @@ int main(int argc, char* argv[]) {
 
     setParameters();
 
+    // Initialize TestResultLogger first
+    std::cout << "Initializing TestResultLogger..." << std::endl;
+    if (!result_logger.initialize(config_file)) {
+        std::cerr << "Failed to initialize TestResultLogger" << std::endl;
+        return 1;
+    }
+    std::cout << "TestResultLogger initialized successfully" << std::endl;
+
+    // Initialize Visualizer with logger reference
     std::cout << "Starting with Visualizer 3D visualization..." << std::endl;
-    if (!visualizer.initialize(config_file)) {
+    if (!visualizer.initialize(config_file, &result_logger)) {
         std::cerr << "Failed to initialize Visualizer" << std::endl;
         return 1;
     }
