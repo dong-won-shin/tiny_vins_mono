@@ -7,16 +7,16 @@
 #include "utility/visualizer.h"
 #include "utility/test_result_logger.h"
 
-Estimator vio_estimator;
 MeasurementProcessor measurement_processor;
+Estimator vio_estimator;
 Visualizer visualizer;
 utility::TestResultLogger result_logger;
 
 void vioInitialize(const Config& config) {
-    std::string imu_filepath = config.dataset_path + "/mav0/imu0/data.csv";
-    std::string image_csv_filepath = config.dataset_path + "/mav0/cam0/data.csv";
-    std::string image_dirpath = config.dataset_path + "/mav0/cam0/data";
-    std::string config_filepath = config.config_filepath;
+    const std::string imu_filepath = config.dataset_path + "/mav0/imu0/data.csv";
+    const std::string image_csv_filepath = config.dataset_path + "/mav0/cam0/data.csv";
+    const std::string image_dirpath = config.dataset_path + "/mav0/cam0/data";
+    const std::string config_filepath = config.config_filepath;
 
     std::cout << "IMU file: " << imu_filepath << std::endl;
     std::cout << "Image CSV file: " << image_csv_filepath << std::endl;
@@ -24,10 +24,10 @@ void vioInitialize(const Config& config) {
     std::cout << "Config file: " << config_filepath << std::endl;
 
     // g_config is extern variable in config.h, so we can use config globally
+    measurement_processor.initialize(imu_filepath, image_csv_filepath, image_dirpath, config_filepath);
     vio_estimator.setParameter();
     visualizer.initialize();
     result_logger.initialize(config_filepath);
-    measurement_processor.initialize(imu_filepath, image_csv_filepath, image_dirpath, config_filepath);
 }
 
 void updateCameraPose(double timestamp) {
@@ -42,12 +42,10 @@ void updateCameraPose(double timestamp) {
         Eigen::Vector3d camera_position = body_position + body_rotation * vio_estimator.t_ic_;
         Eigen::Matrix3d camera_rotation = body_rotation * vio_estimator.r_ic_;
         
-        // Update visualizer independently
         if (visualizer.isRunning()) {
             visualizer.updateCameraPose(camera_position, camera_rotation, timestamp);
         }
         
-        // Update logger independently
         result_logger.addPose(camera_position, camera_rotation, timestamp);
         
         static size_t last_printed_count = 0;
@@ -105,10 +103,12 @@ void vioProcess()
         MeasurementMsg measurement = measurement_processor.createMeasurementMsg(measurement_id, image_file_data_item);
         auto imu_msg = measurement.imu_msg;
         auto image_msg = measurement.image_feature_msg;
-        double dx = 0, dy = 0, dz = 0, rx = 0, ry = 0, rz = 0;
+
+        // process IMU data
         for (const auto& imu_data : imu_msg) {
             double t = imu_data.timestamp;
             double img_t = image_msg.timestamp;
+            double dx = 0, dy = 0, dz = 0, rx = 0, ry = 0, rz = 0;
             if (t <= img_t) {
                 if (current_time < 0)
                     current_time = t;
@@ -137,6 +137,8 @@ void vioProcess()
                 vio_estimator.processIMU(dt_1, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
             }
         }
+
+        // process image data
         ImageData image_data;
         for (unsigned int i = 0; i < image_msg.points_count; i++) {                    
             int v = image_msg.channel_data[0][i] + 0.5;
@@ -160,6 +162,7 @@ void vioProcess()
 
         updateVisualization(image_msg.timestamp);
     }
+
     std::cout << "\n🎯 Saving final complete trajectory..." << std::endl;
     result_logger.saveTrajectoryToFile();
 }
@@ -181,6 +184,8 @@ int main(int argc, char* argv[]) {
     vioInitialize(g_config);
 
     std::thread vio_process_thread(vioProcess);
+
+    // wait for visualizer to be initialized
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     std::cout << "Starting Visualizer in main thread..." << std::endl;
@@ -190,6 +195,7 @@ int main(int argc, char* argv[]) {
     if (vio_process_thread.joinable()) {
         vio_process_thread.join();
     }
+    
     std::cout << "Process thread joined" << std::endl;
     return 0;
 
