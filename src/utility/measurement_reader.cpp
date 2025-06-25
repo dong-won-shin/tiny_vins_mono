@@ -8,7 +8,7 @@
 bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measurement) {
   std::ifstream file(filepath);
   if (!file.is_open()) {
-    std::cerr << "파일을 열 수 없습니다: " << filepath << std::endl;
+    std::cerr << "Cannot open file: " << filepath << std::endl;
     return false;
   }
 
@@ -17,14 +17,14 @@ bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measuremen
   bool reading_features = false;
   bool reading_channels = false;
 
-  // 데이터 초기화
+  // Initialize data
   measurement.imu_msg.clear();
   measurement.image_feature_msg.feature_points.clear();
 
   while (std::getline(file, line)) {
-    // 빈 줄이나 주석 건너뛰기
+    // Skip empty lines or comments
     if (line.empty() || line[0] == '#') {
-      // 측정 ID 파싱
+      // Parse measurement ID
       if (line.find("# Measurement ") != std::string::npos) {
         std::istringstream iss(line);
         std::string hash, measurement_str;
@@ -32,44 +32,44 @@ bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measuremen
         iss >> hash >> measurement_str >> id;
         measurement.measurement_id = id;
       }
-      // IMU 데이터 섹션 시작
+      // Start IMU data section
       else if (line.find("## IMU DATA") != std::string::npos) {
         reading_imu = true;
         reading_features = false;
         reading_channels = false;
       }
-      // 이미지 특징점 데이터 섹션 시작
+      // Start image feature data section
       else if (line.find("## IMAGE FEATURE DATA") != std::string::npos) {
         reading_imu = false;
         reading_features = false;
         reading_channels = false;
       }
-      // 타임스탬프 파싱
+      // Parse timestamp
       else if (line.find("# timestamp: ") != std::string::npos) {
         std::string temp = line.substr(line.find(": ") + 2);
         measurement.image_feature_msg.timestamp = std::stod(temp);
       }
-      // 프레임 ID 파싱
+      // Parse frame ID
       else if (line.find("# frame_id: ") != std::string::npos) {
         measurement.image_feature_msg.frame_id = line.substr(line.find(": ") + 2);
       }
-      // 포인트 개수 파싱
+      // Parse point count
       else if (line.find("# points_count: ") != std::string::npos) {
         std::string temp = line.substr(line.find(": ") + 2);
         measurement.image_feature_msg.points_count = std::stoi(temp);
       }
-      // 채널 개수 파싱
+      // Parse channel count
       else if (line.find("# channels_count: ") != std::string::npos) {
         std::string temp = line.substr(line.find(": ") + 2);
         measurement.image_feature_msg.channels_count = std::stoi(temp);
       }
-      // 특징점 섹션 시작
+      // Start feature points section
       else if (line.find("### FEATURE POINTS") != std::string::npos) {
         reading_features = true;
         reading_imu = false;
         reading_channels = false;
       }
-      // 채널 섹션 시작
+      // Start channel section
       else if (line.find("### CHANNEL") != std::string::npos) {
         reading_channels = true;
         reading_features = false;
@@ -78,13 +78,13 @@ bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measuremen
       continue;
     }
 
-    // IMU 데이터 파싱
+    // Parse IMU data
     if (reading_imu) {
       std::istringstream iss(line);
       std::string token;
       IMUMsg imu_msg;
 
-      // 쉼표로 구분된 데이터 파싱
+      // Parse comma-separated data
       if (std::getline(iss, token, ',')) {
         imu_msg.timestamp = std::stod(token);
         if (std::getline(iss, token, ',')) imu_msg.linear_acc_x = std::stod(token);
@@ -97,13 +97,13 @@ bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measuremen
         measurement.imu_msg.push_back(imu_msg);
       }
     }
-    // 특징점 데이터 파싱
+    // Parse feature point data
     else if (reading_features) {
       std::istringstream iss(line);
       std::string token;
       Point3D point;
 
-      // 쉼표로 구분된 데이터 파싱
+      // Parse comma-separated data
       if (std::getline(iss, token, ',')) {
         point.index = std::stoi(token);
         if (std::getline(iss, token, ',')) point.x = std::stod(token);
@@ -113,12 +113,12 @@ bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measuremen
         measurement.image_feature_msg.feature_points.push_back(point);
       }
     }
-    // 채널 데이터 파싱
+    // Parse channel data
     else if (reading_channels) {
       std::istringstream iss(line);
       std::string token;
 
-      // 쉼표로 구분된 데이터 파싱
+      // Parse comma-separated data
       if (std::getline(iss, token, ',')) {
         int32_t index = std::stoi(token);
         if (std::getline(iss, token, ',')) {
@@ -152,7 +152,7 @@ bool readMeasurementFile(const std::string& filepath, MeasurementMsg& measuremen
 void printMeasurementMsg(const MeasurementMsg& measurement) {
   std::cout << "=== Measurement " << measurement.measurement_id << " ===" << std::endl;
 
-  // IMU 데이터 출력
+  // Output IMU data
   std::cout << "IMU Msg (" << measurement.imu_msg.size() << " samples):" << std::endl;
   for (size_t i = 0; i < std::min(measurement.imu_msg.size(), size_t(5)); ++i) {
     const auto& imu = measurement.imu_msg[i];
@@ -165,7 +165,7 @@ void printMeasurementMsg(const MeasurementMsg& measurement) {
     std::cout << "  ... and " << (measurement.imu_msg.size() - 5) << " more samples" << std::endl;
   }
 
-  // 이미지 특징점 데이터 출력
+  // Output image feature data
   std::cout << "Image Feature Msg:" << std::endl;
   std::cout << "  Timestamp: " << measurement.image_feature_msg.timestamp << std::endl;
   std::cout << "  Frame ID: " << measurement.image_feature_msg.frame_id << std::endl;

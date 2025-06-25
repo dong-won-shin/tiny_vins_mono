@@ -18,7 +18,7 @@ bool MeasurementProcessor::initialize(const std::string& imu_filepath,
                                       const std::string& image_csv_filepath,
                                       const std::string& image_dir,
                                       const std::string& config_filepath) {
-  std::cout << "=== MeasurementProcessor 초기화 ===" << std::endl;
+  std::cout << "=== MeasurementProcessor Initialization ===" << std::endl;
 
   // Load configuration
   if (!g_config.loadFromYaml(config_filepath)) {
@@ -29,38 +29,38 @@ bool MeasurementProcessor::initialize(const std::string& imu_filepath,
   // Print configuration for debugging
   g_config.print();
 
-  // Feature tracker 초기화
+  // Initialize feature tracker
   feature_tracker_.reset(new feature_tracker::FeatureTracker());
   feature_tracker_->readIntrinsicParameter(config_filepath);
 
-  // 데이터 로드
+  // Load data
   if (!loadImuData(imu_filepath)) {
-    std::cerr << "IMU 데이터 로드 실패" << std::endl;
+    std::cerr << "Failed to load IMU data" << std::endl;
     return false;
   }
 
   if (!loadImageFileData(image_csv_filepath, image_dir)) {
-    std::cerr << "이미지 데이터 로드 실패" << std::endl;
+    std::cerr << "Failed to load image data" << std::endl;
     return false;
   }
 
-  // 데이터 범위 출력
+  // Print data range
   printDataRange();
 
   return true;
 }
 
 bool MeasurementProcessor::loadImuData(const std::string& filepath) {
-  std::cout << "\n1. IMU 데이터 로드 중..." << std::endl;
+  std::cout << "\n1. Loading IMU data..." << std::endl;
 
   std::ifstream file(filepath);
   if (!file.is_open()) {
-    std::cerr << "IMU 파일을 열 수 없습니다: " << filepath << std::endl;
+    std::cerr << "Cannot open IMU file: " << filepath << std::endl;
     return false;
   }
 
   std::string line;
-  // 헤더 건너뛰기
+  // Skip header
   std::getline(file, line);
 
   while (std::getline(file, line)) {
@@ -70,9 +70,9 @@ bool MeasurementProcessor::loadImuData(const std::string& filepath) {
     std::string token;
     IMUData data;
 
-    // timestamp [ns]를 초 단위로 변환
+    // Convert timestamp [ns] to seconds
     if (std::getline(iss, token, ',')) {
-      data.timestamp = std::stod(token) / 1e9;  // ns를 초로 변환
+      data.timestamp = std::stod(token) / 1e9;  // Convert ns to seconds
     }
 
     // angular velocity (rad/s)
@@ -89,22 +89,22 @@ bool MeasurementProcessor::loadImuData(const std::string& filepath) {
   }
 
   file.close();
-  std::cout << "IMU 데이터 " << imu_data_.size() << "개 로드 완료" << std::endl;
+  std::cout << "Loaded " << imu_data_.size() << " IMU data entries" << std::endl;
   return true;
 }
 
 bool MeasurementProcessor::loadImageFileData(const std::string& csv_filepath,
                                              const std::string& image_dir) {
-  std::cout << "\n2. 이미지 데이터 로드 중..." << std::endl;
+  std::cout << "\n2. Loading image data..." << std::endl;
 
   std::ifstream file(csv_filepath);
   if (!file.is_open()) {
-    std::cerr << "이미지 CSV 파일을 열 수 없습니다: " << csv_filepath << std::endl;
+    std::cerr << "Cannot open image CSV file: " << csv_filepath << std::endl;
     return false;
   }
 
   std::string line;
-  // 헤더 건너뛰기
+  // Skip header
   std::getline(file, line);
 
   while (std::getline(file, line)) {
@@ -114,9 +114,9 @@ bool MeasurementProcessor::loadImageFileData(const std::string& csv_filepath,
     std::string token;
     ImageFileData data;
 
-    // timestamp [ns]를 초 단위로 변환
+    // Convert timestamp [ns] to seconds
     if (std::getline(iss, token, ',')) {
-      data.timestamp = std::stod(token) / 1e9;  // ns를 초로 변환
+      data.timestamp = std::stod(token) / 1e9;  // Convert ns to seconds
     }
 
     // filename
@@ -129,13 +129,13 @@ bool MeasurementProcessor::loadImageFileData(const std::string& csv_filepath,
   }
 
   file.close();
-  std::cout << "이미지 데이터 " << image_file_data_.size() << "개 로드 완료" << std::endl;
+  std::cout << "Loaded " << image_file_data_.size() << " image data entries" << std::endl;
   return true;
 }
 
 std::string MeasurementProcessor::cleanFilename(const std::string& filename) {
   std::string cleaned = filename;
-  // 앞뒤 공백 및 개행 제거
+  // Remove leading and trailing whitespace and newlines
   cleaned.erase(cleaned.find_last_not_of(" \n\r\t") + 1);
   cleaned.erase(0, cleaned.find_first_not_of(" \n\r\t"));
   return cleaned;
@@ -144,13 +144,13 @@ std::string MeasurementProcessor::cleanFilename(const std::string& filename) {
 ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& image_data) {
   ImageFeatureMsg image_feature_msg;
 
-  // 항상 timestamp와 frame_id를 설정 (PUB_THIS_FRAME과 관계없이)
+  // Always set timestamp and frame_id (regardless of PUB_THIS_FRAME)
   image_feature_msg.timestamp = image_data.timestamp;
   image_feature_msg.frame_id = image_data.filename;
 
   cv::Mat show_img = cv::imread(image_data.full_path, cv::IMREAD_GRAYSCALE);
   if (show_img.empty()) {
-    std::cerr << "이미지를 로드할 수 없습니다: " << image_data.full_path << std::endl;
+    std::cerr << "Cannot load image: " << image_data.full_path << std::endl;
     return image_feature_msg;
   }
 
@@ -220,13 +220,13 @@ MeasurementMsg MeasurementProcessor::createMeasurementMsg(int measurement_id,
   MeasurementMsg msg;
   msg.measurement_id = measurement_id;
 
-  // 이미지 특징점 추출
+  // Extract image features
   msg.image_feature_msg = extractImageFeatures(image_data);
 
-  // 현재 이미지 타임스탬프
+  // Current image timestamp
   double current_image_timestamp = image_data.timestamp;
 
-  // IMU 데이터 수집 범위 결정
+  // Determine IMU data collection range
   double start_time, end_time;
 
   if (prev_image_timestamp_ < 0) {
@@ -237,7 +237,7 @@ MeasurementMsg MeasurementProcessor::createMeasurementMsg(int measurement_id,
     end_time = current_image_timestamp;
   }
 
-  // 시간 범위 내의 IMU 데이터 수집
+  // Collect IMU data within time range
   for (const auto& imu : imu_data_) {
     if (imu.timestamp >= start_time && imu.timestamp <= end_time) {
       IMUMsg imu_msg;
@@ -253,16 +253,16 @@ MeasurementMsg MeasurementProcessor::createMeasurementMsg(int measurement_id,
     }
   }
 
-  // 현재 이미지 타임스탬프를 이전 타임스탬프로 저장
+  // Store current image timestamp as previous timestamp
   prev_image_timestamp_ = current_image_timestamp;
 
   return msg;
 }
 
 void MeasurementProcessor::printDataRange() const {
-  std::cout << "\n3. 데이터 범위 정보:" << std::endl;
+  std::cout << "\n3. Data range information:" << std::endl;
   if (!imu_data_.empty()) {
-    std::cout << "IMU 데이터 범위: ";
+    std::cout << "IMU data range: ";
     printTimeInfo(imu_data_.front().timestamp);
     std::cout << " ~ ";
     printTimeInfo(imu_data_.back().timestamp);
@@ -270,7 +270,7 @@ void MeasurementProcessor::printDataRange() const {
   }
 
   if (!image_file_data_.empty()) {
-    std::cout << "이미지 데이터 범위: ";
+    std::cout << "Image data range: ";
     printTimeInfo(image_file_data_.front().timestamp);
     std::cout << " ~ ";
     printTimeInfo(image_file_data_.back().timestamp);

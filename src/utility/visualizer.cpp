@@ -70,7 +70,7 @@ bool Visualizer::start() {
       return false;
     }
   }
-  return true;  // 이미 실행 중이면 성공으로 간주
+  return true;  // Consider as success if already running
 }
 
 void Visualizer::stop() {
@@ -95,7 +95,7 @@ void Visualizer::pangolinViewerThread() {
     render_ready_cv_.notify_all();
     std::cout << "=== Starting Visualizer render loop ===" << std::endl;
 
-    // 루프 시작 전 상태 확인
+    // Check state before starting loop
     std::cout << "Before loop - running_: " << (running_ ? "true" : "false") << std::endl;
     std::cout << "Before loop - ShouldQuit(): " << (pangolin::ShouldQuit() ? "true" : "false")
               << std::endl;
@@ -104,44 +104,44 @@ void Visualizer::pangolinViewerThread() {
     while (!pangolin::ShouldQuit() && running_) {
       frame_count++;
 
-      // 매 프레임마다 로그 출력 (처음 10프레임)
+      // Log output for every frame (first 10 frames)
       if (frame_count <= 10) {
         std::cout << "Render frame " << frame_count << " - poses: " << camera_poses_.size()
                   << ", running: " << (running_ ? "true" : "false")
                   << ", should_quit: " << (pangolin::ShouldQuit() ? "true" : "false") << std::endl;
       }
-      // 이후 10프레임마다 출력
+      // Then output every 10 frames
       else if (frame_count % 10 == 0) {
         std::cout << "Render frame " << frame_count << " - poses: " << camera_poses_.size()
                   << std::endl;
       }
 
-      // 화면 클리어
+      // Clear screen
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      // 카메라 뷰 활성화
+      // Activate camera view
       if (g_d_cam_ && g_s_cam_) {
         g_d_cam_->Activate(*g_s_cam_);
       } else {
         std::cerr << "Warning: Camera view not available at frame " << frame_count << std::endl;
       }
 
-      // 좌표축 그리기
+      // Draw coordinate axes
       drawCoordinateFrame();
 
-      // 그리드 그리기
+      // Draw grid
       drawGrid();
 
-      // 궤적 그리기
+      // Draw trajectory
       drawCameraTrajectory();
 
-      // 3D 맵포인트 그리기
+      // Draw 3D map points
       drawFeaturePoints3D();
 
-      // 프레임 완료
+      // Complete frame
       pangolin::FinishFrame();
 
-      // 프레임 레이트 제어
+      // Control frame rate
       std::this_thread::sleep_for(std::chrono::milliseconds(33));
     }
 
@@ -161,7 +161,7 @@ void Visualizer::drawCoordinateFrame() {
   static int frame_count = 0;
   frame_count++;
 
-  // 처음 5프레임만 로그 출력
+  // Log output only for first 5 frames
   if (frame_count <= 5) {
     std::cout << "Drawing coordinate frame - frame " << frame_count << std::endl;
   }
@@ -235,7 +235,7 @@ void Visualizer::drawCameraTrajectory() {
     return;
   }
 
-  // 처음 5번만 자세한 로그 출력
+  // Detailed log output only for first 5 times
   if (draw_count <= 5) {
     std::cout << "[drawCameraTrajectory] Drawing " << camera_poses_.size()
               << " poses (count: " << draw_count << ")" << std::endl;
@@ -275,7 +275,7 @@ void Visualizer::drawCameraTrajectory() {
   }
 
   try {
-    // 디버깅: 궤적 그리기 시작
+    // Debug: Start drawing trajectory
     static int draw_count = 0;
     if (++draw_count % 100 == 0) {
       std::cout << "drawCameraTrajectory: Drawing " << camera_poses_.size()
