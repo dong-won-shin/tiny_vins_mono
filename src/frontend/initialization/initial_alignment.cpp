@@ -9,7 +9,7 @@
 
 namespace initial_alignment {
 
-void solveGyroscopeBias(map<double, ImageFrame> const &all_image_frame, SlidingWindow &sliding_window) {
+void solveGyroscopeBias(map<double, ImageFrame> const &all_image_frame, backend::SlidingWindow &sliding_window) {
     Matrix3d A;
     Vector3d b;
     Vector3d delta_bg;
@@ -197,10 +197,8 @@ bool LinearAlignment(map<double, ImageFrame> const &all_image_frame, Vector3d &g
         return true;
 }
 
-bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame, SlidingWindow &sliding_window, Vector3d &g, VectorXd &x) {
-    
+bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame, backend::SlidingWindow &sliding_window, Vector3d &g, VectorXd &x) {
     solveGyroscopeBias(all_image_frame, sliding_window);
-
     if (LinearAlignment(all_image_frame, g, x))
         return true;
     else

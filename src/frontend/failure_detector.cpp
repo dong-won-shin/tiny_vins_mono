@@ -1,6 +1,6 @@
 #include "frontend/failure_detector.h"
 
-FailureDetector::FailureDetector(SlidingWindow* sliding_window, FeatureManager* feature_manager)
+FailureDetector::FailureDetector(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager)
     : sliding_window_(sliding_window)
     , feature_manager_(feature_manager)
     , feature_threshold_(2)

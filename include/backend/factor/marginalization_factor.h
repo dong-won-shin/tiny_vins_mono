@@ -9,6 +9,8 @@
 
 const int NUM_THREADS = 4;
 
+namespace backend {
+
 struct ResidualBlockInfo {
     ResidualBlockInfo(ceres::CostFunction *_cost_function, ceres::LossFunction *_loss_function,
                       std::vector<double *> _parameter_blocks, std::vector<int> _drop_set)
@@ -72,3 +74,5 @@ class MarginalizationFactor : public ceres::CostFunction {
 
     MarginalizationInfo *marginalization_info;
 };
+
+} // namespace backend

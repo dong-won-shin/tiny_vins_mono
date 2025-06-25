@@ -1,5 +1,7 @@
 #include "backend/factor/marginalization_factor.h"
 
+namespace backend {
+
 void ResidualBlockInfo::Evaluate() {
     residuals.resize(cost_function->num_residuals());
 
@@ -298,3 +300,5 @@ bool MarginalizationFactor::Evaluate(double const *const *parameters, double *re
     }
     return true;
 }
+
+} // namespace backend

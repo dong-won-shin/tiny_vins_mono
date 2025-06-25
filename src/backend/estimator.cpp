@@ -1,17 +1,18 @@
 #include <fstream>
-#include <mutex>
 #include <iostream>
+#include <mutex>
 
 #include "backend/estimator.h"
 #include "utility/config.h"
 
-Estimator::Estimator() 
-    : feature_manager_(), 
-      optimizer_(&sliding_window_, &feature_manager_), 
+namespace backend {
+
+Estimator::Estimator()
+    : feature_manager_(),
+      optimizer_(&sliding_window_, &feature_manager_),
       failure_detector_(&sliding_window_, &feature_manager_),
-      initializer_(&sliding_window_, &feature_manager_, &motion_estimator_, &all_image_frame_, 
-                   &frame_count_, &marginalization_flag_, &g_, &r_ic_, &t_ic_)
-{
+      initializer_(&sliding_window_, &feature_manager_, &motion_estimator_, &all_image_frame_, &frame_count_,
+                   &marginalization_flag_, &g_, &r_ic_, &t_ic_) {
     clearState();
 }
 
@@ -19,7 +20,7 @@ void Estimator::setParameter() {
     t_ic_ = g_config.camera.t_ic;
     r_ic_ = g_config.camera.r_ic;
     ProjectionFactor::sqrt_info = (g_config.camera.focal_length / 1.5) * Matrix2d::Identity();
-    
+
     // Set extrinsic parameters in optimizer
     optimizer_.setExtrinsicParameters(t_ic_, r_ic_);
 }
@@ -32,7 +33,7 @@ void Estimator::clearState() {
     t_ic_ = Vector3d::Zero();
     r_ic_ = Matrix3d::Identity();
 
-    for (auto &it : all_image_frame_) {
+    for (auto& it : all_image_frame_) {
         if (it.second.pre_integration != nullptr) {
             delete it.second.pre_integration;
             it.second.pre_integration = nullptr;
@@ -55,19 +56,22 @@ void Estimator::clearState() {
     failure_occur_ = 0;
 }
 
-void Estimator::propagateIMUState(int frame_index, double dt, const Vector3d &linear_acceleration, const Vector3d &angular_velocity) {
+void Estimator::propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
+                                  const Vector3d& angular_velocity) {
     // Store IMU data in buffers
     sliding_window_.pushBackBuffer(frame_index, dt, linear_acceleration, angular_velocity);
 
     // Bias-corrected measurements
-    Vector3d bias_corrected_prev_acc = sliding_window_[frame_index].R * (prev_acc_ - sliding_window_[frame_index].Ba) - g_;
+    Vector3d bias_corrected_prev_acc =
+        sliding_window_[frame_index].R * (prev_acc_ - sliding_window_[frame_index].Ba) - g_;
     Vector3d bias_corrected_gyro = 0.5 * (prev_gyro_ + angular_velocity) - sliding_window_[frame_index].Bg;
 
     // update rotation: R = R * exp(gyro*dt)
     sliding_window_[frame_index].R *= Utility::deltaQ(bias_corrected_gyro * dt).toRotationMatrix();
 
     // Propagate position and velocity using trapezoidal integration
-    Vector3d bias_corrected_curr_acc = sliding_window_[frame_index].R * (linear_acceleration - sliding_window_[frame_index].Ba) - g_;
+    Vector3d bias_corrected_curr_acc =
+        sliding_window_[frame_index].R * (linear_acceleration - sliding_window_[frame_index].Ba) - g_;
     Vector3d bias_corrected_acc = 0.5 * (bias_corrected_prev_acc + bias_corrected_curr_acc);
 
     // Update position: P = P + V*dt + 0.5*a*dt^2
@@ -76,7 +80,8 @@ void Estimator::propagateIMUState(int frame_index, double dt, const Vector3d &li
     sliding_window_[frame_index].V += dt * bias_corrected_acc;
 }
 
-void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity) {
+void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration,
+                           const Eigen::Vector3d& angular_velocity) {
     std::lock_guard<std::mutex> lock(estimator_mutex_);
     // check initial IMU data
     if (!first_imu_) {
@@ -88,7 +93,8 @@ void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration
     // if pre_integrations[frame_count_] is not initialized, initialize it
     // this is generated at every new image frame
     if (sliding_window_[frame_count_].pre_integration == nullptr) {
-        sliding_window_[frame_count_].pre_integration = new IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
+        sliding_window_[frame_count_].pre_integration = new IntegrationBase{
+            prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
     }
 
     if (frame_count_ != 0) {
@@ -101,12 +107,11 @@ void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration
     prev_gyro_ = angular_velocity;
 }
 
-void Estimator::processImage(const ImageData &image, double timestamp) {
+void Estimator::processImage(const ImageData& image, double timestamp) {
     std::lock_guard<std::mutex> lock(estimator_mutex_);
     if (feature_manager_.addFeatureCheckParallax(frame_count_, image)) {
         marginalization_flag_ = MarginalizationFlag::MARGIN_OLD_KEYFRAME;
-    }
-    else {
+    } else {
         marginalization_flag_ = MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME;
     }
 
@@ -115,7 +120,8 @@ void Estimator::processImage(const ImageData &image, double timestamp) {
     ImageFrame imageframe(image, timestamp);
     imageframe.pre_integration = tmp_pre_integration_;
     all_image_frame_.insert(make_pair(timestamp, imageframe));
-    tmp_pre_integration_ = new IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
+    tmp_pre_integration_ =
+        new IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
 
     if (solver_flag_ == SolverFlag::INITIAL) {
         if (frame_count_ == WINDOW_SIZE) {
@@ -132,16 +138,13 @@ void Estimator::processImage(const ImageData &image, double timestamp) {
                 feature_manager_.removeFailures();
 
                 storeLastPoseInSlidingWindow();
-            }
-            else {
+            } else {
                 slideWindow();
             }
-        }
-        else {
+        } else {
             frame_count_++;
         }
-    }
-    else if (solver_flag_ == SolverFlag::NON_LINEAR) {
+    } else if (solver_flag_ == SolverFlag::NON_LINEAR) {
         solveOdometry();
 
         if (failure_detector_.detectFailure(last_P_end_, last_R_end_)) {
@@ -193,8 +196,7 @@ void Estimator::slideWindow() {
     if (frame_count_ == WINDOW_SIZE) {
         if (marginalization_flag_ == MarginalizationFlag::MARGIN_OLD_KEYFRAME) {
             slideWindowOldKeyframe();
-        }
-        else if (marginalization_flag_ == MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME) {
+        } else if (marginalization_flag_ == MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME) {
             slideWindowNewGeneralFrame();
         }
     }
@@ -230,7 +232,7 @@ void Estimator::slideWindowOldKeyframe() {
     sliding_window_.clearBuffer(WINDOW_SIZE);
 
     cleanupOldImageFrames(t_0);
-    
+
     bool shift_depth = (solver_flag_ == SolverFlag::NON_LINEAR) ? true : false;
     if (shift_depth) {
         Matrix3d R0, R1;
@@ -253,7 +255,7 @@ void Estimator::solveOdometry() {
 
         // Use optimizer for optimization
         optimizer_.optimize(marginalization_flag_);
-        
+
         // Update extrinsic parameters from optimizer
         t_ic_ = optimizer_.getTic();
         r_ic_ = optimizer_.getRic();
@@ -284,3 +286,5 @@ std::vector<Eigen::Vector3d> Estimator::getSlidingWindowMapPoints() const {
     }
     return new_points;
 }
+
+} // namespace backend

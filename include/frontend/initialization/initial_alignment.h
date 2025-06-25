@@ -13,5 +13,5 @@ using namespace std;
 
 namespace initial_alignment {
 
-bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame, SlidingWindow &sliding_window, Vector3d &g, VectorXd &x);
+bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame, backend::SlidingWindow &sliding_window, Vector3d &g, VectorXd &x);
 }

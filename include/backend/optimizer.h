@@ -15,6 +15,8 @@
 #include "common/common_types.h"
 #include "utility/config.h"
 
+namespace backend {
+
 class Optimizer {
 public:
     Optimizer(SlidingWindow* sliding_window, FeatureManager* feature_manager);
@@ -69,5 +71,7 @@ private:
     MarginalizationInfo *last_marginalization_info_;
     std::vector<double *> last_marginalization_parameter_blocks_;
 };
+
+} // namespace backend
 
 #endif // OPTIMIZER_H 

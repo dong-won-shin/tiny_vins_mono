@@ -8,7 +8,7 @@
 
 class FailureDetector {
 public:
-    FailureDetector(SlidingWindow* sliding_window, FeatureManager* feature_manager);
+    FailureDetector(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager);
     
     // Main failure detection method
     bool detectFailure(const Vector3d& last_P_end, const Matrix3d& last_R_end);
@@ -31,7 +31,7 @@ public:
 
 private:
     // Member variables
-    SlidingWindow* sliding_window_;
+    backend::SlidingWindow* sliding_window_;
     FeatureManager* feature_manager_;
     
     // Threshold parameters

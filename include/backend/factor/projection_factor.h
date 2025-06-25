@@ -5,6 +5,8 @@
 #include <Eigen/Dense>
 #include <ceres/ceres.h>
 
+namespace backend {
+
 class ProjectionFactor : public ceres::SizedCostFunction<2, 7, 7, 7, 1> {
   public:
     ProjectionFactor(const Eigen::Vector3d &_pts_i, const Eigen::Vector3d &_pts_j);
@@ -16,5 +18,7 @@ class ProjectionFactor : public ceres::SizedCostFunction<2, 7, 7, 7, 1> {
     static Eigen::Matrix2d sqrt_info;
     static double sum_t;
 };
+
+} // namespace backend
 
 #endif // PROJECTION_FACTOR_H

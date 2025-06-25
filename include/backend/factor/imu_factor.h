@@ -9,6 +9,8 @@
 
 #include <ceres/ceres.h>
 
+namespace backend {
+
 class IMUFactor : public ceres::SizedCostFunction<15, 7, 9, 7, 9> {
   public:
     IMUFactor() = delete;
@@ -126,5 +128,7 @@ class IMUFactor : public ceres::SizedCostFunction<15, 7, 9, 7, 9> {
 
     IntegrationBase *pre_integration;
 };
+
+} // namespace backend
 
 #endif // IMU_FACTOR_H

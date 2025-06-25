@@ -1,5 +1,7 @@
 #include "backend/optimizer.h"
 
+namespace backend {
+
 Optimizer::Optimizer(SlidingWindow* sliding_window, FeatureManager* feature_manager) 
     : sliding_window_(sliding_window), feature_manager_(feature_manager), last_marginalization_info_(nullptr) {
     t_ic_ = Vector3d::Zero();
@@ -351,4 +353,6 @@ void Optimizer::performMarginalizationForNewGeneralFrame(MarginalizationInfo* ma
         delete last_marginalization_info_;
     last_marginalization_info_ = marginalization_info;
     last_marginalization_parameter_blocks_ = parameter_blocks;   
-} 
+}
+
+} // namespace backend 

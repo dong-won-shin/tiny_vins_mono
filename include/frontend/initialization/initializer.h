@@ -15,7 +15,7 @@ class Estimator; // Forward declaration
 
 class Initializer {
 public:
-    Initializer(SlidingWindow* sliding_window, 
+    Initializer(backend::SlidingWindow* sliding_window, 
                 FeatureManager* feature_manager, 
                 MotionEstimator* motion_estimator,
                 std::map<double, ImageFrame>* all_image_frame, 
@@ -37,7 +37,7 @@ private:
     bool visualInitialAlign();
 
     // Member pointers to Estimator's data
-    SlidingWindow* sliding_window_;
+    backend::SlidingWindow* sliding_window_;
     FeatureManager* feature_manager_;
     MotionEstimator* motion_estimator_;
     std::map<double, ImageFrame>* all_image_frame_;

@@ -8,7 +8,7 @@
 #include "utility/test_result_logger.h"
 
 MeasurementProcessor measurement_processor;
-Estimator vio_estimator;
+backend::Estimator vio_estimator;
 Visualizer visualizer;
 utility::TestResultLogger result_logger;
 
@@ -198,5 +198,4 @@ int main(int argc, char* argv[]) {
     
     std::cout << "Process thread joined" << std::endl;
     return 0;
-
 }

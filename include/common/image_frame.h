@@ -121,7 +121,7 @@ class ImageFrame {
     Vector3d T;
 
     /// IMU pre-integration data from previous frame to this frame
-    IntegrationBase *pre_integration;
+    backend::IntegrationBase *pre_integration;
 
     /// Flag indicating if this is a keyframe
     bool is_key_frame;

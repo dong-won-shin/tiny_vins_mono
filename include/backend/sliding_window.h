@@ -5,11 +5,11 @@
 
 #include "common/frame.h"
 
+namespace backend {
 
 class SlidingWindow {
 public:
-    SlidingWindow() 
-    {
+    SlidingWindow() {
         clearSlidingWindow();
     }
 
@@ -54,19 +54,23 @@ public:
         std::swap(sliding_window[index].angular_velocity_buf, sliding_window[other_index].angular_velocity_buf);
     }
 
-    void pushBackBuffer(int32_t index, double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity) {
+    void pushBackBuffer(int32_t index, double dt, const Eigen::Vector3d& linear_acceleration,
+                        const Eigen::Vector3d& angular_velocity) {
         sliding_window[index].dt_buf.push_back(dt);
         sliding_window[index].linear_acceleration_buf.push_back(linear_acceleration);
         sliding_window[index].angular_velocity_buf.push_back(angular_velocity);
     }
 
-    void pushBackPreintegration(int32_t index, double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity) {
+    void pushBackPreintegration(int32_t index, double dt, const Eigen::Vector3d& linear_acceleration,
+                                const Eigen::Vector3d& angular_velocity) {
         sliding_window[index].pre_integration->push_back(dt, linear_acceleration, angular_velocity);
     }
 
-    void createNewPreintegration(int32_t index, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity) {
+    void createNewPreintegration(int32_t index, const Eigen::Vector3d& linear_acceleration,
+                                 const Eigen::Vector3d& angular_velocity) {
         delete sliding_window[index].pre_integration;
-        sliding_window[index].pre_integration = new IntegrationBase(linear_acceleration, angular_velocity, sliding_window[index].Ba, sliding_window[index].Bg);
+        sliding_window[index].pre_integration = new IntegrationBase(linear_acceleration, angular_velocity,
+                                                                    sliding_window[index].Ba, sliding_window[index].Bg);
     }
 
     const Frame& front() const {
@@ -80,4 +84,7 @@ public:
 private:
     std::array<Frame, WINDOW_SIZE + 1> sliding_window;
 };
+
+}  // namespace backend
+
 #endif

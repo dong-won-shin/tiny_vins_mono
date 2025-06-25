@@ -1,5 +1,7 @@
 #include "backend/factor/projection_factor.h"
 
+namespace backend {
+
 Eigen::Matrix2d ProjectionFactor::sqrt_info;
 
 ProjectionFactor::ProjectionFactor(const Eigen::Vector3d &_pts_i, const Eigen::Vector3d &_pts_j)
@@ -168,3 +170,5 @@ void ProjectionFactor::check(double **parameters) {
     }
     std::cout << num_jacobian << std::endl;
 }
+
+} // namespace backend

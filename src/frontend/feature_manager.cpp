@@ -134,7 +134,7 @@ VectorXd FeatureManager::getDepthVector() {
     return dep_vec;
 }
 
-void FeatureManager::triangulate(const SlidingWindow &sliding_window, const Vector3d &t_ic, const Matrix3d &r_ic) {
+void FeatureManager::triangulate(const backend::SlidingWindow &sliding_window, const Vector3d &t_ic, const Matrix3d &r_ic) {
     for (auto &it_per_id : feature) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))

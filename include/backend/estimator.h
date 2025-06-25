@@ -1,23 +1,25 @@
 #ifndef ESTIMATOR_H
 #define ESTIMATOR_H
 
-#include <iostream>
+#include <ceres/ceres.h>
+#include <Eigen/Dense>
 #include <fstream>
 #include <iomanip>
-#include <Eigen/Dense>
-#include <ceres/ceres.h>
+#include <iostream>
 #include <mutex>
 
 #include "backend/factor/integration_base.h"
-#include "common/image_frame.h"
-#include "frontend/feature_manager.h"
-#include "frontend/initialization/solve_5pts.h"
-#include "common/frame.h"
-#include "backend/sliding_window.h"
 #include "backend/optimizer.h"
-#include "frontend/failure_detector.h"
-#include "frontend/initialization/initializer.h"
+#include "backend/sliding_window.h"
 #include "common/common_types.h"
+#include "common/frame.h"
+#include "common/image_frame.h"
+#include "frontend/failure_detector.h"
+#include "frontend/feature_manager.h"
+#include "frontend/initialization/initializer.h"
+#include "frontend/initialization/solve_5pts.h"
+
+namespace backend {
 
 class Estimator {
 public:
@@ -26,7 +28,7 @@ public:
     void setParameter();
 
     void processIMU(double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity);
-    void processImage(const ImageData &image, double timestamp);
+    void processImage(const ImageData& image, double timestamp);
 
     Matrix3d r_ic_;
     Vector3d t_ic_;
@@ -52,9 +54,10 @@ private:
     void cleanupOldImageFrames(double timestamp);
     void cleanupPreIntegration(ImageFrame& frame);
 
-    void propagateIMUState(int frame_index, double dt, const Vector3d &linear_acceleration, const Vector3d &angular_velocity);
+    void propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
+                           const Vector3d& angular_velocity);
     void storeLastPoseInSlidingWindow();
-    
+
     bool first_imu_;
     bool failure_occur_;
 
@@ -64,7 +67,7 @@ private:
 
     Vector3d g_;
 
-    IntegrationBase *tmp_pre_integration_;
+    IntegrationBase* tmp_pre_integration_;
 
     std::map<double, ImageFrame> all_image_frame_;
 
@@ -80,4 +83,6 @@ private:
     Initializer initializer_;
 };
 
-#endif // ESTIMATOR_H
+} // namespace backend
+
+#endif  // ESTIMATOR_H

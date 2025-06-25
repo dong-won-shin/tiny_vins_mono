@@ -7,6 +7,8 @@
 using namespace Eigen;
 using namespace utility;
 
+namespace backend {
+
 class IntegrationBase {
   public:
     IntegrationBase() = delete;
@@ -197,3 +199,5 @@ class IntegrationBase {
     std::vector<Eigen::Vector3d> acc_buf;
     std::vector<Eigen::Vector3d> gyr_buf;
 };
+
+} // namespace backend
