@@ -6,24 +6,24 @@
 #include "utility/measurement_processor.h"
 #include "utility/visualizer.h"
 
-Estimator estimator;
+Estimator vio_estimator;
 Visualizer visualizer;
 
 void setParameters() {
-    estimator.setParameter();
+    vio_estimator.setParameter();
 }
 
 void updateCameraPose(double timestamp) {
-    if (estimator.solver_flag_ == SolverFlag::NON_LINEAR) {
+    if (vio_estimator.solver_flag_ == SolverFlag::NON_LINEAR) {
         int window_size = g_config.estimator.window_size;
-        Eigen::Vector3d body_position = estimator.sliding_window_[window_size].P;
-        Eigen::Matrix3d body_rotation = estimator.sliding_window_[window_size].R;
+        Eigen::Vector3d body_position = vio_estimator.sliding_window_[window_size].P;
+        Eigen::Matrix3d body_rotation = vio_estimator.sliding_window_[window_size].R;
         if (!body_position.allFinite() || !body_rotation.allFinite()) {
             std::cerr << "Invalid pose data detected, skipping..." << std::endl;
             return;
         }
-        Eigen::Vector3d camera_position = body_position + body_rotation * estimator.t_ic_;
-        Eigen::Matrix3d camera_rotation = body_rotation * estimator.r_ic_;
+        Eigen::Vector3d camera_position = body_position + body_rotation * vio_estimator.t_ic_;
+        Eigen::Matrix3d camera_rotation = body_rotation * vio_estimator.r_ic_;
         if (visualizer.isRunning()) {
             visualizer.updateCameraPose(camera_position, camera_rotation, timestamp);
         }
@@ -47,8 +47,8 @@ void updateCameraPose(double timestamp) {
 
 void updateFeaturePoints3D() {
     std::vector<Eigen::Vector3d> new_points;
-    if (estimator.solver_flag_ == SolverFlag::NON_LINEAR) {
-        new_points = estimator.getSlidingWindowMapPoints();
+    if (vio_estimator.solver_flag_ == SolverFlag::NON_LINEAR) {
+        new_points = vio_estimator.getSlidingWindowMapPoints();
     }
     std::vector<Eigen::Vector3d> valid_points;
     for (const auto& pt : new_points) {
@@ -71,14 +71,14 @@ void process()
     MeasurementProcessor processor;
     std::string imu_filepath = g_config.dataset_path + "/mav0/imu0/data.csv";
     std::string image_csv_filepath = g_config.dataset_path + "/mav0/cam0/data.csv";
-    std::string image_dir = g_config.dataset_path + "/mav0/cam0/data";
+    std::string image_dir_path = g_config.dataset_path + "/mav0/cam0/data";
     std::string config_filepath = g_config.config_filepath;
 
     std::cout << "IMU file: " << imu_filepath << std::endl;
     std::cout << "Image CSV file: " << image_csv_filepath << std::endl;
-    std::cout << "Image directory: " << image_dir << std::endl;
+    std::cout << "Image directory: " << image_dir_path << std::endl;
     std::cout << "Config file: " << config_filepath << std::endl;
-    if (!processor.initialize(imu_filepath, image_csv_filepath, image_dir, config_filepath)) {
+    if (!processor.initialize(imu_filepath, image_csv_filepath, image_dir_path, config_filepath)) {
         std::cerr << "MeasurementProcessor initialization failed" << std::endl;
         return;
     } else {
@@ -95,6 +95,7 @@ void process()
             std::cout << "skip frame " << (measurement_id-1) << std::endl;
             continue;
         }
+        
         MeasurementMsg measurement = processor.createMeasurementMsg(measurement_id, image_file_data_item);
         auto imu_msg = measurement.imu_msg;
         auto image_msg = measurement.image_feature_msg;
@@ -113,7 +114,7 @@ void process()
                 rx = imu_data.angular_vel_x;
                 ry = imu_data.angular_vel_y;
                 rz = imu_data.angular_vel_z;
-                estimator.processIMU(dt, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
+                vio_estimator.processIMU(dt, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
             } 
             else {
                 double dt_1 = img_t - current_time;
@@ -127,7 +128,7 @@ void process()
                 rx = w1 * rx + w2 * imu_data.angular_vel_x;
                 ry = w1 * ry + w2 * imu_data.angular_vel_y;
                 rz = w1 * rz + w2 * imu_data.angular_vel_z;
-                estimator.processIMU(dt_1, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
+                vio_estimator.processIMU(dt_1, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
             }
         }
         ImageData image_data;
@@ -146,7 +147,7 @@ void process()
             image_data[feature_id].emplace_back(xyz_uv_velocity);
         }
         if (!image_data.empty()) {
-            estimator.processImage(image_data, image_msg.timestamp);
+            vio_estimator.processImage(image_data, image_msg.timestamp);
         } else {
             std::cerr << "Warning: Empty image_data for measurement ID " << measurement_id << std::endl;
         }

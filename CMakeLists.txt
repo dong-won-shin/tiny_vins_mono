@@ -7,18 +7,17 @@ find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Ceres REQUIRED)
 find_package(Pangolin REQUIRED)
-
-# Find yaml-cpp using pkg-config
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
-include_directories(include)
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${YAML_CPP_INCLUDE_DIRS})
-include_directories(${Pangolin_INCLUDE_DIRS})
+include_directories(include
+    ${EIGEN3_INCLUDE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
+    ${YAML_CPP_INCLUDE_DIRS}
+    ${Pangolin_INCLUDE_DIRS}
+)
 
-# Utility library
+# Libraries 
 add_library(utility src/utility/utility.cpp src/utility/config.cpp)
 target_link_libraries(utility ${YAML_CPP_LIBRARIES})
 
@@ -58,7 +57,6 @@ add_library(camodocal
 )
 target_link_libraries(camodocal gpl)
 
-
 add_library(feature_tracker
     src/frontend/feature_tracker.cpp
 )
@@ -86,6 +84,7 @@ target_link_libraries(estimator
     ${OpenCV_LIBS}
 )
 
+# Executable
 add_executable(tiny_vins_mono 
     src/tiny_vins_mono.cpp 
     src/utility/measurement_reader.cpp 
