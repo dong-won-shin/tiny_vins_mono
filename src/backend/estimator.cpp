@@ -29,7 +29,6 @@ void Estimator::clearState() {
     for (int i = 0; i < WINDOW_SIZE + 1; i++) {
         sliding_window_.clearSlidingWindow();
     }
-    
 
     t_ic_ = Vector3d::Zero();
     r_ic_ = Matrix3d::Identity();

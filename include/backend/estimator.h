@@ -1,23 +1,17 @@
 #ifndef ESTIMATOR_H
 #define ESTIMATOR_H
 
-#include <ceres/ceres.h>
 #include <Eigen/Dense>
-#include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <mutex>
 
-#include "backend/factor/integration_base.h"
 #include "backend/optimizer.h"
 #include "backend/sliding_window.h"
 #include "common/common_types.h"
-#include "common/frame.h"
 #include "common/image_frame.h"
 #include "frontend/failure_detector.h"
 #include "frontend/feature_manager.h"
 #include "frontend/initialization/initializer.h"
-#include "frontend/initialization/solve_5pts.h"
 
 namespace backend {
 
