@@ -1,17 +1,39 @@
 #ifndef MEASUREMENT_PROCESSOR_H
 #define MEASUREMENT_PROCESSOR_H
 
+#include <array>
 #include <string>
 #include <vector>
 
 #include "common/image_frame.h"
 #include "frontend/feature_tracker.h"
-#include "utility/measurement_reader.h"
 
-struct IMUData {
+struct IMUMsg {
   double timestamp;
   double linear_acc_x, linear_acc_y, linear_acc_z;
   double angular_vel_x, angular_vel_y, angular_vel_z;
+};
+
+struct Point3D {
+  int index;
+  double x, y, z;
+};
+
+using ChannelData = std::vector<double>;
+
+struct ImageFeatureMsg {
+  double timestamp;
+  std::string frame_id;
+  int points_count;
+  int channels_count;
+  std::vector<Point3D> feature_points;
+  std::array<ChannelData, 5> channel_data;
+};
+
+struct MeasurementMsg {
+  int measurement_id;
+  std::vector<IMUMsg> imu_msg;
+  ImageFeatureMsg image_feature_msg;
 };
 
 struct ImageFileData {
@@ -37,7 +59,7 @@ public:
   MeasurementMsg createMeasurementMsg(int measurement_id, const ImageFileData& image_data);
 
   // Data accessors
-  const std::vector<IMUData>& getIMUData() const { return imu_data_; }
+  const std::vector<IMUMsg>& getIMUData() const { return imu_data_; }
   const std::vector<ImageFileData>& getImageFileData() const { return image_file_data_; }
 
   // Utility functions
@@ -46,7 +68,7 @@ public:
 
 private:
   // Member variables
-  std::vector<IMUData> imu_data_;
+  std::vector<IMUMsg> imu_data_;
   std::vector<ImageFileData> image_file_data_;
   std::vector<double> image_timestamps_;
   std::vector<std::string> image_files_;

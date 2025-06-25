@@ -87,7 +87,6 @@ target_link_libraries(estimator
 # Executable
 add_executable(tiny_vins_mono 
     src/tiny_vins_mono.cpp 
-    src/utility/measurement_reader.cpp 
     src/utility/measurement_processor.cpp
     src/utility/visualizer.cpp
     src/utility/test_result_logger.cpp

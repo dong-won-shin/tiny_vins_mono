@@ -68,7 +68,7 @@ bool MeasurementProcessor::loadImuData(const std::string& filepath) {
 
     std::istringstream iss(line);
     std::string token;
-    IMUData data;
+    IMUMsg data;
 
     // Convert timestamp [ns] to seconds
     if (std::getline(iss, token, ',')) {
