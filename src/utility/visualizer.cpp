@@ -9,7 +9,7 @@
 #include "utility/config.h"
 #include "utility/visualizer.h"
 
-using namespace utility;
+namespace utility {
 namespace fs = std::experimental::filesystem;
 
 Visualizer::Visualizer()
@@ -586,3 +586,5 @@ void Visualizer::adjustCameraViewToFitTrajectory() {
                                                                center.x(), center.y(), center.z(), pangolin::AxisZ));
     }
 }
+
+}  // namespace utility

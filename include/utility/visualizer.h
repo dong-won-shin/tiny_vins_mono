@@ -10,6 +10,8 @@
 #include <thread>
 #include <vector>
 
+namespace utility {
+
 class Visualizer {
 public:
     Visualizer();
@@ -74,5 +76,7 @@ private:
     std::mutex render_ready_mutex_;
     bool render_ready_ = false;
 };
+
+}  // namespace utility
 
 #endif  // VISUALIZER_H
