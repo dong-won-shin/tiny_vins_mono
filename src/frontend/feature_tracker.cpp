@@ -4,7 +4,7 @@
 
 using namespace utility;
 
-namespace feature_tracker {
+namespace frontend {
 
 int FeatureTracker::n_id = 0;
 
@@ -210,4 +210,4 @@ void FeatureTracker::undistortedPoints() {
   prev_un_pts_map = cur_un_pts_map;
 }
 
-}  // namespace feature_tracker
+}  // namespace frontend

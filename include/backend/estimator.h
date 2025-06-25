@@ -68,10 +68,10 @@ private:
 
     // Core components
     Optimizer optimizer_;
-    FailureDetector failure_detector_;
-    Initializer initializer_;
-    FeatureManager feature_manager_;
-    MotionEstimator motion_estimator_;
+    frontend::FailureDetector failure_detector_;
+    frontend::Initializer initializer_;
+    frontend::FeatureManager feature_manager_;
+    frontend::MotionEstimator motion_estimator_;
 
     mutable std::mutex estimator_mutex_;
 };

@@ -2,10 +2,12 @@
 
 namespace backend {
 
-Optimizer::Optimizer(SlidingWindow* sliding_window, FeatureManager* feature_manager)
-    : sliding_window_(sliding_window), feature_manager_(feature_manager), last_marginalization_info_(nullptr) {
-    t_ic_ = Vector3d::Zero();
-    r_ic_ = Matrix3d::Identity();
+Optimizer::Optimizer(SlidingWindow *sliding_window, frontend::FeatureManager *feature_manager)
+    : sliding_window_(sliding_window),
+      feature_manager_(feature_manager),
+      last_marginalization_info_(nullptr) {
+  t_ic_ = Vector3d::Zero();
+  r_ic_ = Matrix3d::Identity();
 }
 
 Optimizer::~Optimizer() {

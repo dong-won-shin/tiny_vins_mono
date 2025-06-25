@@ -28,9 +28,9 @@ bool MeasurementProcessor::initialize(const std::string& imu_filepath, const std
     // Print configuration for debugging
     g_config.print();
 
-    // Initialize feature tracker
-    feature_tracker_.reset(new feature_tracker::FeatureTracker());
-    feature_tracker_->readIntrinsicParameter(config_filepath);
+  // Initialize feature tracker
+  feature_tracker_.reset(new frontend::FeatureTracker());
+  feature_tracker_->readIntrinsicParameter(config_filepath);
 
     // Load data
     if (!loadImuData(imu_filepath)) {

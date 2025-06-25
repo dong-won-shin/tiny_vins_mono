@@ -1,4 +1,6 @@
-#pragma once
+#ifndef INITIAL_SFM_H
+#define INITIAL_SFM_H
+
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 
@@ -11,6 +13,8 @@
 #include <opencv2/opencv.hpp>
 using namespace Eigen;
 using namespace std;
+
+namespace frontend {
 
 struct SFMFeature {
   bool state;
@@ -65,3 +69,7 @@ private:
 
   int feature_num;
 };
+
+}  // namespace frontend
+
+#endif  // INITIAL_SFM_H

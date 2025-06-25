@@ -1,4 +1,6 @@
-#pragma once
+#ifndef INITIAL_ALIGNMENT_H
+#define INITIAL_ALIGNMENT_H
+
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <map>
@@ -12,8 +14,10 @@
 using namespace Eigen;
 using namespace std;
 
-namespace initial_alignment {
+namespace frontend {
 
 bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame,
                         backend::SlidingWindow &sliding_window, Vector3d &g, VectorXd &x);
 }
+
+#endif  // INITIAL_ALIGNMENT_H

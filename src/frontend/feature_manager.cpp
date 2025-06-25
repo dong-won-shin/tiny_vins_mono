@@ -2,6 +2,8 @@
 
 #include "utility/config.h"
 
+namespace frontend {
+
 int FeaturePerId::endFrame() { return start_frame + feature_per_frame.size() - 1; }
 
 FeatureManager::FeatureManager() {}
@@ -269,3 +271,5 @@ double FeatureManager::compensatedParallax2(const FeaturePerId &it_per_id, int f
 
   return ans;
 }
+
+}  // namespace frontend
