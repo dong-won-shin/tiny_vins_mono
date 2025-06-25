@@ -2,16 +2,16 @@
 
 ## Introduction
 
-**Tiny VINS Mono** is a lightweight implementation of a monocular Visual-Inertial Navigation System (VINS). This project provides a real-time visual-inertial odometry solution that fuses camera and IMU (Inertial Measurement Unit) data to estimate 6-DOF pose (position and orientation) in 3D space.
+**Tiny VINS Mono** is a lightweight implementation of a monocular Visual-Inertial Navigation System (VINS). This project provides a real-time visual-inertial odometry solution that fuses camera and IMU (Inertial Measurement Unit) data to estimate 6-DOF pose (position and orientation) in 3D space. This algorithm is a refactored version of the well-known VINS-MONO system, designed for educational and research purposes.
 
 ### Key Features
 
 - **Monocular Visual-Inertial Odometry**: Combines single camera and IMU data for robust pose estimation
+- **Without ROS Dependency**: Standalone implementation that doesn't require ROS (Robot Operating System), making it easier to deploy and integrate into custom applications
 - **Real-time Performance**: Optimized for real-time processing with configurable frame skipping
 - **Sliding Window Optimization**: Implements a sliding window-based backend optimization using Ceres Solver
 - **Feature-based Frontend**: Robust feature tracking and management system
 - **3D Visualization**: Real-time trajectory and feature point visualization using Pangolin
-- **Multiple Camera Models**: Supports various camera models (Pinhole, Fisheye, etc.) through Camodocal
 - **Configurable Parameters**: Extensive configuration options for different sensors and datasets
 
 ### System Architecture
@@ -24,7 +24,6 @@ The system consists of three main components:
 
 ## Getting Started
 
-> **Build Status**: All dependencies except Pangolin have been verified to install correctly on Ubuntu 24.04 (Plucky). Pangolin installation may require additional troubleshooting due to compilation issues with newer compilers. See the troubleshooting section for solutions.
 
 ### Prerequisites
 
@@ -224,168 +223,7 @@ unzip V1_01_easy.zip
   - Trajectory data is automatically saved to files for later analysis
   - Use `scripts/compare_trajectories.py` for trajectory evaluation
 
-### Troubleshooting
 
-#### Common Issues
-
-1. **Build fails with "Could NOT find Pangolin" error**
-   
-   This is the most common issue. Try these solutions:
-   ```bash
-   # Check if Pangolin is installed
-   pkg-config --cflags --libs pangolin
-   
-   # If not found, install from source (see installation section above)
-   # Or try setting the path manually:
-   export CMAKE_PREFIX_PATH=/usr/local:$CMAKE_PREFIX_PATH
-   cd build && cmake .. && make -j4
-   ```
-
-2. **Pangolin compilation fails with missing-braces warnings**
-   
-   Use the warning suppression flag:
-   ```bash
-   cd Pangolin/build
-   cmake -DCMAKE_CXX_FLAGS="-Wno-missing-braces" ..
-   make -j4
-   ```
-
-3. **Build fails with missing dependencies**
-   ```bash
-   # Check if all dependencies are installed
-   pkg-config --cflags --libs eigen3 opencv4 yaml-cpp
-   
-   # If any are missing, install them:
-   sudo apt install libeigen3-dev libopencv-dev libyaml-cpp-dev libceres-dev
-   ```
-
-4. **Dataset not found**
-   ```bash
-   # Verify dataset path in config file
-   ls -la ./data/VIO_dataset/V1_01_easy/mav0/
-   
-   # Check the config file path:
-   cat config/config.yaml | grep dataset_path
-   ```
-
-5. **Poor tracking performance**
-   - Adjust `max_cnt` and `min_dist` parameters
-   - Enable histogram equalization: `equalize: 1`
-   - Reduce `frame_skip` for more frequent processing
-
-6. **Visualization window doesn't appear**
-   ```bash
-   # Check if you're in a headless environment
-   echo $DISPLAY
-   
-   # For remote systems, use X11 forwarding:
-   ssh -X user@hostname
-   
-   # Or try headless mode in config:
-   # Set visualization: false in config.yaml
-   ```
-
-   7. **Runtime errors with library loading**
-   ```bash
-   # Update library path
-   export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-   
-   # Or install missing system libraries:
-   sudo apt install libgl1-mesa-glx
-   ```
-
-8. **Pangolin installation completely fails**
-   
-   If you cannot get Pangolin to compile, you have a few options:
-   
-   **Option A**: Try the system packages (Ubuntu 22.04 or older):
-   ```bash
-   # May work on older Ubuntu versions
-   sudo apt search pangolin
-   sudo apt install pangolin-tools
-   ```
-   
-   **Option B**: Use Docker with a pre-built environment:
-   ```bash
-   # Use an Ubuntu 20.04 base image where Pangolin builds more reliably
-   docker run -it --rm -v $(pwd):/workspace ubuntu:20.04 bash
-   ```
-   
-   **Option C**: Modify the CMakeLists.txt to make Pangolin optional:
-   ```cmake
-   # In CMakeLists.txt, wrap Pangolin dependency:
-   find_package(Pangolin QUIET)
-   if(Pangolin_FOUND)
-       target_link_libraries(tiny_vins_mono ${Pangolin_LIBRARIES})
-       add_definitions(-DHAVE_PANGOLIN)
-   else()
-       message(WARNING "Pangolin not found - visualization will be disabled")
-   endif()
-   ```
-
-#### Performance Tuning
-
-- **For real-time performance**: Increase `frame_skip` value
-- **For better accuracy**: Decrease `frame_skip`, increase `max_cnt`
-- **For different camera**: Update camera calibration parameters
-- **For different IMU**: Update IMU noise parameters
-
-### Advanced Usage
-
-#### Custom Dataset Integration
-
-To use your own dataset, ensure the CSV files follow this format:
-
-**IMU CSV format** (`imu0/data.csv`):
-```
-#timestamp [ns],w_x [rad s^-1],w_y [rad s^-1],w_z [rad s^-1],a_x [m s^-2],a_y [m s^-2],a_z [m s^-2]
-1403636579758555392,0.0019324,0.0032854,-0.0086502,8.9742,0.7915,3.6085
-```
-
-**Camera CSV format** (`cam0/data.csv`):
-```
-#timestamp [ns],filename
-1403636579763555584,1403636579763555584.png
-```
-
-#### Configuration Options
-
-Key configuration parameters you can adjust:
-
-```yaml
-# Processing
-frame_skip: 2                    # Skip frames (higher = faster, lower accuracy)
-
-# Feature tracking
-max_cnt: 150                     # Max features to track
-min_dist: 30                     # Min distance between features
-F_threshold: 1.0                 # RANSAC threshold
-
-# Optimization
-max_solver_time: 0.05           # Max optimization time per frame
-max_num_iterations: 10          # Max optimization iterations
-keyframe_parallax: 10.0         # Keyframe selection threshold
-
-# IMU noise parameters (dataset-specific)
-acc_n: 0.08                     # Accelerometer noise
-gyr_n: 0.004                    # Gyroscope noise
-acc_w: 0.00004                  # Accelerometer bias random walk
-gyr_w: 2.0e-6                   # Gyroscope bias random walk
-```
-
-## Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with clear commit messages
-4. Test your changes thoroughly
-5. Submit a pull request
-
-## License
-
-This project is licensed under the terms specified in the repository. Please refer to the license file for details.
 
 ## Acknowledgments
 
