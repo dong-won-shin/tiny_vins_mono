@@ -18,7 +18,7 @@ public:
     Eigen::Vector3d V;
     Eigen::Vector3d Ba;
     Eigen::Vector3d Bg;
-    backend::IntegrationBase *pre_integration;
+    backend::factor::IntegrationBase *pre_integration;
 
     std::vector<double> dt_buf;
     std::vector<Eigen::Vector3d> linear_acceleration_buf;

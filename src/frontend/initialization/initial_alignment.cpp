@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <sstream>
 
+
 namespace initial_alignment {
 
 void solveGyroscopeBias(map<double, ImageFrame> const &all_image_frame, backend::SlidingWindow &sliding_window) {

@@ -67,7 +67,7 @@ private:
 
     Vector3d g_;
 
-    IntegrationBase* tmp_pre_integration_;
+    backend::factor::IntegrationBase* tmp_pre_integration_;
 
     std::map<double, ImageFrame> all_image_frame_;
 

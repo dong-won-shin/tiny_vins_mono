@@ -15,6 +15,7 @@
 #include "common/common_types.h"
 #include "utility/config.h"
 
+
 namespace backend {
 
 class Optimizer {
@@ -43,10 +44,10 @@ private:
     // Marginalization methods
     void marginalizeOldKeyframe();
     void marginalizeNewGeneralFrame();
-    void addFeatureFactorsForMarginalization(MarginalizationInfo* marginalization_info);
-    void addIMUFactorForMarginalization(MarginalizationInfo* marginalization_info);
-    void performMarginalizationForOldKeyframe(MarginalizationInfo* marginalization_info);
-    void performMarginalizationForNewGeneralFrame(MarginalizationInfo* marginalization_info);
+    void addFeatureFactorsForMarginalization(factor::MarginalizationInfo* marginalization_info);
+    void addIMUFactorForMarginalization(factor::MarginalizationInfo* marginalization_info);
+    void performMarginalizationForOldKeyframe(factor::MarginalizationInfo* marginalization_info);
+    void performMarginalizationForNewGeneralFrame(factor::MarginalizationInfo* marginalization_info);
     void handleMarginalization(MarginalizationFlag marginalization_flag);
 
     // Parameter management
@@ -68,7 +69,7 @@ private:
     double para_Ex_Pose[SIZE_POSE];
     
     // Marginalization info
-    MarginalizationInfo *last_marginalization_info_;
+    factor::MarginalizationInfo *last_marginalization_info_;
     std::vector<double *> last_marginalization_parameter_blocks_;
 };
 

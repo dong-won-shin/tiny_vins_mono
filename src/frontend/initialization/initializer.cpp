@@ -1,6 +1,7 @@
 #include "frontend/initialization/initializer.h"
 #include "frontend/initialization/initial_alignment.h"
 
+
 Initializer::Initializer(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager, MotionEstimator* motion_estimator,
                          std::map<double, ImageFrame>* all_image_frame, int* frame_count,
                          MarginalizationFlag* marginalization_flag, Vector3d* g, 

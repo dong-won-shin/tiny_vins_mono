@@ -5,11 +5,13 @@
 #include <iostream>
 
 #include "utility/utility.h"
+#include "utility/config.h"
 #include "integration_base.h"
 
 #include <ceres/ceres.h>
 
 namespace backend {
+namespace factor {
 
 class IMUFactor : public ceres::SizedCostFunction<15, 7, 9, 7, 9> {
   public:
@@ -129,6 +131,7 @@ class IMUFactor : public ceres::SizedCostFunction<15, 7, 9, 7, 9> {
     IntegrationBase *pre_integration;
 };
 
+} // namespace factor
 } // namespace backend
 
 #endif // IMU_FACTOR_H

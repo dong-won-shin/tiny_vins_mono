@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IMAGE_FRAME_H
+#define IMAGE_FRAME_H
 
 #include "backend/factor/imu_factor.h"
 #include <eigen3/Eigen/Dense>
@@ -121,8 +122,10 @@ class ImageFrame {
     Vector3d T;
 
     /// IMU pre-integration data from previous frame to this frame
-    backend::IntegrationBase *pre_integration;
+    backend::factor::IntegrationBase *pre_integration;
 
     /// Flag indicating if this is a keyframe
     bool is_key_frame;
 };
+
+#endif

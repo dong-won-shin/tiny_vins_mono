@@ -4,6 +4,10 @@
 #include <Eigen/Dense>
 
 #include "common/frame.h"
+#include "backend/factor/integration_base.h"
+#include "utility/config.h"
+
+
 
 namespace backend {
 
@@ -69,8 +73,8 @@ public:
     void createNewPreintegration(int32_t index, const Eigen::Vector3d& linear_acceleration,
                                  const Eigen::Vector3d& angular_velocity) {
         delete sliding_window[index].pre_integration;
-        sliding_window[index].pre_integration = new IntegrationBase(linear_acceleration, angular_velocity,
-                                                                    sliding_window[index].Ba, sliding_window[index].Bg);
+        sliding_window[index].pre_integration = new backend::factor::IntegrationBase(linear_acceleration, angular_velocity,
+                                                                     sliding_window[index].Ba, sliding_window[index].Bg);
     }
 
     const Frame& front() const {

@@ -19,7 +19,7 @@ Estimator::Estimator()
 void Estimator::setParameter() {
     t_ic_ = g_config.camera.t_ic;
     r_ic_ = g_config.camera.r_ic;
-    ProjectionFactor::sqrt_info = (g_config.camera.focal_length / 1.5) * Matrix2d::Identity();
+    backend::factor::ProjectionFactor::sqrt_info = (g_config.camera.focal_length / 1.5) * Matrix2d::Identity();
 
     // Set extrinsic parameters in optimizer
     optimizer_.setExtrinsicParameters(t_ic_, r_ic_);
@@ -93,7 +93,7 @@ void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration
     // if pre_integrations[frame_count_] is not initialized, initialize it
     // this is generated at every new image frame
     if (sliding_window_[frame_count_].pre_integration == nullptr) {
-        sliding_window_[frame_count_].pre_integration = new IntegrationBase{
+        sliding_window_[frame_count_].pre_integration = new backend::factor::IntegrationBase{
             prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
     }
 
@@ -121,7 +121,7 @@ void Estimator::processImage(const ImageData& image, double timestamp) {
     imageframe.pre_integration = tmp_pre_integration_;
     all_image_frame_.insert(make_pair(timestamp, imageframe));
     tmp_pre_integration_ =
-        new IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
+        new backend::factor::IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
 
     if (solver_flag_ == SolverFlag::INITIAL) {
         if (frame_count_ == WINDOW_SIZE) {

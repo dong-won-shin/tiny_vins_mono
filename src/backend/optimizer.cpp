@@ -1,5 +1,6 @@
 #include "backend/optimizer.h"
 
+
 namespace backend {
 
 Optimizer::Optimizer(SlidingWindow* sliding_window, FeatureManager* feature_manager) 
@@ -44,13 +45,13 @@ ceres::LossFunction* Optimizer::setupOptimizationProblem(ceres::Problem& problem
     
     // Add pose and speed-bias parameter blocks for sliding window
     for (int i = 0; i < WINDOW_SIZE + 1; i++) {
-        ceres::LocalParameterization *local_parameterization = new PoseLocalParameterization();
+        ceres::LocalParameterization *local_parameterization = new backend::factor::PoseLocalParameterization();
         problem.AddParameterBlock(para_Pose[i], SIZE_POSE, local_parameterization); // R, P
         problem.AddParameterBlock(para_SpeedAndBiases[i], SIZE_SPEEDANDBIAS); // V, Ba, Bg
     }
 
     // Add extrinsic parameter block
-    ceres::LocalParameterization *local_parameterization = new PoseLocalParameterization();
+    ceres::LocalParameterization *local_parameterization = new backend::factor::PoseLocalParameterization();
     problem.AddParameterBlock(para_Ex_Pose, SIZE_POSE, local_parameterization);
     problem.SetParameterBlockConstant(para_Ex_Pose);
 
@@ -63,7 +64,7 @@ ceres::LossFunction* Optimizer::setupOptimizationProblem(ceres::Problem& problem
 void Optimizer::addMarginalizationFactor(ceres::Problem& problem) {
     if (last_marginalization_info_) {
         // construct new marginlization_factor
-        MarginalizationFactor *marginalization_factor = new MarginalizationFactor(last_marginalization_info_);
+        backend::factor::MarginalizationFactor *marginalization_factor = new backend::factor::MarginalizationFactor(last_marginalization_info_);
         problem.AddResidualBlock(marginalization_factor, NULL, last_marginalization_parameter_blocks_);
     }
 }
@@ -73,7 +74,7 @@ void Optimizer::addIMUFactors(ceres::Problem& problem) {
         int j = i + 1;
         if ((*sliding_window_)[j].pre_integration->sum_dt > 10.0)
             continue;
-        IMUFactor *imu_factor = new IMUFactor((*sliding_window_)[j].pre_integration);
+        backend::factor::IMUFactor *imu_factor = new backend::factor::IMUFactor((*sliding_window_)[j].pre_integration);
         problem.AddResidualBlock(imu_factor, NULL, para_Pose[i], para_SpeedAndBiases[i], para_Pose[j],
                                  para_SpeedAndBiases[j]);
     }
@@ -98,7 +99,7 @@ int Optimizer::addFeatureFactors(ceres::Problem& problem, ceres::LossFunction* l
                 continue;
             }
             Vector3d pts_j = it_per_frame.point;
-            ProjectionFactor *f = new ProjectionFactor(pts_i, pts_j);
+            backend::factor::ProjectionFactor *f = new backend::factor::ProjectionFactor(pts_i, pts_j);
             problem.AddResidualBlock(f, loss_function, para_Pose[imu_i], para_Pose[imu_j], para_Ex_Pose,
                                         para_Feature[feature_index]);
             f_m_cnt++;
@@ -215,7 +216,7 @@ void Optimizer::prepareOptimizationParameters() {
 }
 
 void Optimizer::marginalizeOldKeyframe() {
-    MarginalizationInfo *marginalization_info = new MarginalizationInfo();
+    factor::MarginalizationInfo *marginalization_info = new factor::MarginalizationInfo();
     prepareOptimizationParameters();
 
     if (last_marginalization_info_) {
@@ -228,9 +229,9 @@ void Optimizer::marginalizeOldKeyframe() {
             if (does_last_margin_param_block_contain_the_old_keyframe_pose_and_speed_bias)
                 drop_set.push_back(i);
         }
-        MarginalizationFactor *marginalization_factor = new MarginalizationFactor(last_marginalization_info_);
-        ResidualBlockInfo *residual_block_info =
-            new ResidualBlockInfo(marginalization_factor, NULL, last_marginalization_parameter_blocks_, drop_set);
+        factor::MarginalizationFactor *marginalization_factor = new factor::MarginalizationFactor(last_marginalization_info_);
+        factor::ResidualBlockInfo *residual_block_info =
+            new factor::ResidualBlockInfo(marginalization_factor, NULL, last_marginalization_parameter_blocks_, drop_set);
         marginalization_info->addResidualBlockInfo(residual_block_info);
     }
 
@@ -248,7 +249,7 @@ void Optimizer::marginalizeNewGeneralFrame() {
 
     if (does_last_margin_param_block_contain_the_new_general_frame_pose) 
     {
-        MarginalizationInfo *marginalization_info = new MarginalizationInfo();
+        factor::MarginalizationInfo *marginalization_info = new factor::MarginalizationInfo();
         prepareOptimizationParameters();
 
         if (last_marginalization_info_) {
@@ -258,8 +259,8 @@ void Optimizer::marginalizeNewGeneralFrame() {
                 if (last_marginalization_parameter_blocks_[i] == para_Pose[WINDOW_SIZE - 1])
                     drop_set.push_back(i);
             }
-            MarginalizationFactor *marginalization_factor = new MarginalizationFactor(last_marginalization_info_);
-            ResidualBlockInfo *residual_block_info = new ResidualBlockInfo(
+            factor::MarginalizationFactor *marginalization_factor = new factor::MarginalizationFactor(last_marginalization_info_);
+            factor::ResidualBlockInfo *residual_block_info = new factor::ResidualBlockInfo(
                 marginalization_factor, NULL, last_marginalization_parameter_blocks_, drop_set);
             marginalization_info->addResidualBlockInfo(residual_block_info);
         }
@@ -268,10 +269,10 @@ void Optimizer::marginalizeNewGeneralFrame() {
     }
 }
 
-void Optimizer::addIMUFactorForMarginalization(MarginalizationInfo* marginalization_info) {
+void Optimizer::addIMUFactorForMarginalization(factor::MarginalizationInfo* marginalization_info) {
     if ((*sliding_window_)[1].pre_integration->sum_dt < 10.0) {
-        IMUFactor *imu_factor = new IMUFactor((*sliding_window_)[1].pre_integration);
-        ResidualBlockInfo *residual_block_info = new ResidualBlockInfo(
+        factor::IMUFactor *imu_factor = new factor::IMUFactor((*sliding_window_)[1].pre_integration);
+        factor::ResidualBlockInfo *residual_block_info = new factor::ResidualBlockInfo(
             imu_factor, NULL,
             vector<double *>{para_Pose[0], para_SpeedAndBiases[0], para_Pose[1], para_SpeedAndBiases[1]},
             vector<int>{0, 1});
@@ -279,7 +280,7 @@ void Optimizer::addIMUFactorForMarginalization(MarginalizationInfo* marginalizat
     }
 }
 
-void Optimizer::addFeatureFactorsForMarginalization(MarginalizationInfo* marginalization_info) {
+void Optimizer::addFeatureFactorsForMarginalization(factor::MarginalizationInfo* marginalization_info) {
     ceres::LossFunction *loss_function = new ceres::CauchyLoss(1.0);
     int feature_index = -1;
     for (auto &it_per_id : feature_manager_->feature) {
@@ -301,9 +302,9 @@ void Optimizer::addFeatureFactorsForMarginalization(MarginalizationInfo* margina
                 continue;
 
             Vector3d pts_j = it_per_frame.point;
-            ProjectionFactor *f = new ProjectionFactor(pts_i, pts_j);
-            ResidualBlockInfo *residual_block_info =
-                new ResidualBlockInfo(f, loss_function,
+            factor::ProjectionFactor *f = new factor::ProjectionFactor(pts_i, pts_j);
+            factor::ResidualBlockInfo *residual_block_info =
+                new factor::ResidualBlockInfo(f, loss_function,
                                       vector<double *>{para_Pose[imu_i], para_Pose[imu_j], para_Ex_Pose,
                                                        para_Feature[feature_index]},
                                       vector<int>{0, 3});
@@ -312,7 +313,7 @@ void Optimizer::addFeatureFactorsForMarginalization(MarginalizationInfo* margina
     }
 }
 
-void Optimizer::performMarginalizationForOldKeyframe(MarginalizationInfo* marginalization_info) {
+void Optimizer::performMarginalizationForOldKeyframe(factor::MarginalizationInfo* marginalization_info) {
     marginalization_info->preMarginalize();
     marginalization_info->marginalize();
 
@@ -330,7 +331,7 @@ void Optimizer::performMarginalizationForOldKeyframe(MarginalizationInfo* margin
     last_marginalization_parameter_blocks_ = parameter_blocks;
 }
 
-void Optimizer::performMarginalizationForNewGeneralFrame(MarginalizationInfo* marginalization_info) {
+void Optimizer::performMarginalizationForNewGeneralFrame(factor::MarginalizationInfo* marginalization_info) {
     marginalization_info->preMarginalize();
     marginalization_info->marginalize();
 

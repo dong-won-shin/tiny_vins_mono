@@ -6,6 +6,7 @@
 #include <ceres/ceres.h>
 
 namespace backend {
+namespace factor {
 
 class ProjectionFactor : public ceres::SizedCostFunction<2, 7, 7, 7, 1> {
   public:
@@ -19,6 +20,7 @@ class ProjectionFactor : public ceres::SizedCostFunction<2, 7, 7, 7, 1> {
     static double sum_t;
 };
 
+} // namespace factor
 } // namespace backend
 
 #endif // PROJECTION_FACTOR_H

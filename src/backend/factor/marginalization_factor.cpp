@@ -1,6 +1,8 @@
 #include "backend/factor/marginalization_factor.h"
+#include <thread>
 
 namespace backend {
+namespace factor {
 
 void ResidualBlockInfo::Evaluate() {
     residuals.resize(cost_function->num_residuals());
@@ -48,7 +50,6 @@ void ResidualBlockInfo::Evaluate() {
 }
 
 MarginalizationInfo::~MarginalizationInfo() {
-    // ROS_WARN("release marginlizationinfo");
 
     for (auto it = parameter_block_data.begin(); it != parameter_block_data.end(); ++it)
         delete[] it->second;
@@ -183,8 +184,6 @@ void MarginalizationInfo::marginalize() {
         A += threadsstruct[i].A;
         b += threadsstruct[i].b;
     }
-    // ROS_DEBUG("thread summing up costs %f ms", t_thread_summing.toc());
-    // ROS_INFO("A diff %f , b diff %f ", (A - tmp_A).sum(), (b - tmp_b).sum());
 
     // TODO
     Eigen::MatrixXd Amm = 0.5 * (A.block(0, 0, m, m) + A.block(0, 0, m, m).transpose());
@@ -301,4 +300,5 @@ bool MarginalizationFactor::Evaluate(double const *const *parameters, double *re
     return true;
 }
 
+} // namespace factor
 } // namespace backend

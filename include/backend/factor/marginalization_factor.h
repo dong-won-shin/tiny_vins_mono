@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MARGINALIZATION_FACTOR_H
+#define MARGINALIZATION_FACTOR_H
 
 #include <ceres/ceres.h>
 #include <cstdlib>
@@ -10,6 +11,7 @@
 const int NUM_THREADS = 4;
 
 namespace backend {
+namespace factor {
 
 struct ResidualBlockInfo {
     ResidualBlockInfo(ceres::CostFunction *_cost_function, ceres::LossFunction *_loss_function,
@@ -75,4 +77,7 @@ class MarginalizationFactor : public ceres::CostFunction {
     MarginalizationInfo *marginalization_info;
 };
 
+} // namespace factor
 } // namespace backend
+
+#endif

@@ -1,10 +1,12 @@
-#pragma once
+#ifndef POSE_LOCAL_PARAMETERIZATION_H
+#define POSE_LOCAL_PARAMETERIZATION_H
 
 #include "utility/utility.h"
 #include <ceres/ceres.h>
 #include <eigen3/Eigen/Dense>
 
 namespace backend {
+namespace factor {
 
 class PoseLocalParameterization : public ceres::LocalParameterization {
     virtual bool Plus(const double *x, const double *delta, double *x_plus_delta) const;
@@ -17,4 +19,7 @@ class PoseLocalParameterization : public ceres::LocalParameterization {
     };
 };
 
+} // namespace factor
 } // namespace backend
+
+#endif

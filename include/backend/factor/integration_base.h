@@ -1,13 +1,17 @@
-#pragma once
+#ifndef INTEGRATION_BASE_H
+#define INTEGRATION_BASE_H
 
-#include "utility/config.h"
+#include <eigen3/Eigen/Dense>
+#include <iostream>
+
 #include "utility/utility.h"
+#include "utility/config.h"
 
-#include <ceres/ceres.h>
 using namespace Eigen;
 using namespace utility;
 
 namespace backend {
+namespace factor {
 
 class IntegrationBase {
   public:
@@ -200,4 +204,7 @@ class IntegrationBase {
     std::vector<Eigen::Vector3d> gyr_buf;
 };
 
+} // namespace factor
 } // namespace backend
+
+#endif // INTEGRATION_BASE_H
