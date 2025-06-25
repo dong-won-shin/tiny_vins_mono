@@ -9,18 +9,13 @@
 #include <condition_variable>
 #include <string>
 
-// Forward declaration
-namespace utility {
-    class TestResultLogger;
-}
-
 class Visualizer {
 public:
     Visualizer();
     ~Visualizer();
     
     // Initialize and start the viewer
-    bool initialize(const std::string& config_path, utility::TestResultLogger* logger = nullptr);
+    bool initialize();
     bool start();
     void stop();
     
@@ -56,9 +51,6 @@ private:
     // Pangolin objects
     pangolin::OpenGlRenderState* g_s_cam_;
     pangolin::View* g_d_cam_;
-    
-    // Reference to logger
-    utility::TestResultLogger* logger_;
     
     // Private methods
     void setupPangolinViewer();

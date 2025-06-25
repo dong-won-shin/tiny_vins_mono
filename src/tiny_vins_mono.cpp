@@ -8,11 +8,26 @@
 #include "utility/test_result_logger.h"
 
 Estimator vio_estimator;
+MeasurementProcessor measurement_processor;
 Visualizer visualizer;
 utility::TestResultLogger result_logger;
 
-void setParameters() {
+void vioInitialize(const Config& config) {
+    std::string imu_filepath = config.dataset_path + "/mav0/imu0/data.csv";
+    std::string image_csv_filepath = config.dataset_path + "/mav0/cam0/data.csv";
+    std::string image_dirpath = config.dataset_path + "/mav0/cam0/data";
+    std::string config_filepath = config.config_filepath;
+
+    std::cout << "IMU file: " << imu_filepath << std::endl;
+    std::cout << "Image CSV file: " << image_csv_filepath << std::endl;
+    std::cout << "Image directory: " << image_dirpath << std::endl;
+    std::cout << "Config file: " << config_filepath << std::endl;
+
+    // g_config is extern variable in config.h, so we can use config globally
     vio_estimator.setParameter();
+    visualizer.initialize();
+    result_logger.initialize(config_filepath);
+    measurement_processor.initialize(imu_filepath, image_csv_filepath, image_dirpath, config_filepath);
 }
 
 void updateCameraPose(double timestamp) {
@@ -26,9 +41,15 @@ void updateCameraPose(double timestamp) {
         }
         Eigen::Vector3d camera_position = body_position + body_rotation * vio_estimator.t_ic_;
         Eigen::Matrix3d camera_rotation = body_rotation * vio_estimator.r_ic_;
+        
+        // Update visualizer independently
         if (visualizer.isRunning()) {
             visualizer.updateCameraPose(camera_position, camera_rotation, timestamp);
         }
+        
+        // Update logger independently
+        result_logger.addPose(camera_position, camera_rotation, timestamp);
+        
         static size_t last_printed_count = 0;
         static std::vector<Eigen::Vector3d> temp_poses;
         temp_poses.push_back(camera_position);
@@ -68,26 +89,9 @@ void updateVisualization(double timestamp) {
     updateFeaturePoints3D();
 }
 
-void process()
+void vioProcess()
 {
-    MeasurementProcessor processor;
-    std::string imu_filepath = g_config.dataset_path + "/mav0/imu0/data.csv";
-    std::string image_csv_filepath = g_config.dataset_path + "/mav0/cam0/data.csv";
-    std::string image_dir_path = g_config.dataset_path + "/mav0/cam0/data";
-    std::string config_filepath = g_config.config_filepath;
-
-    std::cout << "IMU file: " << imu_filepath << std::endl;
-    std::cout << "Image CSV file: " << image_csv_filepath << std::endl;
-    std::cout << "Image directory: " << image_dir_path << std::endl;
-    std::cout << "Config file: " << config_filepath << std::endl;
-    if (!processor.initialize(imu_filepath, image_csv_filepath, image_dir_path, config_filepath)) {
-        std::cerr << "MeasurementProcessor initialization failed" << std::endl;
-        return;
-    } else {
-        std::cout << "MeasurementProcessor initialization succeeded" << std::endl;
-    }
-
-    const auto& image_file_data = processor.getImageFileData();
+    const auto& image_file_data = measurement_processor.getImageFileData();
     double current_time = -1;
     int32_t measurement_id = 0;
     for (const auto& image_file_data_item : image_file_data) {
@@ -98,7 +102,7 @@ void process()
             continue;
         }
         
-        MeasurementMsg measurement = processor.createMeasurementMsg(measurement_id, image_file_data_item);
+        MeasurementMsg measurement = measurement_processor.createMeasurementMsg(measurement_id, image_file_data_item);
         auto imu_msg = measurement.imu_msg;
         auto image_msg = measurement.image_feature_msg;
         double dx = 0, dy = 0, dz = 0, rx = 0, ry = 0, rz = 0;
@@ -174,33 +178,17 @@ int main(int argc, char* argv[]) {
     }
     utility::g_config.print();
 
-    setParameters();
+    vioInitialize(g_config);
 
-    // Initialize TestResultLogger first
-    std::cout << "Initializing TestResultLogger..." << std::endl;
-    if (!result_logger.initialize(config_file)) {
-        std::cerr << "Failed to initialize TestResultLogger" << std::endl;
-        return 1;
-    }
-    std::cout << "TestResultLogger initialized successfully" << std::endl;
-
-    // Initialize Visualizer with logger reference
-    std::cout << "Starting with Visualizer 3D visualization..." << std::endl;
-    if (!visualizer.initialize(config_file, &result_logger)) {
-        std::cerr << "Failed to initialize Visualizer" << std::endl;
-        return 1;
-    }
-    std::cout << "Visualizer initialized successfully" << std::endl;
-
-    std::thread process_thread(process);
+    std::thread vio_process_thread(vioProcess);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     
     std::cout << "Starting Visualizer in main thread..." << std::endl;
     visualizer.pangolinViewerThread();
     
     std::cout << "\n✅ All measurement files processed!" << std::endl;
-    if (process_thread.joinable()) {
-        process_thread.join();
+    if (vio_process_thread.joinable()) {
+        vio_process_thread.join();
     }
     std::cout << "Process thread joined" << std::endl;
     return 0;

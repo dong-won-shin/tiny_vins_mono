@@ -1,6 +1,5 @@
 #include "utility/visualizer.h"
 #include "utility/config.h"
-#include "utility/test_result_logger.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -13,19 +12,16 @@ using namespace utility;
 namespace fs = std::experimental::filesystem;
 
 Visualizer::Visualizer() 
-    : running_(false), g_s_cam_(nullptr), g_d_cam_(nullptr), logger_(nullptr) {
+    : running_(false), g_s_cam_(nullptr), g_d_cam_(nullptr) {
 }
 
 Visualizer::~Visualizer() {
     stop();
 }
 
-bool Visualizer::initialize(const std::string& config_path, utility::TestResultLogger* logger) {
+bool Visualizer::initialize() {
     try {
         std::cout << "=== Visualizer Initialization Start ===" << std::endl;
-        
-        // Store logger reference
-        logger_ = logger;
         
         // DISPLAY environment variable check
         const char* display = getenv("DISPLAY");
@@ -391,11 +387,6 @@ void Visualizer::updateCameraPose(const Eigen::Vector3d& position, const Eigen::
     camera_poses_.push_back(position);
     camera_rotations_.push_back(rotation);
     trajectory_timestamps_.push_back(timestamp);
-    
-    // Forward to logger if available
-    if (logger_) {
-        logger_->addPose(position, rotation, timestamp);
-    }
     
     // Log progress occasionally
     static int log_counter = 0;
