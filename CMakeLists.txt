@@ -43,19 +43,19 @@ add_library(initializer
 )
 target_link_libraries(initializer ceres utility ${OpenCV_LIBS})
 
-add_library(gpl src/frontend/camodocal/gpl/gpl.cc)
+add_library(gpl src/common/gpl/gpl.cc)
 target_link_libraries(gpl)
 
-add_library(camodocal
-    src/frontend/camodocal/camera_models/CameraFactory.cc
-    src/frontend/camodocal/camera_models/CataCamera.cc
-    src/frontend/camodocal/camera_models/PinholeCamera.cc
-    src/frontend/camodocal/camera_models/Camera.cc
-    src/frontend/camodocal/camera_models/EquidistantCamera.cc
-    src/frontend/camodocal/camera_models/ScaramuzzaCamera.cc
-    src/frontend/camodocal/camera_models/CostFunctionFactory.cc
+add_library(camera_models
+    src/common/camera_models/CameraFactory.cc
+    src/common/camera_models/CataCamera.cc
+    src/common/camera_models/PinholeCamera.cc
+    src/common/camera_models/Camera.cc
+    src/common/camera_models/EquidistantCamera.cc
+    src/common/camera_models/ScaramuzzaCamera.cc
+    src/common/camera_models/CostFunctionFactory.cc
 )
-target_link_libraries(camodocal gpl)
+target_link_libraries(camera_models gpl)
 
 add_library(feature_tracker
     src/frontend/feature_tracker.cpp
@@ -63,7 +63,7 @@ add_library(feature_tracker
 target_link_libraries(feature_tracker
     utility
     ceres
-    camodocal
+    camera_models
 )
 
 add_library(estimator

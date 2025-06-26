@@ -9,8 +9,8 @@
 #include <opencv2/opencv.hpp>
 #include <queue>
 
-#include "frontend/camodocal/camera_models/CameraFactory.h"
-#include "frontend/camodocal/camera_models/PinholeCamera.h"
+#include "common/camera_models/CameraFactory.h"
+#include "common/camera_models/PinholeCamera.h"
 #include "utility/config.h"
 
 using namespace std;

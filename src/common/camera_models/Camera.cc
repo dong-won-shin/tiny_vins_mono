@@ -1,8 +1,8 @@
-#include "frontend/camodocal/camera_models/Camera.h"
+#include "common/camera_models/Camera.h"
 
 #include <opencv2/calib3d/calib3d.hpp>
 
-#include "frontend/camodocal/camera_models/ScaramuzzaCamera.h"
+#include "common/camera_models/ScaramuzzaCamera.h"
 
 namespace camodocal {
 
