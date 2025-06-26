@@ -83,7 +83,7 @@ public:
     void removeBack();
     void removeFront(int frame_count);
     void removeOutlier();
-    list<FeaturePerId> feature_;
+    list<FeaturePerId> feature_bank_;
     int last_track_num_;
 
 private:

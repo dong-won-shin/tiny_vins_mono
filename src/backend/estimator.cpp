@@ -266,7 +266,7 @@ std::vector<Eigen::Vector3d> Estimator::getSlidingWindowMapPoints() const {
     std::lock_guard<std::mutex> lock(estimator_mutex_);
     std::vector<Eigen::Vector3d> new_points;
     if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
-        for (const auto& it_per_id : feature_manager_.feature_) {
+        for (const auto& it_per_id : feature_manager_.feature_bank_) {
             if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
                 continue;
             if (it_per_id.estimated_depth > 0 && it_per_id.solve_flag == 1) {

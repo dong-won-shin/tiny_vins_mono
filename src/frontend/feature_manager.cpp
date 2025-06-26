@@ -9,12 +9,12 @@ int FeaturePerId::endFrame() {
 FeatureManager::FeatureManager() {}
 
 void FeatureManager::clearState() {
-    feature_.clear();
+    feature_bank_.clear();
 }
 
 int FeatureManager::getFeatureCount() {
     int cnt = 0;
-    for (auto& it : feature_) {
+    for (auto& it : feature_bank_) {
         it.used_num = it.feature_per_frame.size();
 
         if (it.used_num >= 2 && it.start_frame < WINDOW_SIZE - 2) {
@@ -32,13 +32,13 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
         FeaturePerFrame feature_per_frame(feature_id_and_points.second);
 
         int feature_id = feature_id_and_points.first;
-        auto it = find_if(feature_.begin(), feature_.end(),
+        auto it = find_if(feature_bank_.begin(), feature_bank_.end(),
                           [feature_id](const FeaturePerId& it) { return it.feature_id == feature_id; });
 
         // new feature
-        if (it == feature_.end()) {
-            feature_.push_back(FeaturePerId(feature_id, frame_count));
-            feature_.back().feature_per_frame.push_back(feature_per_frame);
+        if (it == feature_bank_.end()) {
+            feature_bank_.push_back(FeaturePerId(feature_id, frame_count));
+            feature_bank_.back().feature_per_frame.push_back(feature_per_frame);
         // tracked feature
         } else if (it->feature_id == feature_id) {
             it->feature_per_frame.push_back(feature_per_frame);
@@ -52,7 +52,7 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
         return true;
     }
 
-    for (auto& it_per_id : feature_) {
+    for (auto& it_per_id : feature_bank_) {
         if (it_per_id.start_frame <= frame_count - 2 &&
             it_per_id.start_frame + int(it_per_id.feature_per_frame.size()) - 1 >= frame_count - 1) {
             parallax_sum += compensatedParallax2(it_per_id, frame_count);
@@ -71,7 +71,7 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
 
 Correspondences FeatureManager::getCorresponding(int frame_count_l, int frame_count_r) {
     frontend::Correspondences corres;
-    for (auto& it : feature_) {
+    for (auto& it : feature_bank_) {
         if (it.start_frame <= frame_count_l && it.endFrame() >= frame_count_r) {
             Vector3d a = Vector3d::Zero(), b = Vector3d::Zero();
             int idx_l = frame_count_l - it.start_frame;
@@ -89,7 +89,7 @@ Correspondences FeatureManager::getCorresponding(int frame_count_l, int frame_co
 
 void FeatureManager::setDepth(const VectorXd& x) {
     int feature_index = -1;
-    for (auto& it_per_id : feature_) {
+    for (auto& it_per_id : feature_bank_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
             continue;
@@ -103,16 +103,16 @@ void FeatureManager::setDepth(const VectorXd& x) {
 }
 
 void FeatureManager::removeFailures() {
-    for (auto it = feature_.begin(), it_next = feature_.begin(); it != feature_.end(); it = it_next) {
+    for (auto it = feature_bank_.begin(), it_next = feature_bank_.begin(); it != feature_bank_.end(); it = it_next) {
         it_next++;
         if (it->solve_flag == 2)
-            feature_.erase(it);
+            feature_bank_.erase(it);
     }
 }
 
 void FeatureManager::clearDepth(const VectorXd& x) {
     int feature_index = -1;
-    for (auto& it_per_id : feature_) {
+    for (auto& it_per_id : feature_bank_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
             continue;
@@ -123,7 +123,7 @@ void FeatureManager::clearDepth(const VectorXd& x) {
 VectorXd FeatureManager::getDepthVector() {
     VectorXd dep_vec(getFeatureCount());
     int feature_index = -1;
-    for (auto& it_per_id : feature_) {
+    for (auto& it_per_id : feature_bank_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
             continue;
@@ -134,7 +134,7 @@ VectorXd FeatureManager::getDepthVector() {
 
 void FeatureManager::triangulate(const backend::SlidingWindow& sliding_window, const Vector3d& t_ic,
                                  const Matrix3d& r_ic) {
-    for (auto& it_per_id : feature_) {
+    for (auto& it_per_id : feature_bank_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
             continue;
@@ -187,18 +187,18 @@ void FeatureManager::triangulate(const backend::SlidingWindow& sliding_window, c
 void FeatureManager::removeOutlier() {
     assert(false);
     int i = -1;
-    for (auto it = feature_.begin(), it_next = feature_.begin(); it != feature_.end(); it = it_next) {
+    for (auto it = feature_bank_.begin(), it_next = feature_bank_.begin(); it != feature_bank_.end(); it = it_next) {
         it_next++;
         i += it->used_num != 0;
         if (it->used_num != 0 && it->is_outlier == true) {
-            feature_.erase(it);
+            feature_bank_.erase(it);
         }
     }
 }
 
 void FeatureManager::removeBackShiftDepth(Eigen::Matrix3d marg_R, Eigen::Vector3d marg_P, Eigen::Matrix3d new_R,
                                           Eigen::Vector3d new_P) {
-    for (auto it = feature_.begin(), it_next = feature_.begin(); it != feature_.end(); it = it_next) {
+    for (auto it = feature_bank_.begin(), it_next = feature_bank_.begin(); it != feature_bank_.end(); it = it_next) {
         it_next++;
 
         if (it->start_frame != 0)
@@ -207,7 +207,7 @@ void FeatureManager::removeBackShiftDepth(Eigen::Matrix3d marg_R, Eigen::Vector3
             Eigen::Vector3d uv_i = it->feature_per_frame[0].point;
             it->feature_per_frame.erase(it->feature_per_frame.begin());
             if (it->feature_per_frame.size() < 2) {
-                feature_.erase(it);
+                feature_bank_.erase(it);
                 continue;
             } else {
                 Eigen::Vector3d pts_i = uv_i * it->estimated_depth;
@@ -224,7 +224,7 @@ void FeatureManager::removeBackShiftDepth(Eigen::Matrix3d marg_R, Eigen::Vector3
 }
 
 void FeatureManager::removeBack() {
-    for (auto it = feature_.begin(), it_next = feature_.begin(); it != feature_.end(); it = it_next) {
+    for (auto it = feature_bank_.begin(), it_next = feature_bank_.begin(); it != feature_bank_.end(); it = it_next) {
         it_next++;
 
         if (it->start_frame != 0)
@@ -232,13 +232,13 @@ void FeatureManager::removeBack() {
         else {
             it->feature_per_frame.erase(it->feature_per_frame.begin());
             if (it->feature_per_frame.size() == 0)
-                feature_.erase(it);
+                feature_bank_.erase(it);
         }
     }
 }
 
 void FeatureManager::removeFront(int frame_count) {
-    for (auto it = feature_.begin(), it_next = feature_.begin(); it != feature_.end(); it = it_next) {
+    for (auto it = feature_bank_.begin(), it_next = feature_bank_.begin(); it != feature_bank_.end(); it = it_next) {
         it_next++;
 
         if (it->start_frame == frame_count) {
@@ -249,7 +249,7 @@ void FeatureManager::removeFront(int frame_count) {
                 continue;
             it->feature_per_frame.erase(it->feature_per_frame.begin() + j);
             if (it->feature_per_frame.size() == 0)
-                feature_.erase(it);
+                feature_bank_.erase(it);
         }
     }
 }
