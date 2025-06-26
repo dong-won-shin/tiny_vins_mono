@@ -1,5 +1,5 @@
-#ifndef INITIAL_SFM_H
-#define INITIAL_SFM_H
+#ifndef FRONTEND__INITIALIZATION__INITIAL_SFM_H
+#define FRONTEND__INITIALIZATION__INITIAL_SFM_H
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
@@ -71,4 +71,4 @@ private:
 }  // namespace initialization
 }  // namespace frontend
 
-#endif  // INITIAL_SFM_H
+#endif  // FRONTEND__INITIALIZATION__INITIAL_SFM_H

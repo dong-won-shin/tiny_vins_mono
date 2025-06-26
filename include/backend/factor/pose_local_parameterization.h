@@ -1,5 +1,5 @@
-#ifndef POSE_LOCAL_PARAMETERIZATION_H
-#define POSE_LOCAL_PARAMETERIZATION_H
+#ifndef BACKEND__FACTOR__POSE_LOCAL_PARAMETERIZATION_H
+#define BACKEND__FACTOR__POSE_LOCAL_PARAMETERIZATION_H
 
 #include <ceres/ceres.h>
 #include <eigen3/Eigen/Dense>
@@ -23,4 +23,4 @@ class PoseLocalParameterization : public ceres::LocalParameterization {
 }  // namespace factor
 }  // namespace backend
 
-#endif
+#endif  // BACKEND__FACTOR__POSE_LOCAL_PARAMETERIZATION_H

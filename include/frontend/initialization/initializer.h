@@ -1,5 +1,5 @@
-#ifndef INITIALIZER_H
-#define INITIALIZER_H
+#ifndef FRONTEND__INITIALIZATION__INITIALIZER_H
+#define FRONTEND__INITIALIZATION__INITIALIZER_H
 
 #include <Eigen/Dense>
 #include <map>
@@ -48,4 +48,4 @@ private:
 }  // namespace initialization
 }  // namespace frontend
 
-#endif  // INITIALIZER_H
+#endif  // FRONTEND__INITIALIZATION__INITIALIZER_H

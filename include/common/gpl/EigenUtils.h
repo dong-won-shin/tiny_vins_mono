@@ -1,5 +1,5 @@
-#ifndef EIGENUTILS_H
-#define EIGENUTILS_H
+#ifndef COMMON__GPL__EIGEN_UTILS_H
+#define COMMON__GPL__EIGEN_UTILS_H
 
 #include <eigen3/Eigen/Dense>
 
@@ -366,4 +366,4 @@ Eigen::Matrix<T, 4, 4> estimate3DRigidSimilarityTransform(
 }  // namespace gpl
 }  // namespace common
 
-#endif
+#endif  // COMMON__GPL__EIGEN_UTILS_H

@@ -1,5 +1,5 @@
-#ifndef CAMERAFACTORY_H
-#define CAMERAFACTORY_H
+#ifndef COMMON__CAMERA_MODELS__CAMERA_FACTORY_H
+#define COMMON__CAMERA_MODELS__CAMERA_FACTORY_H
 
 #include <boost/shared_ptr.hpp>
 #include <opencv2/core/core.hpp>
@@ -27,4 +27,4 @@ private:
 }  // namespace camera_models
 }  // namespace common
 
-#endif
+#endif  // COMMON__CAMERA_MODELS__CAMERA_FACTORY_H

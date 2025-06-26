@@ -1,5 +1,5 @@
-#ifndef EQUIDISTANTCAMERA_H
-#define EQUIDISTANTCAMERA_H
+#ifndef COMMON__CAMERA_MODELS__EQUIDISTANT_CAMERA_H
+#define COMMON__CAMERA_MODELS__EQUIDISTANT_CAMERA_H
 
 #include <opencv2/core/core.hpp>
 #include <string>
@@ -188,4 +188,4 @@ void EquidistantCamera::spaceToPlane(const T* const params, const T* const q, co
 }  // namespace camera_models
 }  // namespace common
 
-#endif
+#endif  // COMMON__CAMERA_MODELS__EQUIDISTANT_CAMERA_H

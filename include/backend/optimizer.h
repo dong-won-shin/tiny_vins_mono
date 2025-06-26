@@ -1,5 +1,5 @@
-#ifndef OPTIMIZER_H
-#define OPTIMIZER_H
+#ifndef BACKEND__OPTIMIZER_H
+#define BACKEND__OPTIMIZER_H
 
 #include <ceres/ceres.h>
 #include <Eigen/Dense>
@@ -78,4 +78,4 @@ private:
 
 }  // namespace backend
 
-#endif  // OPTIMIZER_H
+#endif  // BACKEND__OPTIMIZER_H

@@ -1,5 +1,5 @@
-#ifndef SOLVE_5PTS_H
-#define SOLVE_5PTS_H
+#ifndef FRONTEND__INITIALIZATION__SOLVE_5PTS_H
+#define FRONTEND__INITIALIZATION__SOLVE_5PTS_H
 
 #include <eigen3/Eigen/Dense>
 #include <opencv2/opencv.hpp>
@@ -26,4 +26,4 @@ private:
 }  // namespace initialization
 }  // namespace frontend
 
-#endif  // SOLVE_5PTS_H
+#endif  // FRONTEND__INITIALIZATION__SOLVE_5PTS_H

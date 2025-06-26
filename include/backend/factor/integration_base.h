@@ -1,5 +1,5 @@
-#ifndef INTEGRATION_BASE_H
-#define INTEGRATION_BASE_H
+#ifndef BACKEND__FACTOR__INTEGRATION_BASE_H
+#define BACKEND__FACTOR__INTEGRATION_BASE_H
 
 #include <eigen3/Eigen/Dense>
 #include <iostream>
@@ -215,4 +215,4 @@ public:
 }  // namespace factor
 }  // namespace backend
 
-#endif  // INTEGRATION_BASE_H
+#endif  // BACKEND__FACTOR__INTEGRATION_BASE_H

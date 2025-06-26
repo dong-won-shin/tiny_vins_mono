@@ -1,5 +1,5 @@
-#ifndef MEASUREMENT_PROCESSOR_H
-#define MEASUREMENT_PROCESSOR_H
+#ifndef UTILITY__MEASUREMENT_PROCESSOR_H
+#define UTILITY__MEASUREMENT_PROCESSOR_H
 
 #include <array>
 #include <string>
@@ -94,4 +94,4 @@ private:
 
 }  // namespace utility
 
-#endif  // MEASUREMENT_PROCESSOR_H
+#endif  // UTILITY__MEASUREMENT_PROCESSOR_H
