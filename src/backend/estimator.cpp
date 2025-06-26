@@ -253,7 +253,6 @@ void Estimator::solveOdometry() {
     if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
         feature_manager_.triangulate(sliding_window_, t_ic_, r_ic_);
 
-        // Use optimizer for optimization
         optimizer_.optimize(marginalization_flag_);
 
         // Update extrinsic parameters from optimizer

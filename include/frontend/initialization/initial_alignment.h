@@ -16,8 +16,8 @@ using namespace std;
 
 namespace frontend {
 
-bool VisualIMUAlignment(map<double, common::ImageFrame> const &all_image_frame,
-                        backend::SlidingWindow &sliding_window, Vector3d &g, VectorXd &x);
+bool VisualIMUAlignment(map<double, common::ImageFrame> const& all_image_frame, backend::SlidingWindow& sliding_window,
+                        Vector3d& g, VectorXd& x);
 }
 
 #endif  // INITIAL_ALIGNMENT_H
