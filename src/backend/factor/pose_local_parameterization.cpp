@@ -20,10 +20,42 @@ bool PoseLocalParameterization::Plus(const double *x, const double *delta,
 
   return true;
 }
-bool PoseLocalParameterization::ComputeJacobian(const double *x, double *jacobian) const {
+bool PoseLocalParameterization::PlusJacobian(const double *x, double *jacobian) const {
   Eigen::Map<Eigen::Matrix<double, 7, 6, Eigen::RowMajor>> j(jacobian);
   j.topRows<6>().setIdentity();
   j.bottomRows<1>().setZero();
+
+  return true;
+}
+
+bool PoseLocalParameterization::Minus(const double *y, const double *x, double *y_minus_x) const {
+  Eigen::Map<const Eigen::Vector3d> p_x(x);
+  Eigen::Map<const Eigen::Quaterniond> q_x(x + 3);
+  
+  Eigen::Map<const Eigen::Vector3d> p_y(y);
+  Eigen::Map<const Eigen::Quaterniond> q_y(y + 3);
+
+  Eigen::Map<Eigen::Vector3d> dp(y_minus_x);
+  Eigen::Map<Eigen::Vector3d> dq(y_minus_x + 3);
+
+  dp = p_y - p_x;
+  
+  Eigen::Quaterniond delta_q = q_x.inverse() * q_y;
+  dq = 2.0 * delta_q.vec();
+  if (delta_q.w() < 0) {
+    dq = -dq;
+  }
+
+  return true;
+}
+
+bool PoseLocalParameterization::MinusJacobian(const double *x, double *jacobian) const {
+  Eigen::Map<Eigen::Matrix<double, 6, 7, Eigen::RowMajor>> j(jacobian);
+  j.topLeftCorner<3, 3>().setIdentity();
+  j.topRightCorner<3, 4>().setZero();
+  j.bottomLeftCorner<3, 3>().setZero();
+  j.bottomRightCorner<3, 4>().setZero();
+  j.block<3, 3>(3, 3).setIdentity();
 
   return true;
 }

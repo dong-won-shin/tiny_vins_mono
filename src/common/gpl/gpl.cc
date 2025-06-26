@@ -42,6 +42,7 @@ const double WGS84_ECCSQ = 0.00669437999013;
 #endif
 
 namespace common {
+namespace gpl {
 
 double hypot3(double x, double y, double z) {
     return sqrt(square(x) + square(y) + square(z));
@@ -668,4 +669,5 @@ long int timestampDiff(uint64_t t1, uint64_t t2) {
     }
 }
 
+}  // namespace gpl
 }  // namespace common

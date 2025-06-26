@@ -3,10 +3,11 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include "camodocal/gpl/gpl.h"
+#include "common/gpl/gpl.h"
 #include "ceres/rotation.h"
 
 namespace common {
+namespace gpl {
 
 // Returns the 3D cross product skew symmetric matrix of a given 3D vector
 template <typename T>
@@ -362,6 +363,7 @@ Eigen::Matrix<T, 4, 4> estimate3DRigidSimilarityTransform(
     return homogeneousTransform(sR, t);
 }
 
+}  // namespace gpl
 }  // namespace common
 
 #endif

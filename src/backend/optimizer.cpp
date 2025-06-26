@@ -41,13 +41,13 @@ void Optimizer::optimize(common::MarginalizationFlag marginalization_flag) {
 void Optimizer::setupOptimizationProblem(ceres::Problem& problem) {
     // Add pose and speed-bias parameter blocks for sliding window
     for (int i = 0; i < WINDOW_SIZE + 1; i++) {
-        ceres::LocalParameterization* local_parameterization = new backend::factor::PoseLocalParameterization();
+        ceres::Manifold* local_parameterization = new backend::factor::PoseLocalParameterization();
         problem.AddParameterBlock(para_Pose[i], SIZE_POSE, local_parameterization);  // R, P
         problem.AddParameterBlock(para_SpeedAndBiases[i], SIZE_SPEEDANDBIAS);        // V, Ba, Bg
     }
 
     // Add extrinsic parameter block
-    ceres::LocalParameterization* local_parameterization = new backend::factor::PoseLocalParameterization();
+    ceres::Manifold* local_parameterization = new backend::factor::PoseLocalParameterization();
     problem.AddParameterBlock(para_Ex_Pose, SIZE_POSE, local_parameterization);
     problem.SetParameterBlockConstant(para_Ex_Pose);
 

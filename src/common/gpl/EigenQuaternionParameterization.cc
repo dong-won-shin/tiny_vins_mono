@@ -1,8 +1,9 @@
-#include "camodocal/gpl/EigenQuaternionParameterization.h"
+#include "common/gpl/EigenQuaternionParameterization.h"
 
 #include <cmath>
 
 namespace common {
+namespace gpl {
 
 bool EigenQuaternionParameterization::Plus(const double* x, const double* delta, double* x_plus_delta) const {
     const double norm_delta = sqrt(delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]);
@@ -22,7 +23,7 @@ bool EigenQuaternionParameterization::Plus(const double* x, const double* delta,
     return true;
 }
 
-bool EigenQuaternionParameterization::ComputeJacobian(const double* x, double* jacobian) const {
+bool EigenQuaternionParameterization::PlusJacobian(const double* x, double* jacobian) const {
     jacobian[0] = x[3];
     jacobian[1] = x[2];
     jacobian[2] = -x[1];  // NOLINT
@@ -38,4 +39,5 @@ bool EigenQuaternionParameterization::ComputeJacobian(const double* x, double* j
     return true;
 }
 
+}  // namespace gpl
 }  // namespace common

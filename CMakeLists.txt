@@ -43,8 +43,11 @@ add_library(initializer
 )
 target_link_libraries(initializer ceres utility ${OpenCV_LIBS})
 
-add_library(gpl src/common/gpl/gpl.cc)
-target_link_libraries(gpl)
+add_library(gpl 
+    src/common/gpl/gpl.cc
+    src/common/gpl/EigenQuaternionParameterization.cc
+)
+target_link_libraries(gpl ceres)
 
 add_library(camera_models
     src/common/camera_models/CameraFactory.cc

@@ -197,7 +197,7 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
 
     // full BA
     ceres::Problem problem;
-    ceres::LocalParameterization* local_parameterization = new ceres::QuaternionParameterization();
+    ceres::Manifold* local_parameterization = new ceres::QuaternionManifold();
     // cout << " begin full BA " << endl;
     for (int i = 0; i < frame_num; i++) {
         // double array for ceres

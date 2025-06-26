@@ -204,7 +204,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
 
     if (g_config.feature_tracker.show_track) {
         cv::Mat tmp_img = show_img.rowRange(0, g_config.camera.row);
-        cv::cvtColor(show_img, tmp_img, CV_GRAY2RGB);
+        cv::cvtColor(show_img, tmp_img, cv::COLOR_GRAY2RGB);
 
         for (unsigned int j = 0; j < feature_tracker_->cur_pts.size(); j++) {
             double len = std::min(1.0, 1.0 * feature_tracker_->track_cnt[j] / g_config.feature_tracker.window_size);

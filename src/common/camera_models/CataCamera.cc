@@ -1,4 +1,5 @@
 #include "common/camera_models/CataCamera.h"
+#include "common/gpl/gpl.h"
 
 #include <cmath>
 #include <cstdio>
@@ -314,13 +315,13 @@ void CataCamera::estimateIntrinsics(const cv::Size& boardSize,
                 P.at<double>(c, 0) = u;
                 P.at<double>(c, 1) = v;
                 P.at<double>(c, 2) = 0.5;
-                P.at<double>(c, 3) = -0.5 * (square(u) + square(v));
+                P.at<double>(c, 3) = -0.5 * (common::gpl::square(u) + common::gpl::square(v));
             }
 
             cv::Mat C;
             cv::SVD::solveZ(P, C);
 
-            double t = square(C.at<double>(0)) + square(C.at<double>(1)) + C.at<double>(2) * C.at<double>(3);
+            double t = common::gpl::square(C.at<double>(0)) + common::gpl::square(C.at<double>(1)) + C.at<double>(2) * C.at<double>(3);
             if (t < 0.0) {
                 continue;
             }
