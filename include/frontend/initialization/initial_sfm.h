@@ -15,6 +15,7 @@ using namespace Eigen;
 using namespace std;
 
 namespace frontend {
+namespace initialization {
 
 struct SFMFeature {
     bool state;
@@ -67,6 +68,7 @@ private:
     int feature_num;
 };
 
+}  // namespace initialization
 }  // namespace frontend
 
 #endif  // INITIAL_SFM_H
