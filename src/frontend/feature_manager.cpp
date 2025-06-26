@@ -22,7 +22,7 @@ int FeatureManager::getFeatureCount() {
   return cnt;
 }
 
-bool FeatureManager::addFeatureCheckParallax(int frame_count, const ImageData &image) {
+bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::ImageData &image) {
   // std::cout << "input feature: " << (int)image.size() << std::endl;
   // std::cout << "num of feature: " << getFeatureCount() << std::endl;
   double parallax_sum = 0;

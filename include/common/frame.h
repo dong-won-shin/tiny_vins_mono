@@ -5,6 +5,8 @@
 
 #include "backend/factor/integration_base.h"
 
+namespace common {
+
 class Frame {
 public:
     Frame() = default;
@@ -24,4 +26,7 @@ public:
     std::vector<Eigen::Vector3d> linear_acceleration_buf;
     std::vector<Eigen::Vector3d> angular_velocity_buf;
 };
+
+} // namespace common
+
 #endif

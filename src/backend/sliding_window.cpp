@@ -62,11 +62,11 @@ void SlidingWindow::createNewPreintegration(int32_t index, const Eigen::Vector3d
         linear_acceleration, angular_velocity, sliding_window[index].Ba, sliding_window[index].Bg);
 }
 
-const Frame& SlidingWindow::front() const {
+const common::Frame& SlidingWindow::front() const {
     return sliding_window[0];
 }
 
-const Frame& SlidingWindow::back() const {
+const common::Frame& SlidingWindow::back() const {
     return sliding_window[WINDOW_SIZE];
 }
 

@@ -15,11 +15,11 @@ public:
 
     void clearSlidingWindow();
 
-    Frame& operator[](int index) {
+    common::Frame& operator[](int index) {
         return sliding_window[index];
     }
 
-    const Frame& operator[](int index) const {
+    const common::Frame& operator[](int index) const {
         return sliding_window[index];
     }
 
@@ -37,11 +37,11 @@ public:
     void createNewPreintegration(int32_t index, const Eigen::Vector3d& linear_acceleration,
                                  const Eigen::Vector3d& angular_velocity);
 
-    const Frame& front() const;
-    const Frame& back() const;
+    const common::Frame& front() const;
+    const common::Frame& back() const;
 
 private:
-    std::array<Frame, WINDOW_SIZE + 1> sliding_window;
+    std::array<common::Frame, WINDOW_SIZE + 1> sliding_window;
 };
 
 }  // namespace backend

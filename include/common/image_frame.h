@@ -11,6 +11,8 @@
 using namespace Eigen;
 using namespace std;
 
+namespace common {
+
 using ImageData = std::map<int, vector<Eigen::Matrix<double, 7, 1>>>;
 
 /**
@@ -132,5 +134,7 @@ public:
     /// Flag indicating if this is a keyframe
     bool is_key_frame;
 };
+
+} // namespace common
 
 #endif

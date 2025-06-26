@@ -18,8 +18,8 @@ class Estimator;  // Forward declaration
 class Initializer {
 public:
   Initializer(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager,
-              MotionEstimator* motion_estimator, std::map<double, ImageFrame>* all_image_frame,
-              int* frame_count, MarginalizationFlag* marginalization_flag, Vector3d* g,
+              MotionEstimator* motion_estimator, std::map<double, common::ImageFrame>* all_image_frame,
+              int* frame_count, common::MarginalizationFlag* marginalization_flag, Vector3d* g,
               const Matrix3d* r_ic, const Vector3d* t_ic);
 
   // Main initialization method
@@ -37,9 +37,9 @@ private:
   backend::SlidingWindow* sliding_window_;
   FeatureManager* feature_manager_;
   MotionEstimator* motion_estimator_;
-  std::map<double, ImageFrame>* all_image_frame_;
+  std::map<double, common::ImageFrame>* all_image_frame_;
   int* frame_count_;
-  MarginalizationFlag* marginalization_flag_;
+  common::MarginalizationFlag* marginalization_flag_;
   Vector3d* g_;
   const Matrix3d* r_ic_;
   const Vector3d* t_ic_;

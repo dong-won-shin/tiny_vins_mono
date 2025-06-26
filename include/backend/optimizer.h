@@ -23,7 +23,7 @@ public:
   ~Optimizer();
 
     // Main optimization interface
-    void optimize(MarginalizationFlag marginalization_flag);
+    void optimize(common::MarginalizationFlag marginalization_flag);
 
     // Setter for extrinsic parameters
     void setExtrinsicParameters(const Vector3d& t_ic, const Matrix3d& r_ic);
@@ -51,7 +51,7 @@ private:
   void addIMUFactorForMarginalization(factor::MarginalizationInfo* marginalization_info);
   void performMarginalizationForOldKeyframe(factor::MarginalizationInfo* marginalization_info);
   void performMarginalizationForNewGeneralFrame(factor::MarginalizationInfo* marginalization_info);
-  void handleMarginalization(MarginalizationFlag marginalization_flag);
+  void handleMarginalization(common::MarginalizationFlag marginalization_flag);
 
   // Parameter management
   void prepareOptimizationParameters();

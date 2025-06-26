@@ -22,15 +22,15 @@ public:
     void setParameter();
 
     void processIMU(double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity);
-    void processImage(const ImageData& image, double timestamp);
+    void processImage(const common::ImageData& image, double timestamp);
 
     Matrix3d r_ic_;
     Vector3d t_ic_;
 
     SlidingWindow sliding_window_;
 
-    SolverFlag solver_flag_;
-    MarginalizationFlag marginalization_flag_;
+    common::SolverFlag solver_flag_;
+    common::MarginalizationFlag marginalization_flag_;
 
     std::vector<Eigen::Vector3d> getSlidingWindowMapPoints() const;
 
@@ -44,7 +44,7 @@ private:
     void solveOdometry();
 
     void cleanupOldImageFrames(double timestamp);
-    void cleanupPreIntegration(ImageFrame& frame);
+    void cleanupPreIntegration(common::ImageFrame& frame);
 
     void propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
                            const Vector3d& angular_velocity);
@@ -61,7 +61,7 @@ private:
 
     backend::factor::IntegrationBase* tmp_pre_integration_;
 
-    std::map<double, ImageFrame> all_image_frame_;
+    std::map<double, common::ImageFrame> all_image_frame_;
 
     Matrix3d last_R_end_;
     Vector3d last_P_end_;

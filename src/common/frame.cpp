@@ -1,5 +1,7 @@
 #include "common/frame.h"
 
+namespace common {
+
 void Frame::clear() {
     timestamp = 0.0;
     R = Eigen::Matrix3d::Identity();
@@ -13,3 +15,5 @@ void Frame::clear() {
     linear_acceleration_buf.clear();
     angular_velocity_buf.clear();
 }
+
+} // namespace common

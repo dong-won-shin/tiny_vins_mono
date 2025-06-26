@@ -22,7 +22,7 @@ void Optimizer::setExtrinsicParameters(const Vector3d& t_ic, const Matrix3d& r_i
     r_ic_ = r_ic;
 }
 
-void Optimizer::optimize(MarginalizationFlag marginalization_flag) {
+void Optimizer::optimize(common::MarginalizationFlag marginalization_flag) {
     // STEP 1: Setup optimization problem and parameter blocks
     ceres::Problem problem;
     ceres::LossFunction* loss_function = setupOptimizationProblem(problem);
@@ -167,10 +167,10 @@ void Optimizer::applyOptimizationResults() {
     feature_manager_->setDepth(dep);
 }
 
-void Optimizer::handleMarginalization(MarginalizationFlag marginalization_flag) {
-    if (marginalization_flag == MarginalizationFlag::MARGIN_OLD_KEYFRAME) {
+void Optimizer::handleMarginalization(common::MarginalizationFlag marginalization_flag) {
+    if (marginalization_flag == common::MarginalizationFlag::MARGIN_OLD_KEYFRAME) {
         marginalizeOldKeyframe();
-    } else if (marginalization_flag == MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME) {
+    } else if (marginalization_flag == common::MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME) {
         marginalizeNewGeneralFrame();
     }
 }

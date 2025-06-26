@@ -12,15 +12,15 @@
 
 namespace frontend {
 
-void solveGyroscopeBias(map<double, ImageFrame> const &all_image_frame,
+void solveGyroscopeBias(map<double, common::ImageFrame> const &all_image_frame,
                         backend::SlidingWindow &sliding_window) {
   Matrix3d A;
   Vector3d b;
   Vector3d delta_bg;
   A.setZero();
   b.setZero();
-  map<double, ImageFrame>::const_iterator frame_i;
-  map<double, ImageFrame>::const_iterator frame_j;
+  map<double, common::ImageFrame>::const_iterator frame_i;
+  map<double, common::ImageFrame>::const_iterator frame_j;
   for (frame_i = all_image_frame.begin(); next(frame_i) != all_image_frame.end(); frame_i++) {
     frame_j = next(frame_i);
     MatrixXd tmp_A(3, 3);
@@ -57,7 +57,7 @@ MatrixXd TangentBasis(Vector3d &g0) {
   return bc;
 }
 
-void RefineGravity(map<double, ImageFrame> const &all_image_frame, Vector3d &g, VectorXd &x) {
+void RefineGravity(map<double, common::ImageFrame> const &all_image_frame, Vector3d &g, VectorXd &x) {
   Vector3d g0 = g.normalized() * g_config.estimator.g.norm();
   Vector3d lx, ly;
   // VectorXd x;
@@ -69,8 +69,8 @@ void RefineGravity(map<double, ImageFrame> const &all_image_frame, Vector3d &g, 
   VectorXd b{n_state};
   b.setZero();
 
-  map<double, ImageFrame>::const_iterator frame_i;
-  map<double, ImageFrame>::const_iterator frame_j;
+  map<double, common::ImageFrame>::const_iterator frame_i;
+  map<double, common::ImageFrame>::const_iterator frame_j;
   for (int k = 0; k < 4; k++) {
     MatrixXd lxly(3, 2);
     lxly = TangentBasis(g0);
@@ -129,7 +129,7 @@ void RefineGravity(map<double, ImageFrame> const &all_image_frame, Vector3d &g, 
   g = g0;
 }
 
-bool LinearAlignment(map<double, ImageFrame> const &all_image_frame, Vector3d &g, VectorXd &x) {
+bool LinearAlignment(map<double, common::ImageFrame> const &all_image_frame, Vector3d &g, VectorXd &x) {
   int all_frame_count = all_image_frame.size();
   int n_state = all_frame_count * 3 + 3 + 1;
 
@@ -138,8 +138,8 @@ bool LinearAlignment(map<double, ImageFrame> const &all_image_frame, Vector3d &g
   VectorXd b{n_state};
   b.setZero();
 
-  map<double, ImageFrame>::const_iterator frame_i;
-  map<double, ImageFrame>::const_iterator frame_j;
+  map<double, common::ImageFrame>::const_iterator frame_i;
+  map<double, common::ImageFrame>::const_iterator frame_j;
   int i = 0;
   for (frame_i = all_image_frame.begin(); next(frame_i) != all_image_frame.end(); frame_i++, i++) {
     frame_j = next(frame_i);
@@ -206,7 +206,7 @@ bool LinearAlignment(map<double, ImageFrame> const &all_image_frame, Vector3d &g
     return true;
 }
 
-bool VisualIMUAlignment(map<double, ImageFrame> const &all_image_frame,
+bool VisualIMUAlignment(map<double, common::ImageFrame> const &all_image_frame,
                         backend::SlidingWindow &sliding_window, Vector3d &g, VectorXd &x) {
   solveGyroscopeBias(all_image_frame, sliding_window);
   if (LinearAlignment(all_image_frame, g, x))

@@ -6,8 +6,8 @@ namespace frontend {
 
 Initializer::Initializer(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager,
                          MotionEstimator* motion_estimator,
-                         std::map<double, ImageFrame>* all_image_frame, int* frame_count,
-                         MarginalizationFlag* marginalization_flag, Vector3d* g,
+                         std::map<double, common::ImageFrame>* all_image_frame, int* frame_count,
+                         common::MarginalizationFlag* marginalization_flag, Vector3d* g,
                          const Matrix3d* r_ic, const Vector3d* t_ic)
     : sliding_window_(sliding_window),
       feature_manager_(feature_manager),
@@ -156,7 +156,7 @@ bool Initializer::solveGlobalSfM() {
   if (!sfm.construct((*frame_count_) + 1, Q, T, index, relative_R, relative_T, sfm_f,
                      sfm_tracked_points)) {
     std::cout << "Global SfM reconstruction failed!" << std::endl;
-    *marginalization_flag_ = MarginalizationFlag::MARGIN_OLD_KEYFRAME;
+    *marginalization_flag_ = common::MarginalizationFlag::MARGIN_OLD_KEYFRAME;
     return false;
   }
 
@@ -206,7 +206,7 @@ bool Initializer::relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& 
 
 bool Initializer::solvePnPForAllFrames(const Quaterniond Q[], const Vector3d T[],
                                        const map<int, Vector3d>& sfm_tracked_points) {
-  map<double, ImageFrame>::iterator frame_it;
+  map<double, common::ImageFrame>::iterator frame_it;
   map<int, Vector3d>::const_iterator it;
   frame_it = all_image_frame_->begin();
 
@@ -328,7 +328,7 @@ bool Initializer::visualInitialAlign() {
         (scale * (*sliding_window_).front().P - (*sliding_window_).front().R * (*t_ic_));
 
   int kv = -1;
-  map<double, ImageFrame>::iterator frame_i;
+  map<double, common::ImageFrame>::iterator frame_i;
   for (frame_i = all_image_frame_->begin(); frame_i != all_image_frame_->end(); frame_i++) {
     if (frame_i->second.is_key_frame) {
       kv++;

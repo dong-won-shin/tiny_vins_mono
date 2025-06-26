@@ -41,7 +41,7 @@ void Estimator::clearState() {
     }
     all_image_frame_.clear();
 
-    solver_flag_ = SolverFlag::INITIAL;
+    solver_flag_ = common::SolverFlag::INITIAL;
     first_imu_ = false;
     frame_count_ = 0;
     initial_timestamp_ = 0;
@@ -107,23 +107,23 @@ void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration
     prev_gyro_ = angular_velocity;
 }
 
-void Estimator::processImage(const ImageData& image, double timestamp) {
+void Estimator::processImage(const common::ImageData& image, double timestamp) {
     std::lock_guard<std::mutex> lock(estimator_mutex_);
     if (feature_manager_.addFeatureCheckParallax(frame_count_, image)) {
-        marginalization_flag_ = MarginalizationFlag::MARGIN_OLD_KEYFRAME;
+        marginalization_flag_ = common::MarginalizationFlag::MARGIN_OLD_KEYFRAME;
     } else {
-        marginalization_flag_ = MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME;
+        marginalization_flag_ = common::MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME;
     }
 
     sliding_window_[frame_count_].timestamp = timestamp;
 
-    ImageFrame imageframe(image, timestamp);
+    common::ImageFrame imageframe(image, timestamp);
     imageframe.pre_integration = tmp_pre_integration_;
     all_image_frame_.insert(make_pair(timestamp, imageframe));
     tmp_pre_integration_ = new backend::factor::IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba,
                                                                 sliding_window_[frame_count_].Bg};
 
-    if (solver_flag_ == SolverFlag::INITIAL) {
+    if (solver_flag_ == common::SolverFlag::INITIAL) {
         if (frame_count_ == WINDOW_SIZE) {
             bool visual_map_init_result = false;
             if (timestamp - initial_timestamp_ > 0.1) {
@@ -132,7 +132,7 @@ void Estimator::processImage(const ImageData& image, double timestamp) {
             }
 
             if (visual_map_init_result) {
-                solver_flag_ = SolverFlag::NON_LINEAR;
+                solver_flag_ = common::SolverFlag::NON_LINEAR;
                 solveOdometry();
                 slideWindow();
                 feature_manager_.removeFailures();
@@ -144,7 +144,7 @@ void Estimator::processImage(const ImageData& image, double timestamp) {
         } else {
             frame_count_++;
         }
-    } else if (solver_flag_ == SolverFlag::NON_LINEAR) {
+    } else if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
         solveOdometry();
 
         if (failure_detector_.detectFailure(last_P_end_, last_R_end_)) {
@@ -185,7 +185,7 @@ void Estimator::cleanupOldImageFrames(double timestamp) {
     all_image_frame_.erase(timestamp);
 }
 
-void Estimator::cleanupPreIntegration(ImageFrame& frame) {
+void Estimator::cleanupPreIntegration(common::ImageFrame& frame) {
     if (frame.pre_integration) {
         delete frame.pre_integration;
         frame.pre_integration = nullptr;
@@ -194,9 +194,9 @@ void Estimator::cleanupPreIntegration(ImageFrame& frame) {
 
 void Estimator::slideWindow() {
     if (frame_count_ == WINDOW_SIZE) {
-        if (marginalization_flag_ == MarginalizationFlag::MARGIN_OLD_KEYFRAME) {
+        if (marginalization_flag_ == common::MarginalizationFlag::MARGIN_OLD_KEYFRAME) {
             slideWindowOldKeyframe();
-        } else if (marginalization_flag_ == MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME) {
+        } else if (marginalization_flag_ == common::MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME) {
             slideWindowNewGeneralFrame();
         }
     }
@@ -233,7 +233,7 @@ void Estimator::slideWindowOldKeyframe() {
 
     cleanupOldImageFrames(t_0);
 
-    bool shift_depth = (solver_flag_ == SolverFlag::NON_LINEAR) ? true : false;
+    bool shift_depth = (solver_flag_ == common::SolverFlag::NON_LINEAR) ? true : false;
     if (shift_depth) {
         Matrix3d R0, R1;
         Vector3d P0, P1;
@@ -250,7 +250,7 @@ void Estimator::solveOdometry() {
     if (frame_count_ < WINDOW_SIZE)
         return;
 
-    if (solver_flag_ == SolverFlag::NON_LINEAR) {
+    if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
         feature_manager_.triangulate(sliding_window_, t_ic_, r_ic_);
 
         // Use optimizer for optimization
@@ -265,7 +265,7 @@ void Estimator::solveOdometry() {
 std::vector<Eigen::Vector3d> Estimator::getSlidingWindowMapPoints() const {
     std::lock_guard<std::mutex> lock(estimator_mutex_);
     std::vector<Eigen::Vector3d> new_points;
-    if (solver_flag_ == SolverFlag::NON_LINEAR) {
+    if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
         for (const auto& it_per_id : feature_manager_.feature) {
             if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
                 continue;

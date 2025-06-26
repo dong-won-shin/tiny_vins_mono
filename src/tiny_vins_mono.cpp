@@ -31,7 +31,7 @@ void vioInitialize(const Config& config) {
 }
 
 void updateCameraPose(double timestamp) {
-    if (vio_estimator.solver_flag_ == SolverFlag::NON_LINEAR) {
+    if (vio_estimator.solver_flag_ == common::SolverFlag::NON_LINEAR) {
         int window_size = g_config.estimator.window_size;
         Eigen::Vector3d body_position = vio_estimator.sliding_window_[window_size].P;
         Eigen::Matrix3d body_rotation = vio_estimator.sliding_window_[window_size].R;
@@ -67,7 +67,7 @@ void updateCameraPose(double timestamp) {
 
 void updateFeaturePoints3D() {
     std::vector<Eigen::Vector3d> new_points;
-    if (vio_estimator.solver_flag_ == SolverFlag::NON_LINEAR) {
+    if (vio_estimator.solver_flag_ == common::SolverFlag::NON_LINEAR) {
         new_points = vio_estimator.getSlidingWindowMapPoints();
     }
     std::vector<Eigen::Vector3d> valid_points;
@@ -135,7 +135,7 @@ void vioProcess() {
         }
 
         // process image data
-        ImageData image_data;
+        common::ImageData image_data;
         for (unsigned int i = 0; i < image_msg.points_count; i++) {
             int v = image_msg.channel_data[0][i] + 0.5;
             int feature_id = v;
