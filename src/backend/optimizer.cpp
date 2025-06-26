@@ -2,12 +2,10 @@
 
 namespace backend {
 
-Optimizer::Optimizer(SlidingWindow *sliding_window, frontend::FeatureManager *feature_manager)
-    : sliding_window_(sliding_window),
-      feature_manager_(feature_manager),
-      last_marginalization_info_(nullptr) {
-  t_ic_ = Vector3d::Zero();
-  r_ic_ = Matrix3d::Identity();
+Optimizer::Optimizer(SlidingWindow* sliding_window, frontend::FeatureManager* feature_manager)
+    : sliding_window_(sliding_window), feature_manager_(feature_manager), last_marginalization_info_(nullptr) {
+    t_ic_ = Vector3d::Zero();
+    r_ic_ = Matrix3d::Identity();
 }
 
 Optimizer::~Optimizer() {
@@ -25,12 +23,12 @@ void Optimizer::setExtrinsicParameters(const Vector3d& t_ic, const Matrix3d& r_i
 void Optimizer::optimize(common::MarginalizationFlag marginalization_flag) {
     // STEP 1: Setup optimization problem and parameter blocks
     ceres::Problem problem;
-    ceres::LossFunction* loss_function = setupOptimizationProblem(problem);
+    setupOptimizationProblem(problem);
 
     // STEP 2: Add various constraint factors
     addMarginalizationFactor(problem);
     addIMUFactors(problem);
-    addFeatureFactors(problem, loss_function);
+    addFeatureFactors(problem);
 
     // STEP 3: Solve the optimization problem
     solveCeresProblem(problem);
@@ -40,10 +38,7 @@ void Optimizer::optimize(common::MarginalizationFlag marginalization_flag) {
     handleMarginalization(marginalization_flag);
 }
 
-ceres::LossFunction* Optimizer::setupOptimizationProblem(ceres::Problem& problem) {
-    // Setup loss function
-    ceres::LossFunction* loss_function = new ceres::CauchyLoss(1.0);
-
+void Optimizer::setupOptimizationProblem(ceres::Problem& problem) {
     // Add pose and speed-bias parameter blocks for sliding window
     for (int i = 0; i < WINDOW_SIZE + 1; i++) {
         ceres::LocalParameterization* local_parameterization = new backend::factor::PoseLocalParameterization();
@@ -58,8 +53,6 @@ ceres::LossFunction* Optimizer::setupOptimizationProblem(ceres::Problem& problem
 
     // Prepare optimization parameters
     prepareOptimizationParameters();
-
-    return loss_function;
 }
 
 void Optimizer::addMarginalizationFactor(ceres::Problem& problem) {
@@ -82,7 +75,9 @@ void Optimizer::addIMUFactors(ceres::Problem& problem) {
     }
 }
 
-int Optimizer::addFeatureFactors(ceres::Problem& problem, ceres::LossFunction* loss_function) {
+int Optimizer::addFeatureFactors(ceres::Problem& problem) {
+    ceres::LossFunction* loss_function = new ceres::CauchyLoss(1.0);
+
     int f_m_cnt = 0;
     int feature_index = -1;
     for (auto& it_per_id : feature_manager_->feature_bank_) {

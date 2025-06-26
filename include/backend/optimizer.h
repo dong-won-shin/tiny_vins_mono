@@ -38,10 +38,10 @@ public:
 
 private:
   // Optimization setup
-  ceres::LossFunction* setupOptimizationProblem(ceres::Problem& problem);
+  void setupOptimizationProblem(ceres::Problem& problem);
   void addMarginalizationFactor(ceres::Problem& problem);
   void addIMUFactors(ceres::Problem& problem);
-  int addFeatureFactors(ceres::Problem& problem, ceres::LossFunction* loss_function);
+  int addFeatureFactors(ceres::Problem& problem);
   void solveCeresProblem(ceres::Problem& problem);
 
   // Marginalization methods
