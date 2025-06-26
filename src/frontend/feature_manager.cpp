@@ -1,7 +1,5 @@
 #include "frontend/feature_manager.h"
 
-#include "utility/config.h"
-
 namespace frontend {
 
 int FeaturePerId::endFrame() {
@@ -66,8 +64,8 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
     }
 }
 
-vector<pair<Vector3d, Vector3d>> FeatureManager::getCorresponding(int frame_count_l, int frame_count_r) {
-    vector<pair<Vector3d, Vector3d>> corres;
+Correspondences FeatureManager::getCorresponding(int frame_count_l, int frame_count_r) {
+    frontend::Correspondences corres;
     for (auto& it : feature) {
         if (it.start_frame <= frame_count_l && it.endFrame() >= frame_count_r) {
             Vector3d a = Vector3d::Zero(), b = Vector3d::Zero();

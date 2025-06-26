@@ -2,18 +2,19 @@
 #define SOLVE_5PTS_H
 
 #include <vector>
-using namespace std;
-
 #include <opencv2/opencv.hpp>
-// #include <opencv2/core/eigen.hpp>
 #include <eigen3/Eigen/Dense>
+
+#include "frontend/feature_manager.h"
+
+using namespace std;
 using namespace Eigen;
 
 namespace frontend {
 
 class MotionEstimator {
 public:
-  bool solveRelativeRT(const vector<pair<Vector3d, Vector3d>> &corres, Matrix3d &R, Vector3d &T);
+  bool solveRelativeRT(const frontend::Correspondences& corres, Matrix3d &R, Vector3d &T);
 
 private:
   double testTriangulation(const vector<cv::Point2f> &l, const vector<cv::Point2f> &r,

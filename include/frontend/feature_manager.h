@@ -16,6 +16,9 @@ using namespace Eigen;
 
 namespace frontend {
 
+using Correspondence = std::pair<Eigen::Vector3d, Eigen::Vector3d>;
+using Correspondences = std::vector<Correspondence>;
+
 class FeaturePerFrame {
 public:
     FeaturePerFrame(const Eigen::Matrix<double, 7, 1>& _point) {
@@ -67,7 +70,7 @@ public:
     int getFeatureCount();
 
     bool addFeatureCheckParallax(int frame_count, const common::ImageData& image);
-    vector<pair<Vector3d, Vector3d>> getCorresponding(int frame_count_l, int frame_count_r);
+    Correspondences getCorresponding(int frame_count_l, int frame_count_r);
 
     // void updateDepth(const VectorXd &x);
     void setDepth(const VectorXd& x);

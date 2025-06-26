@@ -1,7 +1,5 @@
 #include "frontend/feature_tracker.h"
 
-#include "utility/config.h"
-
 using namespace utility;
 
 namespace frontend {
@@ -73,7 +71,7 @@ void FeatureTracker::addPoints() {
     }
 }
 
-void FeatureTracker::readImage(const cv::Mat& _img, double _cur_time) {
+void FeatureTracker::detectAndTrack(const cv::Mat& _img, double _cur_time) {
     cv::Mat img;
     cur_time = _cur_time;
 

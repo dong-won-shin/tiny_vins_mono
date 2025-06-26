@@ -2,7 +2,6 @@
 #define FEATURE_TRACKER_H
 
 #include <execinfo.h>
-
 #include <csignal>
 #include <cstdio>
 #include <eigen3/Eigen/Dense>
@@ -30,7 +29,7 @@ class FeatureTracker {
 public:
     FeatureTracker();
 
-    void readImage(const cv::Mat& _img, double _cur_time);
+    void detectAndTrack(const cv::Mat& _img, double _cur_time);
 
     void setMask();
 

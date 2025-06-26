@@ -1,6 +1,6 @@
 #include "frontend/initialization/initializer.h"
-
 #include "frontend/initialization/initial_alignment.h"
+#include "frontend/feature_manager.h"
 
 namespace frontend {
 
@@ -177,7 +177,7 @@ bool Initializer::relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& 
   // find previous frame which contians enough correspondance and parallex with
   // newest frame
   for (int i = 0; i < WINDOW_SIZE; i++) {
-    vector<pair<Vector3d, Vector3d>> corres;
+    frontend::Correspondences corres;
     corres = feature_manager_->getCorresponding(i, WINDOW_SIZE);
 
     if (corres.size() > 20) {

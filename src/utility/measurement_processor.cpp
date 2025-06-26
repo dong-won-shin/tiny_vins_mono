@@ -160,7 +160,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
         return image_feature_msg;
     }
 
-    feature_tracker_->readImage(show_img.rowRange(0, g_config.camera.row), image_data.timestamp);
+    feature_tracker_->detectAndTrack(show_img.rowRange(0, g_config.camera.row), image_data.timestamp);
 
     for (unsigned int i = 0;; i++) {
         bool completed = false;
