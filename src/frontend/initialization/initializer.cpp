@@ -1,6 +1,7 @@
 #include "frontend/initialization/initializer.h"
 
 namespace frontend {
+namespace initialization {
 
 Initializer::Initializer(backend::SlidingWindow* sliding_window, FeatureManager* feature_manager,
                          MotionEstimator* motion_estimator, std::map<double, common::ImageFrame>* all_image_frame,
@@ -353,4 +354,5 @@ bool Initializer::visualInitialAlign() {
     return true;
 }
 
+}  // namespace initialization
 }  // namespace frontend

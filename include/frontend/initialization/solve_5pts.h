@@ -11,6 +11,7 @@ using namespace std;
 using namespace Eigen;
 
 namespace frontend {
+namespace initialization {
 
 class MotionEstimator {
 public:
@@ -22,6 +23,7 @@ private:
     void decomposeE(cv::Mat E, cv::Mat_<double>& R1, cv::Mat_<double>& R2, cv::Mat_<double>& t1, cv::Mat_<double>& t2);
 };
 
+}  // namespace initialization
 }  // namespace frontend
 
 #endif  // SOLVE_5PTS_H

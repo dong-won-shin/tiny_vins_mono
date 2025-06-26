@@ -1,6 +1,7 @@
 #include "frontend/initialization/initial_sfm.h"
 
 namespace frontend {
+namespace initialization {
 
 GlobalSFM::GlobalSFM() {}
 
@@ -264,4 +265,5 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
     return true;
 }
 
+}  // namespace initialization
 }  // namespace frontend

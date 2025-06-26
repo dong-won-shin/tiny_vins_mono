@@ -13,6 +13,7 @@
 #include "frontend/initialization/solve_5pts.h"
 
 namespace frontend {
+namespace initialization {
 
 class Initializer {
 public:
@@ -44,6 +45,7 @@ private:
     const Vector3d* t_ic_;
 };
 
+}  // namespace initialization
 }  // namespace frontend
 
 #endif  // INITIALIZER_H
