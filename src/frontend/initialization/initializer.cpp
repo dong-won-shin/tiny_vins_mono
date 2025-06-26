@@ -311,7 +311,7 @@ bool Initializer::visualInitialAlign() {
     // triangulat on cam pose , no tic
     Vector3d T_IC_TMP;
     T_IC_TMP.setZero();
-    feature_manager_->triangulate(*sliding_window_, T_IC_TMP, *r_ic_);
+    feature_manager_->triangulateAcrossAllViews(*sliding_window_, T_IC_TMP, *r_ic_);
 
     double scale = (x.tail<1>())(0);
 

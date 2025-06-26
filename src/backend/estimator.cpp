@@ -251,7 +251,7 @@ void Estimator::solveOdometry() {
         return;
 
     if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
-        feature_manager_.triangulate(sliding_window_, t_ic_, r_ic_);
+        feature_manager_.triangulateAcrossAllViews(sliding_window_, t_ic_, r_ic_);
 
         optimizer_.optimize(marginalization_flag_);
 
