@@ -1,6 +1,4 @@
 #include "frontend/initialization/initializer.h"
-#include "frontend/feature_manager.h"
-#include "frontend/initialization/initial_alignment.h"
 
 namespace frontend {
 

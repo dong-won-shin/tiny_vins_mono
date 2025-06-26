@@ -8,12 +8,11 @@
 #include "common/common_types.h"
 #include "common/image_frame.h"
 #include "frontend/feature_manager.h"
+#include "frontend/initialization/initial_alignment.h"
 #include "frontend/initialization/initial_sfm.h"
 #include "frontend/initialization/solve_5pts.h"
 
 namespace frontend {
-
-class Estimator;  // Forward declaration
 
 class Initializer {
 public:
