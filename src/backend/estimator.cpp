@@ -109,7 +109,7 @@ void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration
 
 void Estimator::processImage(const common::ImageData& image, double timestamp) {
     std::lock_guard<std::mutex> lock(estimator_mutex_);
-    if (feature_manager_.addFeatureCheckParallax(frame_count_, image)) {
+    if (feature_manager_.addFeatureAndCheckParallax(frame_count_, image)) {
         marginalization_flag_ = common::MarginalizationFlag::MARGIN_OLD_KEYFRAME;
     } else {
         marginalization_flag_ = common::MarginalizationFlag::MARGIN_NEW_GENERAL_FRAME;

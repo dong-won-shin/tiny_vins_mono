@@ -69,7 +69,7 @@ public:
 
     int getFeatureCount();
 
-    bool addFeatureCheckParallax(int frame_count, const common::ImageData& image);
+    bool addFeatureAndCheckParallax(int frame_count, const common::ImageData& image);
     Correspondences getCorresponding(int frame_count_l, int frame_count_r);
 
     // void updateDepth(const VectorXd &x);

@@ -24,14 +24,16 @@ int FeatureManager::getFeatureCount() {
     return cnt;
 }
 
-bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::ImageData& image) {
+bool FeatureManager::addFeatureAndCheckParallax(int frame_count, const common::ImageData& image) {
     double parallax_sum = 0;
     int parallax_num = 0;
     last_track_num_ = 0;
+
+    // add features to feature bank
     for (auto& feature_id_and_points : image) {
         int feature_id = feature_id_and_points.first;
         FeaturePerFrame feature_per_frame(feature_id_and_points.second);
-        
+
         auto it = find_if(feature_bank_.begin(), feature_bank_.end(),
                           [feature_id](const FeaturePerId& it) { return it.feature_id == feature_id; });
 
@@ -39,15 +41,15 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
         if (it == feature_bank_.end()) {
             feature_bank_.push_back(FeaturePerId(feature_id, frame_count));
             feature_bank_.back().feature_per_frame.push_back(feature_per_frame);
-        // tracked feature
+            // tracked feature
         } else if (it->feature_id == feature_id) {
             it->feature_per_frame.push_back(feature_per_frame);
             last_track_num_++;
         }
     }
 
-    if (frame_count < 2 || last_track_num_ < 20)
-    {
+    // check parallax
+    if (frame_count < 2 || last_track_num_ < 20) {
         // novel view
         return true;
     }
@@ -141,7 +143,9 @@ void FeatureManager::triangulate(const backend::SlidingWindow& sliding_window, c
 
         if (it_per_id.estimated_depth > 0)
             continue;
-        int imu_i = it_per_id.start_frame, imu_j = imu_i - 1;
+
+        int imu_i = it_per_id.start_frame;
+        int imu_j = imu_i - 1;
 
         Eigen::MatrixXd svd_A(2 * it_per_id.feature_per_frame.size(), 4);
         int svd_idx = 0;
@@ -157,11 +161,11 @@ void FeatureManager::triangulate(const backend::SlidingWindow& sliding_window, c
 
             Eigen::Vector3d t1 = sliding_window[imu_j].P + sliding_window[imu_j].R * t_ic;
             Eigen::Matrix3d R1 = sliding_window[imu_j].R * r_ic;
-            Eigen::Vector3d t = R0.transpose() * (t1 - t0);
-            Eigen::Matrix3d R = R0.transpose() * R1;
+            Eigen::Vector3d relative_t = R0.transpose() * (t1 - t0);
+            Eigen::Matrix3d relative_R = R0.transpose() * R1;
             Eigen::Matrix<double, 3, 4> P;
-            P.leftCols<3>() = R.transpose();
-            P.rightCols<1>() = -R.transpose() * t;
+            P.leftCols<3>() = relative_R.transpose();
+            P.rightCols<1>() = -relative_R.transpose() * relative_t;
             Eigen::Vector3d f = it_per_frame.point.normalized();
             svd_A.row(svd_idx++) = f[0] * P.row(2) - f[2] * P.row(0);
             svd_A.row(svd_idx++) = f[1] * P.row(2) - f[2] * P.row(1);
