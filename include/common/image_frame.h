@@ -13,7 +13,7 @@ using namespace std;
 
 namespace common {
 
-using ImageData = std::map<int, vector<Eigen::Matrix<double, 7, 1>>>;
+using ImageData = std::map<int, Eigen::Matrix<double, 7, 1>>;
 
 /**
  * @brief ImageFrame class for storing image-related data and pose information

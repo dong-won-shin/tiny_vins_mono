@@ -148,7 +148,7 @@ void vioProcess() {
             double velocity_y = image_msg.channel_data[4][i];
             Eigen::Matrix<double, 7, 1> xyz_uv_velocity;
             xyz_uv_velocity << x, y, z, p_u, p_v, velocity_x, velocity_y;
-            image_data[feature_id].emplace_back(xyz_uv_velocity);
+            image_data[feature_id] = xyz_uv_velocity;
         }
         if (!image_data.empty()) {
             vio_estimator.processImage(image_data, image_msg.timestamp);

@@ -28,10 +28,10 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
     double parallax_sum = 0;
     int parallax_num = 0;
     last_track_num_ = 0;
-    for (auto& id_pts : image) {
-        FeaturePerFrame feature_per_frame(id_pts.second[0]);
+    for (auto& feature_id_and_points : image) {
+        FeaturePerFrame feature_per_frame(feature_id_and_points.second);
 
-        int feature_id = id_pts.first;
+        int feature_id = feature_id_and_points.first;
         auto it = find_if(feature_.begin(), feature_.end(),
                           [feature_id](const FeaturePerId& it) { return it.feature_id == feature_id; });
 

@@ -243,16 +243,14 @@ bool Initializer::solvePnPForAllFrames(const Quaterniond Q[], const Vector3d T[]
 
     for (auto& id_pts : frame_it->second.points) {
       int feature_id = id_pts.first;
-      for (auto& i_p : id_pts.second) {
-        it = sfm_tracked_points.find(feature_id);
-        if (it != sfm_tracked_points.end()) {
-          Vector3d world_pts = it->second;
-          cv::Point3f pts_3(world_pts(0), world_pts(1), world_pts(2));
-          pts_3_vector.push_back(pts_3);
-          Vector2d img_pts = i_p.head<2>();
-          cv::Point2f pts_2(img_pts(0), img_pts(1));
-          pts_2_vector.push_back(pts_2);
-        }
+      it = sfm_tracked_points.find(feature_id);
+      if (it != sfm_tracked_points.end()) {
+        Vector3d world_pts = it->second;
+        cv::Point3f pts_3(world_pts(0), world_pts(1), world_pts(2));
+        pts_3_vector.push_back(pts_3);
+        Vector2d img_pts = id_pts.second.head<2>();
+        cv::Point2f pts_2(img_pts(0), img_pts(1));
+        pts_2_vector.push_back(pts_2);
       }
     }
 
