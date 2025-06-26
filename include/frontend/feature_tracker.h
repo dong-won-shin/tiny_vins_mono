@@ -48,13 +48,13 @@ public:
     cv::Mat fisheye_mask;
     cv::Mat prev_img, cur_img, next_img;
     vector<cv::Point2f> n_pts;
-    vector<cv::Point2f> prev_pts, cur_pts, forw_pts;
-    vector<cv::Point2f> prev_un_pts, cur_un_pts;
+    vector<cv::Point2f> prev_pts, cur_pts, next_pts;
+    vector<cv::Point2f> prev_undistorted_pts, cur_undistorted_pts;
     vector<cv::Point2f> pts_velocity;
     vector<int> ids;
     vector<int> track_cnt;
-    map<int, cv::Point2f> cur_un_pts_map;
-    map<int, cv::Point2f> prev_un_pts_map;
+    map<int, cv::Point2f> cur_undistorted_pts_map;
+    map<int, cv::Point2f> prev_undistorted_pts_map;
     camodocal::CameraPtr m_camera;
     double cur_time;
     double prev_time;

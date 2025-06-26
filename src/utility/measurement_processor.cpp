@@ -176,7 +176,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
     std::vector<float> velocity_y_of_point;
 
     std::set<int> hash_ids;
-    auto& un_pts = feature_tracker_->cur_un_pts;
+    auto& undistorted_pts = feature_tracker_->cur_undistorted_pts;
     auto& cur_pts = feature_tracker_->cur_pts;
     auto& ids = feature_tracker_->ids;
     auto& pts_velocity = feature_tracker_->pts_velocity;
@@ -185,7 +185,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
         if (feature_tracker_->track_cnt[j] > 1) {
             int p_id = ids[j];
             hash_ids.insert(p_id);
-            image_feature_msg.feature_points.push_back(Point3D{p_id, un_pts[j].x, un_pts[j].y, 1.0});
+            image_feature_msg.feature_points.push_back(Point3D{p_id, undistorted_pts[j].x, undistorted_pts[j].y, 1.0});
             id_of_point.push_back(p_id);
             u_of_point.push_back(cur_pts[j].x);
             v_of_point.push_back(cur_pts[j].y);

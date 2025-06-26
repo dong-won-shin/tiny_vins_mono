@@ -16,7 +16,7 @@ bool inBorder(const cv::Point2f& pt) {
            img_y < g_config.camera.row - BORDER_SIZE;
 }
 
-void reduceVector(vector<cv::Point2f>& v, vector<uchar> status) {
+void filterByStatus(vector<cv::Point2f>& v, vector<uchar> status) {
     int j = 0;
     for (int i = 0; i < int(v.size()); i++)
         if (status[i])
@@ -24,7 +24,7 @@ void reduceVector(vector<cv::Point2f>& v, vector<uchar> status) {
     v.resize(j);
 }
 
-void reduceVector(vector<int>& v, vector<uchar> status) {
+void filterByStatus(vector<int>& v, vector<uchar> status) {
     int j = 0;
     for (int i = 0; i < int(v.size()); i++)
         if (status[i])
@@ -43,21 +43,21 @@ void FeatureTracker::setMask() {
     // prefer to keep features that are tracked for long time
     vector<pair<int, pair<cv::Point2f, int>>> cnt_pts_id;
 
-    for (unsigned int i = 0; i < forw_pts.size(); i++)
-        cnt_pts_id.push_back(make_pair(track_cnt[i], make_pair(forw_pts[i], ids[i])));
+    for (unsigned int i = 0; i < next_pts.size(); i++)
+        cnt_pts_id.push_back(make_pair(track_cnt[i], make_pair(next_pts[i], ids[i])));
 
     sort(cnt_pts_id.begin(), cnt_pts_id.end(),
          [](const pair<int, pair<cv::Point2f, int>>& a, const pair<int, pair<cv::Point2f, int>>& b) {
              return a.first > b.first;
          });
 
-    forw_pts.clear();
+    next_pts.clear();
     ids.clear();
     track_cnt.clear();
 
     for (auto& it : cnt_pts_id) {
         if (mask.at<uchar>(it.second.first) == 255) {
-            forw_pts.push_back(it.second.first);
+            next_pts.push_back(it.second.first);
             ids.push_back(it.second.second);
             track_cnt.push_back(it.first);
             cv::circle(mask, it.second.first, g_config.feature_tracker.min_dist, 0, -1);
@@ -67,7 +67,7 @@ void FeatureTracker::setMask() {
 
 void FeatureTracker::addPoints() {
     for (auto& p : n_pts) {
-        forw_pts.push_back(p);
+        next_pts.push_back(p);
         ids.push_back(-1);
         track_cnt.push_back(1);
     }
@@ -89,22 +89,22 @@ void FeatureTracker::readImage(const cv::Mat& _img, double _cur_time) {
         next_img = img;
     }
 
-    forw_pts.clear();
+    next_pts.clear();
 
     if (cur_pts.size() > 0) {
         vector<uchar> status;
         vector<float> err;
-        cv::calcOpticalFlowPyrLK(cur_img, next_img, cur_pts, forw_pts, status, err, cv::Size(21, 21), 3);
+        cv::calcOpticalFlowPyrLK(cur_img, next_img, cur_pts, next_pts, status, err, cv::Size(21, 21), 3);
 
-        for (int i = 0; i < int(forw_pts.size()); i++)
-            if (status[i] && !inBorder(forw_pts[i]))
+        for (int i = 0; i < int(next_pts.size()); i++)
+            if (status[i] && !inBorder(next_pts[i]))
                 status[i] = 0;
-        reduceVector(prev_pts, status);
-        reduceVector(cur_pts, status);
-        reduceVector(forw_pts, status);
-        reduceVector(ids, status);
-        reduceVector(cur_un_pts, status);
-        reduceVector(track_cnt, status);
+        filterByStatus(prev_pts, status);
+        filterByStatus(cur_pts, status);
+        filterByStatus(next_pts, status);
+        filterByStatus(ids, status);
+        filterByStatus(cur_undistorted_pts, status);
+        filterByStatus(track_cnt, status);
     }
 
     for (auto& n : track_cnt)
@@ -113,7 +113,7 @@ void FeatureTracker::readImage(const cv::Mat& _img, double _cur_time) {
     rejectWithFundamentalMatrix();
     setMask();
 
-    int n_max_cnt = g_config.feature_tracker.max_cnt - static_cast<int>(forw_pts.size());
+    int n_max_cnt = g_config.feature_tracker.max_cnt - static_cast<int>(next_pts.size());
     if (n_max_cnt > 0) {
         if (mask.empty())
             cout << "mask is empty " << endl;
@@ -121,7 +121,7 @@ void FeatureTracker::readImage(const cv::Mat& _img, double _cur_time) {
             cout << "mask type wrong " << endl;
         if (mask.size() != next_img.size())
             cout << "wrong size " << endl;
-        cv::goodFeaturesToTrack(next_img, n_pts, g_config.feature_tracker.max_cnt - forw_pts.size(), 0.01,
+        cv::goodFeaturesToTrack(next_img, n_pts, g_config.feature_tracker.max_cnt - next_pts.size(), 0.01,
                                 g_config.feature_tracker.min_dist, mask);
     } else
         n_pts.clear();
@@ -130,39 +130,39 @@ void FeatureTracker::readImage(const cv::Mat& _img, double _cur_time) {
 
     prev_img = cur_img;
     prev_pts = cur_pts;
-    prev_un_pts = cur_un_pts;
+    prev_undistorted_pts = cur_undistorted_pts;
     cur_img = next_img;
-    cur_pts = forw_pts;
+    cur_pts = next_pts;
     undistortedPoints();
     prev_time = cur_time;
 }
 
 void FeatureTracker::rejectWithFundamentalMatrix() {
-    if (forw_pts.size() >= 8) {
-        vector<cv::Point2f> un_cur_pts(cur_pts.size()), un_forw_pts(forw_pts.size());
+    if (next_pts.size() >= 8) {
+        vector<cv::Point2f> undistorted_cur_pts(cur_pts.size()), undistorted_next_pts(next_pts.size());
         for (unsigned int i = 0; i < cur_pts.size(); i++) {
             Eigen::Vector3d tmp_p;
             m_camera->liftProjective(Eigen::Vector2d(cur_pts[i].x, cur_pts[i].y), tmp_p);
             tmp_p.x() = g_config.camera.focal_length * tmp_p.x() / tmp_p.z() + g_config.camera.col / 2.0;
             tmp_p.y() = g_config.camera.focal_length * tmp_p.y() / tmp_p.z() + g_config.camera.row / 2.0;
-            un_cur_pts[i] = cv::Point2f(tmp_p.x(), tmp_p.y());
+            undistorted_cur_pts[i] = cv::Point2f(tmp_p.x(), tmp_p.y());
 
-            m_camera->liftProjective(Eigen::Vector2d(forw_pts[i].x, forw_pts[i].y), tmp_p);
+            m_camera->liftProjective(Eigen::Vector2d(next_pts[i].x, next_pts[i].y), tmp_p);
             tmp_p.x() = g_config.camera.focal_length * tmp_p.x() / tmp_p.z() + g_config.camera.col / 2.0;
             tmp_p.y() = g_config.camera.focal_length * tmp_p.y() / tmp_p.z() + g_config.camera.row / 2.0;
-            un_forw_pts[i] = cv::Point2f(tmp_p.x(), tmp_p.y());
+            undistorted_next_pts[i] = cv::Point2f(tmp_p.x(), tmp_p.y());
         }
 
         vector<uchar> status;
-        cv::findFundamentalMat(un_cur_pts, un_forw_pts, cv::FM_RANSAC, g_config.feature_tracker.f_threshold, 0.99,
+        cv::findFundamentalMat(undistorted_cur_pts, undistorted_next_pts, cv::FM_RANSAC, g_config.feature_tracker.f_threshold, 0.99,
                                status);
         int size_a = cur_pts.size();
-        reduceVector(prev_pts, status);
-        reduceVector(cur_pts, status);
-        reduceVector(forw_pts, status);
-        reduceVector(cur_un_pts, status);
-        reduceVector(ids, status);
-        reduceVector(track_cnt, status);
+        filterByStatus(prev_pts, status);
+        filterByStatus(cur_pts, status);
+        filterByStatus(next_pts, status);
+        filterByStatus(cur_undistorted_pts, status);
+        filterByStatus(ids, status);
+        filterByStatus(track_cnt, status);
     }
 }
 
@@ -180,28 +180,28 @@ void FeatureTracker::readIntrinsicParameter(const string& calib_file) {
 }
 
 void FeatureTracker::undistortedPoints() {
-    cur_un_pts.clear();
-    cur_un_pts_map.clear();
-    // cv::undistortPoints(cur_pts, un_pts, K, cv::Mat());
+    cur_undistorted_pts.clear();
+    cur_undistorted_pts_map.clear();
+    // cv::undistortPoints(cur_pts, undistorted_pts, K, cv::Mat());
     for (unsigned int i = 0; i < cur_pts.size(); i++) {
         Eigen::Vector2d a(cur_pts[i].x, cur_pts[i].y);
         Eigen::Vector3d b;
         m_camera->liftProjective(a, b);
-        cur_un_pts.push_back(cv::Point2f(b.x() / b.z(), b.y() / b.z()));
-        cur_un_pts_map.insert(make_pair(ids[i], cv::Point2f(b.x() / b.z(), b.y() / b.z())));
-        // printf("cur pts id %d %f %f", ids[i], cur_un_pts[i].x, cur_un_pts[i].y);
+        cur_undistorted_pts.push_back(cv::Point2f(b.x() / b.z(), b.y() / b.z()));
+        cur_undistorted_pts_map.insert(make_pair(ids[i], cv::Point2f(b.x() / b.z(), b.y() / b.z())));
+        // printf("cur pts id %d %f %f", ids[i], cur_undistorted_pts[i].x, cur_undistorted_pts[i].y);
     }
     // caculate points velocity
-    if (!prev_un_pts_map.empty()) {
+    if (!prev_undistorted_pts_map.empty()) {
         double dt = cur_time - prev_time;
         pts_velocity.clear();
-        for (unsigned int i = 0; i < cur_un_pts.size(); i++) {
+        for (unsigned int i = 0; i < cur_undistorted_pts.size(); i++) {
             if (ids[i] != -1) {
                 std::map<int, cv::Point2f>::iterator it;
-                it = prev_un_pts_map.find(ids[i]);
-                if (it != prev_un_pts_map.end()) {
-                    double v_x = (cur_un_pts[i].x - it->second.x) / dt;
-                    double v_y = (cur_un_pts[i].y - it->second.y) / dt;
+                it = prev_undistorted_pts_map.find(ids[i]);
+                if (it != prev_undistorted_pts_map.end()) {
+                    double v_x = (cur_undistorted_pts[i].x - it->second.x) / dt;
+                    double v_y = (cur_undistorted_pts[i].y - it->second.y) / dt;
                     pts_velocity.push_back(cv::Point2f(v_x, v_y));
                 } else
                     pts_velocity.push_back(cv::Point2f(0, 0));
@@ -214,7 +214,7 @@ void FeatureTracker::undistortedPoints() {
             pts_velocity.push_back(cv::Point2f(0, 0));
         }
     }
-    prev_un_pts_map = cur_un_pts_map;
+    prev_undistorted_pts_map = cur_undistorted_pts_map;
 }
 
 }  // namespace frontend
