@@ -11,6 +11,7 @@ class CostFunction;
 }
 
 namespace common {
+namespace camera_models {
 
 enum {
     CAMERA_INTRINSICS = 1 << 0,
@@ -60,6 +61,7 @@ private:
     static boost::shared_ptr<CostFunctionFactory> m_instance;
 };
 
+}  // namespace camera_models
 }  // namespace common
 
 #endif

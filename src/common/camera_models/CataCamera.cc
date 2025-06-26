@@ -13,6 +13,7 @@
 #include "common/gpl/gpl.h"
 
 namespace common {
+namespace camera_models {
 
 CataCamera::Parameters::Parameters()
     : Camera::Parameters(MEI),
@@ -321,7 +322,8 @@ void CataCamera::estimateIntrinsics(const cv::Size& boardSize,
             cv::Mat C;
             cv::SVD::solveZ(P, C);
 
-            double t = common::gpl::square(C.at<double>(0)) + common::gpl::square(C.at<double>(1)) + C.at<double>(2) * C.at<double>(3);
+            double t = common::gpl::square(C.at<double>(0)) + common::gpl::square(C.at<double>(1)) +
+                       C.at<double>(2) * C.at<double>(3);
             if (t < 0.0) {
                 continue;
             }
@@ -820,5 +822,5 @@ std::string CataCamera::parametersToString(void) const {
 
     return oss.str();
 }
-
+}  // namespace camera_models
 }  // namespace common

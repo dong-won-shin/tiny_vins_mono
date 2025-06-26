@@ -9,6 +9,7 @@
 #include "common/camera_models/ScaramuzzaCamera.h"
 
 namespace common {
+namespace camera_models {
 
 boost::shared_ptr<CameraFactory> CameraFactory::m_instance;
 
@@ -134,4 +135,5 @@ CameraPtr CameraFactory::generateCameraFromYamlFile(const std::string& filename)
     return CameraPtr();
 }
 
+}  // namespace camera_models
 }  // namespace common

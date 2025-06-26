@@ -53,7 +53,7 @@ public:
     vector<int> track_cnt;
     map<int, cv::Point2f> cur_undistorted_pts_map;
     map<int, cv::Point2f> prev_undistorted_pts_map;
-    common::CameraPtr m_camera;
+    common::camera_models::CameraPtr m_camera;
     double cur_time;
     double prev_time;
 

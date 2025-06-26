@@ -11,6 +11,7 @@
 #include "common/gpl/gpl.h"
 
 namespace common {
+namespace camera_models {
 
 PinholeCamera::Parameters::Parameters()
     : Camera::Parameters(PINHOLE),
@@ -721,4 +722,5 @@ std::string PinholeCamera::parametersToString(void) const {
     return oss.str();
 }
 
+}  // namespace camera_models
 }  // namespace common

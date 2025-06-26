@@ -8,7 +8,7 @@
 #include "ceres/rotation.h"
 
 namespace common {
-
+namespace camera_models {
 /**
  * J. Kannala, and S. Brandt, A Generic Camera Model and Calibration Method
  * for Conventional, Wide-Angle, and Fish-Eye Lenses, PAMI 2006
@@ -185,6 +185,7 @@ void EquidistantCamera::spaceToPlane(const T* const params, const T* const q, co
     p(1) = mv * p_u(1) + v0;
 }
 
+}  // namespace camera_models
 }  // namespace common
 
 #endif

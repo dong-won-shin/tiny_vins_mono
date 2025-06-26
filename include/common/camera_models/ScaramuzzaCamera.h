@@ -8,6 +8,7 @@
 #include "ceres/rotation.h"
 
 namespace common {
+namespace camera_models {
 
 #define SCARAMUZZA_POLY_SIZE 5
 #define SCARAMUZZA_INV_POLY_SIZE 20
@@ -340,6 +341,7 @@ void OCAMCamera::SphereToPlane(const T* const params, const Eigen::Matrix<T, 3, 
     p(0) = xn[0] * c + xn[1] * d + xc[0];
     p(1) = xn[0] * e + xn[1] + xc[1];
 }
+}  // namespace camera_models
 }  // namespace common
 
 #endif

@@ -13,6 +13,7 @@
 #include "common/gpl/gpl.h"
 
 namespace common {
+namespace camera_models {
 
 EquidistantCamera::Parameters::Parameters()
     : Camera::Parameters(KANNALA_BRANDT),
@@ -276,7 +277,8 @@ void EquidistantCamera::estimateIntrinsics(const cv::Size& boardSize,
                 // find distance between pair of vanishing points which
                 // correspond to intersection points of 2 circles
                 std::vector<cv::Point2d> ipts;
-                ipts = common::gpl::intersectCircles(center[j](0), center[j](1), radius[j], center[k](0), center[k](1), radius[k]);
+                ipts = common::gpl::intersectCircles(center[j](0), center[j](1), radius[j], center[k](0), center[k](1),
+                                                     radius[k]);
 
                 if (ipts.size() < 2) {
                     continue;
@@ -649,4 +651,5 @@ void EquidistantCamera::backprojectSymmetric(const Eigen::Vector2d& p_u, double&
     }
 }
 
+}  // namespace camera_models
 }  // namespace common

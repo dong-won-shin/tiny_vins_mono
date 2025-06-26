@@ -8,6 +8,7 @@
 #include "ceres/rotation.h"
 
 namespace common {
+namespace camera_models {
 
 class PinholeCamera : public Camera {
 public:
@@ -173,6 +174,7 @@ void PinholeCamera::spaceToPlane(const T* const params, const T* const q, const 
     p(1) = fy * v + cy;
 }
 
+}  // namespace camera_models
 }  // namespace common
 
 #endif

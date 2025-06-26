@@ -7,6 +7,7 @@
 #include "common/camera_models/Camera.h"
 
 namespace common {
+namespace camera_models {
 
 class CameraFactory {
 public:
@@ -23,6 +24,7 @@ private:
     static boost::shared_ptr<CameraFactory> m_instance;
 };
 
+}  // namespace camera_models
 }  // namespace common
 
 #endif

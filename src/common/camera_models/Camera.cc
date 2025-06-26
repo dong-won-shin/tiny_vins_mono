@@ -5,6 +5,7 @@
 #include "common/camera_models/ScaramuzzaCamera.h"
 
 namespace common {
+namespace camera_models {
 
 Camera::Parameters::Parameters(ModelType modelType) : m_modelType(modelType), m_imageWidth(0), m_imageHeight(0) {
     switch (modelType) {
@@ -191,4 +192,5 @@ void Camera::projectPoints(const std::vector<cv::Point3f>& objectPoints, const c
     }
 }
 
+}  // namespace camera_models
 }  // namespace common

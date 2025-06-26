@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace common {
+namespace camera_models {
 
 class Camera {
 public:
@@ -120,6 +121,7 @@ protected:
 typedef boost::shared_ptr<Camera> CameraPtr;
 typedef boost::shared_ptr<const Camera> CameraConstPtr;
 
+}  // namespace camera_models
 }  // namespace common
 
 #endif
