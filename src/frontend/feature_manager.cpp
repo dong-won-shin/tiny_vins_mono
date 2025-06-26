@@ -29,9 +29,9 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
     int parallax_num = 0;
     last_track_num_ = 0;
     for (auto& feature_id_and_points : image) {
-        FeaturePerFrame feature_per_frame(feature_id_and_points.second);
-
         int feature_id = feature_id_and_points.first;
+        FeaturePerFrame feature_per_frame(feature_id_and_points.second);
+        
         auto it = find_if(feature_bank_.begin(), feature_bank_.end(),
                           [feature_id](const FeaturePerId& it) { return it.feature_id == feature_id; });
 
@@ -64,7 +64,7 @@ bool FeatureManager::addFeatureCheckParallax(int frame_count, const common::Imag
         // novel view
         return true;
     } else {
-        // new keyframe
+        // enough parallax, new keyframe
         return (parallax_sum / parallax_num) >= (g_config.estimator.min_parallax / g_config.camera.focal_length);
     }
 }
