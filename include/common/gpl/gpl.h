@@ -6,6 +6,7 @@
 #include <opencv2/core/core.hpp>
 
 namespace common {
+namespace gpl {
 
 template <class T>
 const T clamp(const T& v, const T& a, const T& b) {
@@ -86,6 +87,7 @@ void UTMtoLL(double utmNorthing, double utmEasting, const std::string& utmZone, 
 
 long int timestampDiff(uint64_t t1, uint64_t t2);
 
+}  // namespace gpl
 }  // namespace common
 
 #endif

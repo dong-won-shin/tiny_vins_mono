@@ -4,6 +4,7 @@
 #include "ceres/local_parameterization.h"
 
 namespace common {
+namespace gpl {
 
 class EigenQuaternionParameterization : public ceres::LocalParameterization {
 public:
@@ -30,6 +31,7 @@ void EigenQuaternionParameterization::EigenQuaternionProduct(const T z[4], const
     zw[3] = z[3] * w[3] - z[0] * w[0] - z[1] * w[1] - z[2] * w[2];
 }
 
+}  // namespace gpl
 }  // namespace common
 
 #endif

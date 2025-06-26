@@ -1,4 +1,5 @@
 #include "common/camera_models/EquidistantCamera.h"
+#include "common/gpl/gpl.h"
 
 #include <cmath>
 #include <cstdio>
@@ -267,7 +268,7 @@ void EquidistantCamera::estimateIntrinsics(const cv::Size& boardSize,
                 circle.push_back(imagePoints.at(i).at(r * boardSize.width + c));
             }
 
-            fitCircle(circle, center[r](0), center[r](1), radius[r]);
+            common::gpl::fitCircle(circle, center[r](0), center[r](1), radius[r]);
         }
 
         for (int j = 0; j < boardSize.height; ++j) {
@@ -275,7 +276,7 @@ void EquidistantCamera::estimateIntrinsics(const cv::Size& boardSize,
                 // find distance between pair of vanishing points which
                 // correspond to intersection points of 2 circles
                 std::vector<cv::Point2d> ipts;
-                ipts = intersectCircles(center[j](0), center[j](1), radius[j], center[k](0), center[k](1), radius[k]);
+                ipts = common::gpl::intersectCircles(center[j](0), center[j](1), radius[j], center[k](0), center[k](1), radius[k]);
 
                 if (ipts.size() < 2) {
                     continue;

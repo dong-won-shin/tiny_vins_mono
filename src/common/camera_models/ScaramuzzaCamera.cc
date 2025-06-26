@@ -1,4 +1,5 @@
 #include "common/camera_models/ScaramuzzaCamera.h"
+#include "common/gpl/gpl.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -242,12 +243,12 @@ void OCAMCamera::estimateIntrinsics(const cv::Size& boardSize,
         const double st1 = h(4);
         const double st2 = h(5);
 
-        const double AA = square(sr11 * sr12 + sr21 * sr22);
-        const double BB = square(sr11) + square(sr21);
-        const double CC = square(sr12) + square(sr22);
+        const double AA = common::gpl::square(sr11 * sr12 + sr21 * sr22);
+        const double BB = common::gpl::square(sr11) + common::gpl::square(sr21);
+        const double CC = common::gpl::square(sr12) + common::gpl::square(sr22);
 
-        const double sr32_squared_1 = (-(CC - BB) + sqrt(square(CC - BB) + 4.0 * AA)) / 2.0;
-        const double sr32_squared_2 = (-(CC - BB) - sqrt(square(CC - BB) + 4.0 * AA)) / 2.0;
+        const double sr32_squared_1 = (-(CC - BB) + sqrt(common::gpl::square(CC - BB) + 4.0 * AA)) / 2.0;
+        const double sr32_squared_2 = (-(CC - BB) - sqrt(common::gpl::square(CC - BB) + 4.0 * AA)) / 2.0;
 
         // printf("rst = %.12f\n", sr32_squared_1*sr32_squared_1 + (CC-BB)*sr32_squared_1 - AA);
 
