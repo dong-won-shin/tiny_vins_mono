@@ -8,7 +8,7 @@
 #include "common/camera_models/PinholeCamera.h"
 #include "common/camera_models/ScaramuzzaCamera.h"
 
-namespace camodocal {
+namespace common {
 
 boost::shared_ptr<CameraFactory> CameraFactory::m_instance;
 
@@ -134,4 +134,4 @@ CameraPtr CameraFactory::generateCameraFromYamlFile(const std::string& filename)
     return CameraPtr();
 }
 
-}  // namespace camodocal
+}  // namespace common

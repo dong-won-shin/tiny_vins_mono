@@ -10,7 +10,7 @@ namespace ceres {
 class CostFunction;
 }
 
-namespace camodocal {
+namespace common {
 
 enum {
     CAMERA_INTRINSICS = 1 << 0,
@@ -60,6 +60,6 @@ private:
     static boost::shared_ptr<CostFunctionFactory> m_instance;
 };
 
-}  // namespace camodocal
+}  // namespace common
 
 #endif

@@ -14,7 +14,7 @@
 #include "utility/config.h"
 
 using namespace std;
-using namespace camodocal;
+using namespace common;
 using namespace Eigen;
 
 namespace frontend {
@@ -53,7 +53,7 @@ public:
     vector<int> track_cnt;
     map<int, cv::Point2f> cur_undistorted_pts_map;
     map<int, cv::Point2f> prev_undistorted_pts_map;
-    camodocal::CameraPtr m_camera;
+    common::CameraPtr m_camera;
     double cur_time;
     double prev_time;
 

@@ -11,7 +11,7 @@
 
 #include "common/gpl/gpl.h"
 
-namespace camodocal {
+namespace common {
 
 EquidistantCamera::Parameters::Parameters()
     : Camera::Parameters(KANNALA_BRANDT),
@@ -648,4 +648,4 @@ void EquidistantCamera::backprojectSymmetric(const Eigen::Vector2d& p_u, double&
     }
 }
 
-}  // namespace camodocal
+}  // namespace common

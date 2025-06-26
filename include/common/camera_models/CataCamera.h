@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "ceres/rotation.h"
 
-namespace camodocal {
+namespace common {
 
 /**
  * C. Mei, and P. Rives, Single View Point Omnidirectional Camera Calibration
@@ -186,6 +186,6 @@ void CataCamera::spaceToPlane(const T* const params, const T* const q, const T* 
     p(1) = gamma2 * v + v0;
 }
 
-}  // namespace camodocal
+}  // namespace common
 
 #endif

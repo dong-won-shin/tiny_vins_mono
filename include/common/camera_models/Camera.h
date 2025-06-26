@@ -6,7 +6,7 @@
 #include <opencv2/core/core.hpp>
 #include <vector>
 
-namespace camodocal {
+namespace common {
 
 class Camera {
 public:
@@ -120,6 +120,6 @@ protected:
 typedef boost::shared_ptr<Camera> CameraPtr;
 typedef boost::shared_ptr<const Camera> CameraConstPtr;
 
-}  // namespace camodocal
+}  // namespace common
 
 #endif

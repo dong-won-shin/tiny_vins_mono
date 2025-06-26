@@ -11,7 +11,7 @@
 
 #include "common/gpl/gpl.h"
 
-namespace camodocal {
+namespace common {
 
 CataCamera::Parameters::Parameters()
     : Camera::Parameters(MEI),
@@ -820,4 +820,4 @@ std::string CataCamera::parametersToString(void) const {
     return oss.str();
 }
 
-}  // namespace camodocal
+}  // namespace common

@@ -42,7 +42,7 @@ Eigen::VectorXd polyfit(Eigen::VectorXd& xVec, Eigen::VectorXd& yVec, int poly_o
     return x;
 }
 
-namespace camodocal {
+namespace common {
 
 OCAMCamera::Parameters::Parameters()
     : Camera::Parameters(SCARAMUZZA), m_C(0.0), m_D(0.0), m_E(0.0), m_center_x(0.0), m_center_y(0.0) {
@@ -750,4 +750,4 @@ std::string OCAMCamera::parametersToString(void) const {
     return oss.str();
 }
 
-}  // namespace camodocal
+}  // namespace common

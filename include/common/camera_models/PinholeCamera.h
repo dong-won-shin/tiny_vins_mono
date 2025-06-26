@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "ceres/rotation.h"
 
-namespace camodocal {
+namespace common {
 
 class PinholeCamera : public Camera {
 public:
@@ -173,6 +173,6 @@ void PinholeCamera::spaceToPlane(const T* const params, const T* const q, const 
     p(1) = fy * v + cy;
 }
 
-}  // namespace camodocal
+}  // namespace common
 
 #endif

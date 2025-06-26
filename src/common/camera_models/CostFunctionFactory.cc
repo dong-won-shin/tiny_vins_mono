@@ -6,7 +6,7 @@
 #include "common/camera_models/PinholeCamera.h"
 #include "common/camera_models/ScaramuzzaCamera.h"
 
-namespace camodocal {
+namespace common {
 
 template <typename T>
 void worldToCameraTransform(const T* const q_cam_odo, const T* const t_cam_odo, const T* const p_odo,
@@ -1010,4 +1010,4 @@ ceres::CostFunction* CostFunctionFactory::generateCostFunction(const CameraConst
     return costFunction;
 }
 
-}  // namespace camodocal
+}  // namespace common

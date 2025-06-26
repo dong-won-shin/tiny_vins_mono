@@ -6,7 +6,7 @@
 
 #include "common/camera_models/Camera.h"
 
-namespace camodocal {
+namespace common {
 
 class CameraFactory {
 public:
@@ -23,6 +23,6 @@ private:
     static boost::shared_ptr<CameraFactory> m_instance;
 };
 
-}  // namespace camodocal
+}  // namespace common
 
 #endif

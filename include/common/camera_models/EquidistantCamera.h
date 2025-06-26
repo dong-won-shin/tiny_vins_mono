@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "ceres/rotation.h"
 
-namespace camodocal {
+namespace common {
 
 /**
  * J. Kannala, and S. Brandt, A Generic Camera Model and Calibration Method
@@ -185,6 +185,6 @@ void EquidistantCamera::spaceToPlane(const T* const params, const T* const q, co
     p(1) = mv * p_u(1) + v0;
 }
 
-}  // namespace camodocal
+}  // namespace common
 
 #endif

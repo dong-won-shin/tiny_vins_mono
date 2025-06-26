@@ -10,7 +10,7 @@
 
 #include "common/gpl/gpl.h"
 
-namespace camodocal {
+namespace common {
 
 PinholeCamera::Parameters::Parameters()
     : Camera::Parameters(PINHOLE),
@@ -721,4 +721,4 @@ std::string PinholeCamera::parametersToString(void) const {
     return oss.str();
 }
 
-}  // namespace camodocal
+}  // namespace common
