@@ -46,8 +46,8 @@ bool FailureDetector::detectFailure(const Vector3d& last_P_end, const Matrix3d& 
 }
 
 bool FailureDetector::detectFeatureFailure() {
-  if (feature_manager_->last_track_num < feature_threshold_) {
-    std::cout << " little feature " << feature_manager_->last_track_num << std::endl;
+  if (feature_manager_->last_track_num_ < feature_threshold_) {
+    std::cout << " little feature " << feature_manager_->last_track_num_ << std::endl;
     // return true; // Currently commented out in original code
   }
   return false;

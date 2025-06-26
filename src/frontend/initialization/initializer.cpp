@@ -116,7 +116,7 @@ bool Initializer::solveGlobalSfM() {
 
   // Prepare SfM features from feature manager
   vector<SFMFeature> sfm_f;
-  for (auto& it_per_id : feature_manager_->feature) {
+  for (auto& it_per_id : feature_manager_->feature_) {
     int imu_j = it_per_id.start_frame - 1;
     SFMFeature tmp_feature;
     tmp_feature.state = false;
@@ -336,7 +336,7 @@ bool Initializer::visualInitialAlign() {
     }
   }
 
-  for (auto& it_per_id : feature_manager_->feature) {
+  for (auto& it_per_id : feature_manager_->feature_) {
     it_per_id.used_num = it_per_id.feature_per_frame.size();
     if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2)) continue;
     it_per_id.estimated_depth *= scale;

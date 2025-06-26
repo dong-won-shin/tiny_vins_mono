@@ -85,7 +85,7 @@ void Optimizer::addIMUFactors(ceres::Problem& problem) {
 int Optimizer::addFeatureFactors(ceres::Problem& problem, ceres::LossFunction* loss_function) {
     int f_m_cnt = 0;
     int feature_index = -1;
-    for (auto& it_per_id : feature_manager_->feature) {
+    for (auto& it_per_id : feature_manager_->feature_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
             continue;
@@ -290,7 +290,7 @@ void Optimizer::addIMUFactorForMarginalization(factor::MarginalizationInfo* marg
 void Optimizer::addFeatureFactorsForMarginalization(factor::MarginalizationInfo* marginalization_info) {
     ceres::LossFunction* loss_function = new ceres::CauchyLoss(1.0);
     int feature_index = -1;
-    for (auto& it_per_id : feature_manager_->feature) {
+    for (auto& it_per_id : feature_manager_->feature_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
             continue;

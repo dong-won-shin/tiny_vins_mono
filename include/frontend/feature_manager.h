@@ -83,8 +83,8 @@ public:
     void removeBack();
     void removeFront(int frame_count);
     void removeOutlier();
-    list<FeaturePerId> feature;
-    int last_track_num;
+    list<FeaturePerId> feature_;
+    int last_track_num_;
 
 private:
     double compensatedParallax2(const FeaturePerId& it_per_id, int frame_count);

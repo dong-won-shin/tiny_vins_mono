@@ -10,7 +10,6 @@
 #include <queue>
 
 #include "frontend/camodocal/camera_models/CameraFactory.h"
-#include "frontend/camodocal/camera_models/CataCamera.h"
 #include "frontend/camodocal/camera_models/PinholeCamera.h"
 #include "utility/config.h"
 
@@ -22,8 +21,8 @@ namespace frontend {
 
 bool inBorder(const cv::Point2f& pt);
 
-void reduceVector(vector<cv::Point2f>& v, vector<uchar> status);
-void reduceVector(vector<int>& v, vector<uchar> status);
+void filterByStatus(vector<cv::Point2f>& v, vector<uchar> status);
+void filterByStatus(vector<int>& v, vector<uchar> status);
 
 class FeatureTracker {
 public:
