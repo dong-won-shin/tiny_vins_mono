@@ -1,0 +1,28 @@
+# Build artifacts
+build/
+logs/
+*.log
+
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+asset/
+
+# Docker files (avoid recursion)
+docker/
+Dockerfile
+.dockerignore
