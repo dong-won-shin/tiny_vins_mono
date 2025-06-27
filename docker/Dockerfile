@@ -73,8 +73,7 @@ WORKDIR /workspace/tiny_vins_mono
 # Copy project files
 COPY . .
 
-# Copy requirements.txt and install Python dependencies
-COPY ../requirements.txt /workspace/tiny_vins_mono/requirements.txt
+# install Python dependencies
 RUN python3 -m pip install --upgrade pip && \
     python3 -m pip install -r /workspace/tiny_vins_mono/requirements.txt
 
