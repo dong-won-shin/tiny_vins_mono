@@ -1,0 +1,39 @@
+# Build directories
+build/
+build-*/
+
+# Log files
+*.log
+logs/
+
+# Cache files
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation
+*.md
+asset/
+
+# Docker files (avoid recursion)
+docker/
+Dockerfile
+.dockerignore
+
+build
