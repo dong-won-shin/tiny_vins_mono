@@ -1,5 +1,5 @@
-#ifndef SLIDING_WINDOW_H
-#define SLIDING_WINDOW_H
+#ifndef BACKEND__SLIDING_WINDOW_H
+#define BACKEND__SLIDING_WINDOW_H
 
 #include <Eigen/Dense>
 
@@ -46,4 +46,4 @@ private:
 
 }  // namespace backend
 
-#endif
+#endif  // BACKEND__SLIDING_WINDOW_H

@@ -1,5 +1,5 @@
-#ifndef FAILURE_DETECTOR_H
-#define FAILURE_DETECTOR_H
+#ifndef FRONTEND__FAILURE_DETECTOR_H
+#define FRONTEND__FAILURE_DETECTOR_H
 
 #include <Eigen/Dense>
 #include <iostream>
@@ -60,4 +60,4 @@ private:
 
 }  // namespace frontend
 
-#endif  // FAILURE_DETECTOR_H
+#endif  // FRONTEND__FAILURE_DETECTOR_H

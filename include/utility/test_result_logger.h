@@ -1,5 +1,5 @@
-#ifndef TEST_RESULT_LOGGER_H
-#define TEST_RESULT_LOGGER_H
+#ifndef UTILITY__TEST_RESULT_LOGGER_H
+#define UTILITY__TEST_RESULT_LOGGER_H
 
 #include <Eigen/Dense>
 #include <chrono>
@@ -56,4 +56,4 @@ private:
 
 }  // namespace utility
 
-#endif  // TEST_RESULT_LOGGER_H
+#endif  // UTILITY__TEST_RESULT_LOGGER_H

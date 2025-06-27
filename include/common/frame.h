@@ -1,5 +1,5 @@
-#ifndef FRAME_H
-#define FRAME_H
+#ifndef COMMON__FRAME_H
+#define COMMON__FRAME_H
 
 #include <Eigen/Dense>
 
@@ -29,4 +29,4 @@ public:
 
 } // namespace common
 
-#endif
+#endif  // COMMON__FRAME_H

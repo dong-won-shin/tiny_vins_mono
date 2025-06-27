@@ -1,5 +1,5 @@
-#ifndef MARGINALIZATION_FACTOR_H
-#define MARGINALIZATION_FACTOR_H
+#ifndef BACKEND__FACTOR__MARGINALIZATION_FACTOR_H
+#define BACKEND__FACTOR__MARGINALIZATION_FACTOR_H
 
 #include <ceres/ceres.h>
 #include <pthread.h>
@@ -82,4 +82,4 @@ public:
 }  // namespace factor
 }  // namespace backend
 
-#endif
+#endif  // BACKEND__FACTOR__MARGINALIZATION_FACTOR_H

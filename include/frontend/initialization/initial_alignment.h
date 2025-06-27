@@ -1,5 +1,5 @@
-#ifndef INITIAL_ALIGNMENT_H
-#define INITIAL_ALIGNMENT_H
+#ifndef FRONTEND__INITIALIZATION__INITIAL_ALIGNMENT_H
+#define FRONTEND__INITIALIZATION__INITIAL_ALIGNMENT_H
 
 #include <eigen3/Eigen/Dense>
 #include <iostream>
@@ -23,4 +23,4 @@ bool VisualIMUAlignment(map<double, common::ImageFrame> const& all_image_frame, 
 }  // namespace initialization
 }  // namespace frontend
 
-#endif  // INITIAL_ALIGNMENT_H
+#endif  // FRONTEND__INITIALIZATION__INITIAL_ALIGNMENT_H

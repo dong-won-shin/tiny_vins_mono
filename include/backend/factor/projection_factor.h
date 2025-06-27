@@ -1,5 +1,5 @@
-#ifndef PROJECTION_FACTOR_H
-#define PROJECTION_FACTOR_H
+#ifndef BACKEND__FACTOR__PROJECTION_FACTOR_H
+#define BACKEND__FACTOR__PROJECTION_FACTOR_H
 
 #include <ceres/ceres.h>
 #include <Eigen/Dense>
@@ -24,4 +24,4 @@ public:
 }  // namespace factor
 }  // namespace backend
 
-#endif  // PROJECTION_FACTOR_H
+#endif  // BACKEND__FACTOR__PROJECTION_FACTOR_H

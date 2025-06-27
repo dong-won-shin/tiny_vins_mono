@@ -1,5 +1,5 @@
-#ifndef IMAGE_FRAME_H
-#define IMAGE_FRAME_H
+#ifndef COMMON__IMAGE_FRAME_H
+#define COMMON__IMAGE_FRAME_H
 
 #include <eigen3/Eigen/Dense>
 #include <map>
@@ -137,4 +137,4 @@ public:
 
 } // namespace common
 
-#endif
+#endif  // COMMON__IMAGE_FRAME_H

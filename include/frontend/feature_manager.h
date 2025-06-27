@@ -1,5 +1,5 @@
-#ifndef FEATURE_MANAGER_H
-#define FEATURE_MANAGER_H
+#ifndef FRONTEND__FEATURE_MANAGER_H
+#define FRONTEND__FEATURE_MANAGER_H
 
 #include <algorithm>
 #include <eigen3/Eigen/Dense>
@@ -93,4 +93,4 @@ private:
 
 }  // namespace frontend
 
-#endif
+#endif  // FRONTEND__FEATURE_MANAGER_H

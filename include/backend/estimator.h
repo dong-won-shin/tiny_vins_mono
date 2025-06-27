@@ -1,5 +1,5 @@
-#ifndef ESTIMATOR_H
-#define ESTIMATOR_H
+#ifndef BACKEND__ESTIMATOR_H
+#define BACKEND__ESTIMATOR_H
 
 #include <Eigen/Dense>
 #include <iostream>
@@ -78,4 +78,4 @@ private:
 
 }  // namespace backend
 
-#endif  // ESTIMATOR_H
+#endif  // BACKEND__ESTIMATOR_H

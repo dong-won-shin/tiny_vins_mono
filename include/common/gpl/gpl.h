@@ -1,5 +1,5 @@
-#ifndef GPL_H
-#define GPL_H
+#ifndef COMMON__GPL__GPL_H
+#define COMMON__GPL__GPL_H
 
 #include <algorithm>
 #include <cmath>
@@ -90,4 +90,4 @@ long int timestampDiff(uint64_t t1, uint64_t t2);
 }  // namespace gpl
 }  // namespace common
 
-#endif
+#endif  // COMMON__GPL__GPL_H
