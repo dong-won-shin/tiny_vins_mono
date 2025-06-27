@@ -321,10 +321,12 @@ bool Initializer::visualInitialAlign() {
         (*sliding_window_)[i].pre_integration->repropagate(Vector3d::Zero(), (*sliding_window_)[i].Bg);
     }
 
+    // update the position
     for (int i = *frame_count_; i >= 0; i--)
         (*sliding_window_)[i].P = scale * (*sliding_window_)[i].P - (*sliding_window_)[i].R * (*t_ic_) -
                                   (scale * (*sliding_window_).front().P - (*sliding_window_).front().R * (*t_ic_));
 
+    // update the speed
     int kv = -1;
     std::map<double, common::ImageFrame>::iterator frame_i;
     for (frame_i = all_image_frame_->begin(); frame_i != all_image_frame_->end(); frame_i++) {
@@ -334,6 +336,7 @@ bool Initializer::visualInitialAlign() {
         }
     }
 
+    // update the depth
     for (auto& it_per_id : feature_manager_->feature_bank_) {
         it_per_id.used_num = it_per_id.feature_per_frame.size();
         if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
@@ -341,11 +344,13 @@ bool Initializer::visualInitialAlign() {
         it_per_id.estimated_depth *= scale;
     }
 
+    // update the gravity vector
     Matrix3d R0 = Utility::g2R(*g_);
     double yaw = Utility::R2ypr(R0 * (*sliding_window_).front().R).x();
     R0 = Utility::ypr2R(Eigen::Vector3d{-yaw, 0, 0}) * R0;
     *g_ = R0 * (*g_);
 
+    // apply the rotation
     Matrix3d rot_diff = R0;
     for (int i = 0; i <= *frame_count_; i++) {
         (*sliding_window_)[i].P = rot_diff * (*sliding_window_)[i].P;
