@@ -135,6 +135,6 @@ public:
     bool is_key_frame;
 };
 
-} // namespace common
+}  // namespace common
 
 #endif  // COMMON__IMAGE_FRAME_H

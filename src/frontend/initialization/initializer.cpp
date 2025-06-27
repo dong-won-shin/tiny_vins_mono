@@ -113,7 +113,7 @@ bool Initializer::checkIMUExcitation(double threshold) {
 bool Initializer::solveGlobalSfM() {
     std::cout << "Starting global SfM reconstruction..." << std::endl;
 
-    map<int, Vector3d> sfm_tracked_points;
+    std::map<int, Vector3d> sfm_tracked_points;
 
     // Prepare SfM features from feature manager
     vector<SFMFeature> sfm_f;
@@ -205,9 +205,9 @@ bool Initializer::relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& 
 }
 
 bool Initializer::solvePnPForAllFrames(const Quaterniond Q[], const Vector3d T[],
-                                       const map<int, Vector3d>& sfm_tracked_points) {
-    map<double, common::ImageFrame>::iterator frame_it;
-    map<int, Vector3d>::const_iterator it;
+                                       const std::map<int, Vector3d>& sfm_tracked_points) {
+    std::map<double, common::ImageFrame>::iterator frame_it;
+    std::map<int, Vector3d>::const_iterator it;
     frame_it = all_image_frame_->begin();
 
     for (int i = 0; frame_it != all_image_frame_->end(); frame_it++) {
@@ -326,7 +326,7 @@ bool Initializer::visualInitialAlign() {
                                   (scale * (*sliding_window_).front().P - (*sliding_window_).front().R * (*t_ic_));
 
     int kv = -1;
-    map<double, common::ImageFrame>::iterator frame_i;
+    std::map<double, common::ImageFrame>::iterator frame_i;
     for (frame_i = all_image_frame_->begin(); frame_i != all_image_frame_->end(); frame_i++) {
         if (frame_i->second.is_key_frame) {
             kv++;

@@ -17,8 +17,8 @@ using namespace std;
 namespace frontend {
 namespace initialization {
 
-bool VisualIMUAlignment(map<double, common::ImageFrame> const& all_image_frame, backend::SlidingWindow& sliding_window,
-                        Vector3d& g, VectorXd& x);
+bool VisualIMUAlignment(std::map<double, common::ImageFrame> const& all_image_frame,
+                        backend::SlidingWindow& sliding_window, Vector3d& g, VectorXd& x);
 
 }  // namespace initialization
 }  // namespace frontend

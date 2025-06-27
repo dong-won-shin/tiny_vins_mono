@@ -55,7 +55,7 @@ class GlobalSFM {
 public:
     GlobalSFM();
     bool construct(int frame_num, Quaterniond* q, Vector3d* T, int l, const Matrix3d relative_R,
-                   const Vector3d relative_T, vector<SFMFeature>& sfm_f, map<int, Vector3d>& sfm_tracked_points);
+                   const Vector3d relative_T, vector<SFMFeature>& sfm_f, std::map<int, Vector3d>& sfm_tracked_points);
 
 private:
     bool solveFrameByPnP(Matrix3d& R_initial, Vector3d& P_initial, int i, vector<SFMFeature>& sfm_f);

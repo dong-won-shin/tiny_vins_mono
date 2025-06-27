@@ -75,6 +75,7 @@ void FeatureTracker::detectAndTrack(const cv::Mat& _img, double _cur_time) {
     cv::Mat img;
     cur_time = _cur_time;
 
+    // equalize histogram
     if (g_config.feature_tracker.equalize) {
         cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
         clahe->apply(_img, img);
@@ -97,6 +98,7 @@ void FeatureTracker::detectAndTrack(const cv::Mat& _img, double _cur_time) {
         for (int i = 0; i < int(next_pts.size()); i++)
             if (status[i] && !inBorder(next_pts[i]))
                 status[i] = 0;
+
         filterByStatus(prev_pts, status);
         filterByStatus(cur_pts, status);
         filterByStatus(next_pts, status);
@@ -111,16 +113,17 @@ void FeatureTracker::detectAndTrack(const cv::Mat& _img, double _cur_time) {
     rejectWithFundamentalMatrix();
     setMask();
 
-    int n_max_cnt = g_config.feature_tracker.max_cnt - static_cast<int>(next_pts.size());
-    if (n_max_cnt > 0) {
+    int supplementary_points_count = g_config.feature_tracker.max_cnt - static_cast<int>(next_pts.size());
+    if (supplementary_points_count > 0) {
         if (mask.empty())
             cout << "mask is empty " << endl;
         if (mask.type() != CV_8UC1)
             cout << "mask type wrong " << endl;
         if (mask.size() != next_img.size())
             cout << "wrong size " << endl;
-        cv::goodFeaturesToTrack(next_img, n_pts, g_config.feature_tracker.max_cnt - next_pts.size(), 0.01,
-                                g_config.feature_tracker.min_dist, mask);
+
+        cv::goodFeaturesToTrack(next_img, n_pts, supplementary_points_count, 0.01, g_config.feature_tracker.min_dist,
+                                mask);
     } else
         n_pts.clear();
 
