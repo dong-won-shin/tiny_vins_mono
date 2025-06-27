@@ -30,9 +30,9 @@ bool FeatureManager::addFeatureAndCheckParallax(int frame_count, const common::I
     last_track_num_ = 0;
 
     // add features to feature bank
-    for (auto& feature_id_and_points : image) {
-        int feature_id = feature_id_and_points.first;
-        FeaturePerFrame feature_per_frame(feature_id_and_points.second);
+    for (auto& feature_id_and_info : image) {
+        int feature_id = feature_id_and_info.first;
+        FeaturePerFrame feature_per_frame(feature_id_and_info.second);
 
         auto it = find_if(feature_bank_.begin(), feature_bank_.end(),
                           [feature_id](const FeaturePerId& it) { return it.feature_id == feature_id; });
@@ -79,9 +79,11 @@ Correspondences FeatureManager::getCorresponding(int frame_count_l, int frame_co
             int idx_l = frame_count_l - it.start_frame;
             int idx_r = frame_count_r - it.start_frame;
 
-            a = it.feature_per_frame[idx_l].point;
+            // ray vector in frame_count_l of same feature_id
+            a = it.feature_per_frame[idx_l].ray_vector;
 
-            b = it.feature_per_frame[idx_r].point;
+            // ray vector in frame_count_r of same feature_id
+            b = it.feature_per_frame[idx_r].ray_vector;
 
             corres.push_back(make_pair(a, b));
         }
@@ -166,7 +168,7 @@ void FeatureManager::triangulateAcrossAllViews(const backend::SlidingWindow& sli
             Eigen::Matrix<double, 3, 4> P;
             P.leftCols<3>() = relative_R.transpose();
             P.rightCols<1>() = -relative_R.transpose() * relative_t;
-            Eigen::Vector3d f = it_per_frame.point.normalized();
+            Eigen::Vector3d f = it_per_frame.ray_vector.normalized();
             svd_A.row(svd_idx++) = f[0] * P.row(2) - f[2] * P.row(0);
             svd_A.row(svd_idx++) = f[1] * P.row(2) - f[2] * P.row(1);
 
@@ -208,7 +210,7 @@ void FeatureManager::removeBackShiftDepth(Eigen::Matrix3d marg_R, Eigen::Vector3
         if (it->start_frame != 0)
             it->start_frame--;
         else {
-            Eigen::Vector3d uv_i = it->feature_per_frame[0].point;
+            Eigen::Vector3d uv_i = it->feature_per_frame[0].ray_vector;
             it->feature_per_frame.erase(it->feature_per_frame.begin());
             if (it->feature_per_frame.size() < 2) {
                 feature_bank_.erase(it);
@@ -265,12 +267,12 @@ double FeatureManager::compensatedParallax2(const FeaturePerId& it_per_id, int f
     const FeaturePerFrame& frame_j = it_per_id.feature_per_frame[frame_count - 1 - it_per_id.start_frame];
 
     double ans = 0;
-    Vector3d p_j = frame_j.point;
+    Vector3d p_j = frame_j.ray_vector;
 
     double u_j = p_j(0);
     double v_j = p_j(1);
 
-    Vector3d p_i = frame_i.point;
+    Vector3d p_i = frame_i.ray_vector;
     Vector3d p_i_comp;
 
     p_i_comp = p_i;

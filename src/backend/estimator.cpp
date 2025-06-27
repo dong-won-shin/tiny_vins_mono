@@ -269,7 +269,7 @@ std::vector<Eigen::Vector3d> Estimator::getSlidingWindowMapPoints() const {
             if (!(it_per_id.used_num >= 2 && it_per_id.start_frame < WINDOW_SIZE - 2))
                 continue;
             if (it_per_id.estimated_depth > 0 && it_per_id.solve_flag == 1) {
-                Eigen::Vector3d point_normalized = it_per_id.feature_per_frame[0].point;
+                Eigen::Vector3d point_normalized = it_per_id.feature_per_frame[0].ray_vector;
                 Eigen::Vector3d point_3d = point_normalized * it_per_id.estimated_depth;
                 int frame_idx = it_per_id.start_frame;
                 if (frame_idx < WINDOW_SIZE) {

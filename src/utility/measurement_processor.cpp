@@ -28,9 +28,9 @@ bool MeasurementProcessor::initialize(const std::string& imu_filepath, const std
     // Print configuration for debugging
     g_config.print();
 
-  // Initialize feature tracker
-  feature_tracker_.reset(new frontend::FeatureTracker());
-  feature_tracker_->readIntrinsicParameter(config_filepath);
+    // Initialize feature tracker
+    feature_tracker_.reset(new frontend::FeatureTracker());
+    feature_tracker_->readIntrinsicParameter(config_filepath);
 
     // Load data
     if (!loadImuData(imu_filepath)) {
@@ -185,7 +185,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
         if (feature_tracker_->track_cnt[j] > 1) {
             int p_id = ids[j];
             hash_ids.insert(p_id);
-            image_feature_msg.feature_points.push_back(Point3D{p_id, undistorted_pts[j].x, undistorted_pts[j].y, 1.0});
+            image_feature_msg.ray_vectors.push_back(Point3D{p_id, undistorted_pts[j].x, undistorted_pts[j].y, 1.0});
             id_of_point.push_back(p_id);
             u_of_point.push_back(cur_pts[j].x);
             v_of_point.push_back(cur_pts[j].y);
@@ -194,7 +194,7 @@ ImageFeatureMsg MeasurementProcessor::extractImageFeatures(const ImageFileData& 
         }
     }
 
-    image_feature_msg.points_count = image_feature_msg.feature_points.size();
+    image_feature_msg.points_count = image_feature_msg.ray_vectors.size();
     image_feature_msg.channels_count = 5;
     image_feature_msg.channel_data[0] = ChannelData(id_of_point.begin(), id_of_point.end());
     image_feature_msg.channel_data[1] = ChannelData(u_of_point.begin(), u_of_point.end());

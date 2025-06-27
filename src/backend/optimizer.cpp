@@ -88,14 +88,14 @@ int Optimizer::addFeatureFactors(ceres::Problem& problem) {
         ++feature_index;
 
         int imu_i = it_per_id.start_frame, imu_j = imu_i - 1;
-        Vector3d pts_i = it_per_id.feature_per_frame[0].point;
+        Vector3d pts_i = it_per_id.feature_per_frame[0].ray_vector;
 
         for (auto& it_per_frame : it_per_id.feature_per_frame) {
             imu_j++;
             if (imu_i == imu_j) {
                 continue;
             }
-            Vector3d pts_j = it_per_frame.point;
+            Vector3d pts_j = it_per_frame.ray_vector;
             backend::factor::ProjectionFactor* f = new backend::factor::ProjectionFactor(pts_i, pts_j);
             problem.AddResidualBlock(f, loss_function, para_Pose[imu_i], para_Pose[imu_j], para_Ex_Pose,
                                      para_Feature[feature_index]);
@@ -296,14 +296,14 @@ void Optimizer::addFeatureFactorsForMarginalization(factor::MarginalizationInfo*
         if (imu_i != 0)
             continue;
 
-        Vector3d pts_i = it_per_id.feature_per_frame[0].point;
+        Vector3d pts_i = it_per_id.feature_per_frame[0].ray_vector;
 
         for (auto& it_per_frame : it_per_id.feature_per_frame) {
             imu_j++;
             if (imu_i == imu_j)
                 continue;
 
-            Vector3d pts_j = it_per_frame.point;
+            Vector3d pts_j = it_per_frame.ray_vector;
             factor::ProjectionFactor* f = new factor::ProjectionFactor(pts_i, pts_j);
             factor::ResidualBlockInfo* residual_block_info = new factor::ResidualBlockInfo(
                 f, loss_function,

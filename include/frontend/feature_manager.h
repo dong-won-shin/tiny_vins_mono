@@ -22,16 +22,16 @@ using Correspondences = std::vector<Correspondence>;
 class FeaturePerFrame {
 public:
     FeaturePerFrame(const Eigen::Matrix<double, 7, 1>& _point) {
-        point.x() = _point(0);
-        point.y() = _point(1);
-        point.z() = _point(2);
-        uv.x() = _point(3);
-        uv.y() = _point(4);
+        ray_vector.x() = _point(0);
+        ray_vector.y() = _point(1);
+        ray_vector.z() = _point(2);
+        observation.x() = _point(3);
+        observation.y() = _point(4);
         velocity.x() = _point(5);
         velocity.y() = _point(6);
     }
-    Vector3d point;
-    Vector2d uv;
+    Vector3d ray_vector;
+    Vector2d observation;
     Vector2d velocity;
     double z;
     bool is_used;

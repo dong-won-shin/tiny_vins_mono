@@ -105,50 +105,52 @@ void vioProcess() {
         for (const auto& imu_data : imu_msg) {
             double t = imu_data.timestamp;
             double img_t = image_msg.timestamp;
-            double dx = 0, dy = 0, dz = 0, rx = 0, ry = 0, rz = 0;
+            double linear_acc_x = 0, linear_acc_y = 0, linear_acc_z = 0, angular_vel_x = 0, angular_vel_y = 0,
+                   angular_vel_z = 0;
             if (t <= img_t) {
                 if (current_time < 0)
                     current_time = t;
                 double dt = t - current_time;
                 current_time = t;
-                dx = imu_data.linear_acc_x;
-                dy = imu_data.linear_acc_y;
-                dz = imu_data.linear_acc_z;
-                rx = imu_data.angular_vel_x;
-                ry = imu_data.angular_vel_y;
-                rz = imu_data.angular_vel_z;
-                vio_estimator.processIMU(dt, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
+                linear_acc_x = imu_data.linear_acc_x;
+                linear_acc_y = imu_data.linear_acc_y;
+                linear_acc_z = imu_data.linear_acc_z;
+                angular_vel_x = imu_data.angular_vel_x;
+                angular_vel_y = imu_data.angular_vel_y;
+                angular_vel_z = imu_data.angular_vel_z;
+                vio_estimator.processIMU(dt, Vector3d(linear_acc_x, linear_acc_y, linear_acc_z),
+                                         Vector3d(angular_vel_x, angular_vel_y, angular_vel_z));
             } else {
                 double dt_1 = img_t - current_time;
                 double dt_2 = t - img_t;
                 current_time = img_t;
                 double w1 = dt_2 / (dt_1 + dt_2);
                 double w2 = dt_1 / (dt_1 + dt_2);
-                dx = w1 * dx + w2 * imu_data.linear_acc_x;
-                dy = w1 * dy + w2 * imu_data.linear_acc_y;
-                dz = w1 * dz + w2 * imu_data.linear_acc_z;
-                rx = w1 * rx + w2 * imu_data.angular_vel_x;
-                ry = w1 * ry + w2 * imu_data.angular_vel_y;
-                rz = w1 * rz + w2 * imu_data.angular_vel_z;
-                vio_estimator.processIMU(dt_1, Vector3d(dx, dy, dz), Vector3d(rx, ry, rz));
+                linear_acc_x = w1 * linear_acc_x + w2 * imu_data.linear_acc_x;
+                linear_acc_y = w1 * linear_acc_y + w2 * imu_data.linear_acc_y;
+                linear_acc_z = w1 * linear_acc_z + w2 * imu_data.linear_acc_z;
+                angular_vel_x = w1 * angular_vel_x + w2 * imu_data.angular_vel_x;
+                angular_vel_y = w1 * angular_vel_y + w2 * imu_data.angular_vel_y;
+                angular_vel_z = w1 * angular_vel_z + w2 * imu_data.angular_vel_z;
+                vio_estimator.processIMU(dt_1, Vector3d(linear_acc_x, linear_acc_y, linear_acc_z),
+                                         Vector3d(angular_vel_x, angular_vel_y, angular_vel_z));
             }
         }
 
         // process image data
         common::ImageData image_data;
         for (unsigned int i = 0; i < image_msg.points_count; i++) {
-            int v = image_msg.channel_data[0][i] + 0.5;
-            int feature_id = v;
-            double x = image_msg.feature_points[i].x;
-            double y = image_msg.feature_points[i].y;
-            double z = image_msg.feature_points[i].z;
+            int feature_id = image_msg.channel_data[0][i];
+            double r_x = image_msg.ray_vectors[i].x;
+            double r_y = image_msg.ray_vectors[i].y;
+            double r_z = image_msg.ray_vectors[i].z;
             double p_u = image_msg.channel_data[1][i];
             double p_v = image_msg.channel_data[2][i];
-            double velocity_x = image_msg.channel_data[3][i];
-            double velocity_y = image_msg.channel_data[4][i];
-            Eigen::Matrix<double, 7, 1> xyz_uv_velocity;
-            xyz_uv_velocity << x, y, z, p_u, p_v, velocity_x, velocity_y;
-            image_data[feature_id] = xyz_uv_velocity;
+            double v_x = image_msg.channel_data[3][i];
+            double v_y = image_msg.channel_data[4][i];
+            Eigen::Matrix<double, 7, 1> ray_obs_vel;
+            ray_obs_vel << r_x, r_y, r_z, p_u, p_v, v_x, v_y;
+            image_data[feature_id] = ray_obs_vel;
         }
         if (!image_data.empty()) {
             vio_estimator.processImage(image_data, image_msg.timestamp);

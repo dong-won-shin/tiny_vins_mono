@@ -28,7 +28,7 @@ struct ImageFeatureMsg {
     std::string frame_id;
     int points_count;
     int channels_count;
-    std::vector<Point3D> feature_points;
+    std::vector<Point3D> ray_vectors;
     std::array<ChannelData, 5> channel_data;
 };
 
@@ -82,8 +82,8 @@ private:
     // Store previous image timestamp
     double prev_image_timestamp_;
 
-  // Feature tracker related
-  std::unique_ptr<frontend::FeatureTracker> feature_tracker_;
+    // Feature tracker related
+    std::unique_ptr<frontend::FeatureTracker> feature_tracker_;
 
     // Extract image features
     ImageFeatureMsg extractImageFeatures(const ImageFileData& image_data);
