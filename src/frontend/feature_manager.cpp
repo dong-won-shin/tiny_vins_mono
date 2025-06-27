@@ -37,12 +37,12 @@ bool FeatureManager::addFeatureAndCheckParallax(int frame_count, const common::I
         auto it = find_if(feature_bank_.begin(), feature_bank_.end(),
                           [feature_id](const FeaturePerId& it) { return it.feature_id == feature_id; });
 
-        // new feature
         if (it == feature_bank_.end()) {
+            // new feature
             feature_bank_.push_back(FeaturePerId(feature_id, frame_count));
             feature_bank_.back().feature_per_frame.push_back(feature_per_frame);
-            // tracked feature
         } else if (it->feature_id == feature_id) {
+            // tracked feature
             it->feature_per_frame.push_back(feature_per_frame);
             last_track_num_++;
         }
