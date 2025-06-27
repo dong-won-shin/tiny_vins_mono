@@ -280,11 +280,11 @@ class TrajectoryComparator:
         """Visualize both trajectories"""
         print("🎨 Creating visualizations...")
         
-        # Create figure with subplots
-        fig = plt.figure(figsize=(20, 15))
+        # Create figure with subplots - only top row plots
+        fig = plt.figure(figsize=(20, 8))
         
         # 3D trajectory plot
-        ax1 = fig.add_subplot(2, 3, 1, projection='3d')
+        ax1 = fig.add_subplot(1, 3, 1, projection='3d')
         ax1.plot(self.aligned_gt['x'], self.aligned_gt['y'], self.aligned_gt['z'], 
                 'b-', label='Ground Truth', linewidth=2, alpha=0.8)
         ax1.plot(self.aligned_opt['x'], self.aligned_opt['y'], self.aligned_opt['z'], 
@@ -312,7 +312,7 @@ class TrajectoryComparator:
             ax1.set_zlim3d([zmid - max_range, zmid + max_range])
         
         # XY projection
-        ax2 = fig.add_subplot(2, 3, 2)
+        ax2 = fig.add_subplot(1, 3, 2)
         ax2.plot(self.aligned_gt['x'], self.aligned_gt['y'], 'b-', label='Ground Truth', linewidth=2)
         ax2.plot(self.aligned_opt['x'], self.aligned_opt['y'], 'r-', label='Optimized', linewidth=2)
         ax2.set_xlabel('X [m]')
@@ -323,7 +323,7 @@ class TrajectoryComparator:
         ax2.axis('equal')
         
         # XZ projection
-        ax3 = fig.add_subplot(2, 3, 3)
+        ax3 = fig.add_subplot(1, 3, 3)
         ax3.plot(self.aligned_gt['x'], self.aligned_gt['z'], 'b-', label='Ground Truth', linewidth=2)
         ax3.plot(self.aligned_opt['x'], self.aligned_opt['z'], 'r-', label='Optimized', linewidth=2)
         ax3.set_xlabel('X [m]')
@@ -332,43 +332,6 @@ class TrajectoryComparator:
         ax3.legend()
         ax3.grid(True)
         ax3.axis('equal')
-        
-        # Position errors over time
-        stats, pos_errors, x_errors, y_errors, z_errors = self.calculate_errors()
-        
-        ax4 = fig.add_subplot(2, 3, 4)
-        ax4.plot(self.aligned_opt['timestamp'], pos_errors, 'g-', linewidth=1)
-        ax4.axhline(y=stats['mean_position_error'], color='r', linestyle='--', 
-                   label=f'Mean: {stats["mean_position_error"]:.4f}m')
-        ax4.set_xlabel('Time [s]')
-        ax4.set_ylabel('Position Error [m]')
-        ax4.set_title('Position Error Over Time')
-        ax4.legend()
-        ax4.grid(True)
-        
-        # Individual axis errors
-        ax5 = fig.add_subplot(2, 3, 5)
-        ax5.plot(self.aligned_opt['timestamp'], x_errors, 'r-', label='X Error', linewidth=1)
-        ax5.plot(self.aligned_opt['timestamp'], y_errors, 'g-', label='Y Error', linewidth=1)
-        ax5.plot(self.aligned_opt['timestamp'], z_errors, 'b-', label='Z Error', linewidth=1)
-        ax5.set_xlabel('Time [s]')
-        ax5.set_ylabel('Axis Error [m]')
-        ax5.set_title('Individual Axis Errors')
-        ax5.legend()
-        ax5.grid(True)
-        
-        # Error histogram
-        ax6 = fig.add_subplot(2, 3, 6)
-        ax6.hist(pos_errors, bins=50, alpha=0.7, color='green', edgecolor='black')
-        ax6.axvline(x=stats['mean_position_error'], color='r', linestyle='--', 
-                   label=f'Mean: {stats["mean_position_error"]:.4f}m')
-        ax6.axvline(x=stats['median_position_error'], color='orange', linestyle='--', 
-                   label=f'Median: {stats["median_position_error"]:.4f}m')
-        ax6.set_xlabel('Position Error [m]')
-        ax6.set_ylabel('Frequency')
-        ax6.set_title('Position Error Distribution')
-        ax6.legend()
-        ax6.grid(True)
         
         plt.tight_layout()
         
@@ -382,6 +345,8 @@ class TrajectoryComparator:
         else:
             plt.close()
         
+        # Calculate basic error statistics for results saving
+        stats = self.calculate_errors()
         return stats
     
     def save_comparison_results(self, stats, output_file=None):
