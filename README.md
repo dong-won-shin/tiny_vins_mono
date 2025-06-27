@@ -13,6 +13,7 @@
 - **Feature-based Frontend**: Robust feature tracking and management system
 - **3D Visualization**: Real-time trajectory and feature point visualization using Pangolin
 - **Configurable Parameters**: Extensive configuration options for different sensors and datasets
+- **Automatic Logging**: Automatically saves experiment results and trajectory data to the logs folder for post-processing and analysis
 
 ### System Architecture
 
@@ -225,3 +226,13 @@ unzip V1_01_easy.zip
 ## Acknowledgments
 
 This implementation is inspired by and builds upon the excellent work in the visual-inertial odometry research community, particularly the VINS-Mono system and related publications.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 (GPLv3). This license is the same as the original VINS-Mono project.
+
+The GPLv3 license ensures that:
+- This software is free and open source
+- Any derivative works must also be open source
+- Users have the freedom to use, modify, and distribute the software
+- Source code must be made available when distributing the software
