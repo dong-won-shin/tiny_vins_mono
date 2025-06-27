@@ -1,13 +1,11 @@
-#include "frontend/initialization/initial_alignment.h"
-
 #include <sys/stat.h>
-
 #include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
+#include "frontend/initialization/initial_alignment.h"
 #include "utility/config.h"
 
 namespace frontend {
