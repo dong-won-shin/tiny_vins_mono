@@ -61,6 +61,8 @@ MatrixXd TangentBasis(Vector3d& g0) {
     return bc;
 }
 
+// reference: Formula Derivation and Analysis of the VINS-Mono, pp. 11, eq (33)
+// https://arxiv.org/abs/1912.11986
 void RefineGravity(std::map<double, common::ImageFrame> const& all_image_frame, Vector3d& g, VectorXd& x) {
     Vector3d g0 = g.normalized() * g_config.estimator.g.norm();
     Vector3d lx, ly;
@@ -129,6 +131,8 @@ void RefineGravity(std::map<double, common::ImageFrame> const& all_image_frame, 
     g = g0;
 }
 
+// reference: Formula Derivation and Analysis of the VINS-Mono, pp. 11, eq (31)
+// https://arxiv.org/abs/1912.11986
 bool LinearAlignment(std::map<double, common::ImageFrame> const& all_image_frame, Vector3d& g, VectorXd& x) {
     int all_frame_count = all_image_frame.size();
     int n_state = all_frame_count * 3 + 3 + 1;
