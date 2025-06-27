@@ -1,22 +1,31 @@
-# Build artifacts
+# Build directories
 build/
-logs/
-*.log
+build-*/
 
-# Git files
-.git/
-.gitignore
+# Log files
+*.log
+logs/
+
+# Cache files
+CMakeCache.txt
+CMakeFiles/
+*.cmake
 
 # IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Temporary files
+*.tmp
+*.temp
 
 # Documentation
 *.md
@@ -26,3 +35,5 @@ asset/
 docker/
 Dockerfile
 .dockerignore
+
+build

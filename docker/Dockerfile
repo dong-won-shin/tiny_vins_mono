@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     libopencv-dev \
     libyaml-cpp-dev \
     libceres-dev \
+    libboost-all-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install graphics and GUI dependencies for Pangolin
