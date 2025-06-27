@@ -20,6 +20,8 @@ void solveGyroscopeBias(std::map<double, common::ImageFrame> const& all_image_fr
     b.setZero();
     std::map<double, common::ImageFrame>::const_iterator frame_i;
     std::map<double, common::ImageFrame>::const_iterator frame_j;
+
+    // construct linear system to get the gyroscope bias delta
     for (frame_i = all_image_frame.begin(); next(frame_i) != all_image_frame.end(); frame_i++) {
         frame_j = next(frame_i);
         MatrixXd tmp_A(3, 3);
@@ -35,6 +37,7 @@ void solveGyroscopeBias(std::map<double, common::ImageFrame> const& all_image_fr
     delta_bg = A.ldlt().solve(b);
     std::cout << "gyroscope bias initial calibration " << delta_bg.transpose() << std::endl;
 
+    // update the gyroscope bias in the sliding window
     for (int i = 0; i <= WINDOW_SIZE; i++)
         sliding_window[i].Bg += delta_bg;
 
