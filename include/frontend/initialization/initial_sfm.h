@@ -3,7 +3,6 @@
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
-
 #include <cstdlib>
 #include <deque>
 #include <eigen3/Eigen/Dense>
@@ -11,6 +10,7 @@
 #include <map>
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/opencv.hpp>
+
 using namespace Eigen;
 using namespace std;
 

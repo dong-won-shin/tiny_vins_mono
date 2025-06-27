@@ -89,17 +89,10 @@ void GlobalSFM::triangulateTwoFrames(int frame0, Eigen::Matrix<double, 3, 4>& Po
             sfm_f[j].position[0] = point_3d(0);
             sfm_f[j].position[1] = point_3d(1);
             sfm_f[j].position[2] = point_3d(2);
-            // cout << "trangulated : " << frame1 << "  3d point : "  << j << "  " <<
-            // point_3d.transpose() << endl;
         }
     }
 }
 
-// 	 q w_R_cam t w_R_cam
-//  c_rotation cam_R_w
-//  c_translation cam_R_w
-// relative_q[i][j]  j_q_i
-// relative_t[i][j]  j_t_ji  (j < i)
 bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int reference_frame_id, const Matrix3d relative_R,
                           const Vector3d relative_T, vector<SFMFeature>& sfm_f,
                           map<int, Vector3d>& sfm_tracked_points) {
@@ -185,12 +178,15 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int refere
     for (int j = 0; j < feature_num; j++) {
         if (sfm_f[j].state == true)
             continue;
+
         if ((int)sfm_f[j].observation.size() >= 2) {
             Vector2d point0, point1;
+
             int frame_0 = sfm_f[j].observation[0].first;
             point0 = sfm_f[j].observation[0].second;
             int frame_1 = sfm_f[j].observation.back().first;
             point1 = sfm_f[j].observation.back().second;
+
             Vector3d point_3d;
             triangulatePoint(Pose[frame_0], Pose[frame_1], point0, point1, point_3d);
             sfm_f[j].state = true;
@@ -234,6 +230,7 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int refere
             problem.AddResidualBlock(cost_function, NULL, c_rotation[l], c_translation[l], sfm_f[i].position);
         }
     }
+
     ceres::Solver::Options options;
     options.linear_solver_type = ceres::DENSE_SCHUR;
     // options.minimizer_progress_to_stdout = true;
