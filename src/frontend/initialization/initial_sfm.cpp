@@ -100,22 +100,23 @@ void GlobalSFM::triangulateTwoFrames(int frame0, Eigen::Matrix<double, 3, 4>& Po
 //  c_translation cam_R_w
 // relative_q[i][j]  j_q_i
 // relative_t[i][j]  j_t_ji  (j < i)
-bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, const Matrix3d relative_R,
+bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int reference_frame_id, const Matrix3d relative_R,
                           const Vector3d relative_T, vector<SFMFeature>& sfm_f,
                           map<int, Vector3d>& sfm_tracked_points) {
+    const auto latest_frame_id = frame_num - 1;
+
     feature_num = sfm_f.size();
-    // cout << "set 0 and " << l << " as known " << endl;
-    // have relative_r relative_t
-    // intial two view
-    q[l].w() = 1;
-    q[l].x() = 0;
-    q[l].y() = 0;
-    q[l].z() = 0;
-    T[l].setZero();
-    q[frame_num - 1] = q[l] * Quaterniond(relative_R);
-    T[frame_num - 1] = relative_T;
-    // cout << "init q_l " << q[l].w() << " " << q[l].vec().transpose() << endl;
-    // cout << "init t_l " << T[l].transpose() << endl;
+
+    // set reference frame
+    q[reference_frame_id].w() = 1;
+    q[reference_frame_id].x() = 0;
+    q[reference_frame_id].y() = 0;
+    q[reference_frame_id].z() = 0;
+    T[reference_frame_id].setZero();
+
+    // set latest frame
+    q[latest_frame_id] = q[reference_frame_id] * Quaterniond(relative_R);
+    T[latest_frame_id] = relative_T;
 
     // rotate to cam frame
     Matrix3d c_Rotation[frame_num];
@@ -125,23 +126,24 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
     double c_translation[frame_num][3];
     Eigen::Matrix<double, 3, 4> Pose[frame_num];
 
-    c_Quat[l] = q[l].inverse();
-    c_Rotation[l] = c_Quat[l].toRotationMatrix();
-    c_Translation[l] = -1 * (c_Rotation[l] * T[l]);
-    Pose[l].block<3, 3>(0, 0) = c_Rotation[l];
-    Pose[l].block<3, 1>(0, 3) = c_Translation[l];
+    c_Quat[reference_frame_id] = q[reference_frame_id].inverse();
+    c_Rotation[reference_frame_id] = c_Quat[reference_frame_id].toRotationMatrix();
+    c_Translation[reference_frame_id] = -1 * (c_Rotation[reference_frame_id] * T[reference_frame_id]);
+    Pose[reference_frame_id].block<3, 3>(0, 0) = c_Rotation[reference_frame_id];
+    Pose[reference_frame_id].block<3, 1>(0, 3) = c_Translation[reference_frame_id];
 
-    c_Quat[frame_num - 1] = q[frame_num - 1].inverse();
-    c_Rotation[frame_num - 1] = c_Quat[frame_num - 1].toRotationMatrix();
-    c_Translation[frame_num - 1] = -1 * (c_Rotation[frame_num - 1] * T[frame_num - 1]);
-    Pose[frame_num - 1].block<3, 3>(0, 0) = c_Rotation[frame_num - 1];
-    Pose[frame_num - 1].block<3, 1>(0, 3) = c_Translation[frame_num - 1];
+    c_Quat[latest_frame_id] = q[latest_frame_id].inverse();
+    c_Rotation[latest_frame_id] = c_Quat[latest_frame_id].toRotationMatrix();
+    c_Translation[latest_frame_id] = -1 * (c_Rotation[latest_frame_id] * T[latest_frame_id]);
+    Pose[latest_frame_id].block<3, 3>(0, 0) = c_Rotation[latest_frame_id];
+    Pose[latest_frame_id].block<3, 1>(0, 3) = c_Translation[latest_frame_id];
 
-    // 1: trangulate between l ----- frame_num - 1
-    // 2: solve pnp l + 1; trangulate l + 1 ------- frame_num - 1;
-    for (int i = l; i < frame_num - 1; i++) {
+    // 1: trangulate from reference frame to latest frame by fixing the latest frame
+    // 2: solve pnp from reference frame to latest frame
+    auto fixed_frame_id = latest_frame_id;
+    for (int i = reference_frame_id; i < latest_frame_id; i++) {
         // solve pnp
-        if (i > l) {
+        if (i > reference_frame_id) {
             Matrix3d R_initial = c_Rotation[i - 1];
             Vector3d P_initial = c_Translation[i - 1];
             if (!solveFrameByPnP(R_initial, P_initial, i, sfm_f))
@@ -154,14 +156,16 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
         }
 
         // triangulate point based on the solve pnp result
-        triangulateTwoFrames(i, Pose[i], frame_num - 1, Pose[frame_num - 1], sfm_f);
+        triangulateTwoFrames(i, Pose[i], fixed_frame_id, Pose[fixed_frame_id], sfm_f);
     }
-    // 3: triangulate l-----l+1 l+2 ... frame_num -2
-    for (int i = l + 1; i < frame_num - 1; i++)
-        triangulateTwoFrames(l, Pose[l], i, Pose[i], sfm_f);
-    // 4: solve pnp l-1; triangulate l-1 ----- l
-    //             l-2              l-2 ----- l
-    for (int i = l - 1; i >= 0; i--) {
+    // 3: triangulate inbetween frames by fixing the reference frame
+    fixed_frame_id = reference_frame_id;
+    for (int i = reference_frame_id + 1; i < latest_frame_id; i++)
+        triangulateTwoFrames(fixed_frame_id, Pose[fixed_frame_id], i, Pose[i], sfm_f);
+
+    // 4: solve pnp from reference frame to oldest frame
+    // 5: triangulate from reference frame to oldest frame by fixing reference frame
+    for (int i = reference_frame_id - 1; i >= 0; i--) {
         // solve pnp
         Matrix3d R_initial = c_Rotation[i + 1];
         Vector3d P_initial = c_Translation[i + 1];
@@ -172,9 +176,11 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
         c_Quat[i] = c_Rotation[i];
         Pose[i].block<3, 3>(0, 0) = c_Rotation[i];
         Pose[i].block<3, 1>(0, 3) = c_Translation[i];
+
         // triangulate
-        triangulateTwoFrames(i, Pose[i], l, Pose[l], sfm_f);
+        triangulateTwoFrames(i, Pose[i], fixed_frame_id, Pose[fixed_frame_id], sfm_f);
     }
+
     // 5: triangulate all other points
     for (int j = 0; j < feature_num; j++) {
         if (sfm_f[j].state == true)
@@ -191,8 +197,6 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
             sfm_f[j].position[0] = point_3d(0);
             sfm_f[j].position[1] = point_3d(1);
             sfm_f[j].position[2] = point_3d(2);
-            // cout << "trangulated : " << frame_0 << " " << frame_1 << "  3d point :
-            // "  << j << "  " << point_3d.transpose() << endl;
         }
     }
 
@@ -211,10 +215,10 @@ bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int l, con
         c_rotation[i][3] = c_Quat[i].z();
         problem.AddParameterBlock(c_rotation[i], 4, local_parameterization);
         problem.AddParameterBlock(c_translation[i], 3);
-        if (i == l) {
+        if (i == reference_frame_id) {
             problem.SetParameterBlockConstant(c_rotation[i]);
         }
-        if (i == l || i == frame_num - 1) {
+        if (i == reference_frame_id || i == latest_frame_id) {
             problem.SetParameterBlockConstant(c_translation[i]);
         }
     }

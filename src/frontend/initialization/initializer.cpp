@@ -93,6 +93,7 @@ bool Initializer::checkIMUExcitation(double threshold) {
         return false;
     }
 
+    // Calculate standard deviation of gravity vectors
     double std_deviation = sqrt(variance / (variance_count - 1));
 
     std::cout << "IMU excitation check: std_deviation = " << std_deviation << ", threshold = " << threshold
@@ -118,19 +119,19 @@ bool Initializer::solveGlobalSfM() {
     vector<SFMFeature> sfm_f;
     for (auto& it_per_id : feature_manager_->feature_bank_) {
         int imu_j = it_per_id.start_frame - 1;
-        SFMFeature tmp_feature;
-        tmp_feature.state = false;
-        tmp_feature.id = it_per_id.feature_id;
-        tmp_feature.position[0] = 0.0;
-        tmp_feature.position[1] = 0.0;
-        tmp_feature.position[2] = 0.0;
-        tmp_feature.depth = 0.0;
+        SFMFeature sfm_feature;
+        sfm_feature.state = false;
+        sfm_feature.id = it_per_id.feature_id;
+        sfm_feature.position[0] = 0.0;
+        sfm_feature.position[1] = 0.0;
+        sfm_feature.position[2] = 0.0;
+        sfm_feature.depth = 0.0;
         for (auto& it_per_frame : it_per_id.feature_per_frame) {
             imu_j++;
-            Vector3d pts_j = it_per_frame.point;
-            tmp_feature.observation.push_back(make_pair(imu_j, Eigen::Vector2d{pts_j.x(), pts_j.y()}));
+            Vector3d pts_j = it_per_frame.ray_vector;
+            sfm_feature.observation.push_back(make_pair(imu_j, Eigen::Vector2d{pts_j.x(), pts_j.y()}));
         }
-        sfm_f.push_back(tmp_feature);
+        sfm_f.push_back(sfm_feature);
     }
 
     std::cout << "Prepared " << sfm_f.size() << " SfM features for reconstruction" << std::endl;
@@ -138,22 +139,23 @@ bool Initializer::solveGlobalSfM() {
     // Find relative pose between frames
     Matrix3d relative_R;
     Vector3d relative_T;
-    int index;
-    if (!relativePose(relative_R, relative_T, index)) {
+    // index of reference frame
+    int l;
+    if (!relativePose(relative_R, relative_T, l)) {
         std::cout << "Global SfM failed: Not enough features or parallax. Move device "
                      "around!"
                   << std::endl;
         return false;
     }
 
-    std::cout << "Found relative pose between frame " << index << " and latest frame" << std::endl;
+    std::cout << "Found relative pose between frame " << l << " and latest frame" << std::endl;
 
     // Perform global SfM reconstruction
     Quaterniond Q[(*frame_count_) + 1];
     Vector3d T[(*frame_count_) + 1];
 
     GlobalSFM sfm;
-    if (!sfm.construct((*frame_count_) + 1, Q, T, index, relative_R, relative_T, sfm_f, sfm_tracked_points)) {
+    if (!sfm.construct((*frame_count_) + 1, Q, T, l, relative_R, relative_T, sfm_f, sfm_tracked_points)) {
         std::cout << "Global SfM reconstruction failed!" << std::endl;
         *marginalization_flag_ = common::MarginalizationFlag::MARGIN_OLD_KEYFRAME;
         return false;
@@ -171,7 +173,7 @@ bool Initializer::solveGlobalSfM() {
     return true;
 }
 
-bool Initializer::relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& index) {
+bool Initializer::relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& l) {
     // find previous frame which contians enough correspondance and parallex with
     // newest frame
     for (int i = 0; i < WINDOW_SIZE; i++) {
@@ -190,8 +192,8 @@ bool Initializer::relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& 
 
             average_parallax = 1.0 * sum_parallax / int(corres.size());
             if (motion_estimator_->solveRelativeRT(corres, relative_R, relative_T)) {
-                index = i;
-                std::cout << "average_parallax " << average_parallax * 460 << " choose index " << index
+                l = i;
+                std::cout << "average_parallax " << average_parallax * 460 << " choose index " << l
                           << " and newest frame to triangulate "
                              "the whole structure"
                           << std::endl;
