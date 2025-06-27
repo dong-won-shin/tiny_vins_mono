@@ -1,5 +1,5 @@
-#ifndef IMU_FACTOR_H
-#define IMU_FACTOR_H
+#ifndef BACKEND__FACTOR__IMU_FACTOR_H
+#define BACKEND__FACTOR__IMU_FACTOR_H
 
 #include <ceres/ceres.h>
 #include <eigen3/Eigen/Dense>
@@ -131,4 +131,4 @@ public:
 }  // namespace factor
 }  // namespace backend
 
-#endif  // IMU_FACTOR_H
+#endif  // BACKEND__FACTOR__IMU_FACTOR_H

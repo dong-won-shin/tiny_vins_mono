@@ -1,5 +1,5 @@
-#ifndef VISUALIZER_H
-#define VISUALIZER_H
+#ifndef UTILITY__VISUALIZER_H
+#define UTILITY__VISUALIZER_H
 
 #include <pangolin/pangolin.h>
 
@@ -79,4 +79,4 @@ private:
 
 }  // namespace utility
 
-#endif  // VISUALIZER_H
+#endif  // UTILITY__VISUALIZER_H

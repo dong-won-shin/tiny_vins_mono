@@ -1,5 +1,5 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef COMMON__CAMERA_MODELS__CAMERA_H
+#define COMMON__CAMERA_MODELS__CAMERA_H
 
 #include <boost/shared_ptr.hpp>
 #include <eigen3/Eigen/Dense>
@@ -124,4 +124,4 @@ typedef boost::shared_ptr<const Camera> CameraConstPtr;
 }  // namespace camera_models
 }  // namespace common
 
-#endif
+#endif  // COMMON__CAMERA_MODELS__CAMERA_H

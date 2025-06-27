@@ -1,5 +1,5 @@
-#ifndef FEATURE_TRACKER_H
-#define FEATURE_TRACKER_H
+#ifndef FRONTEND__FEATURE_TRACKER_H
+#define FRONTEND__FEATURE_TRACKER_H
 
 #include <execinfo.h>
 #include <csignal>
@@ -61,4 +61,4 @@ public:
 };
 
 }  // namespace frontend
-#endif  // FEATURE_TRACKER_H
+#endif  // FRONTEND__FEATURE_TRACKER_H

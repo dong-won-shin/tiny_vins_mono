@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef UTILITY__CONFIG_H
+#define UTILITY__CONFIG_H
 
 #include <Eigen/Dense>
 #include <opencv2/opencv.hpp>
@@ -87,4 +87,4 @@ extern Config g_config;
 
 }  // namespace utility
 
-#endif  // CONFIG_H
+#endif  // UTILITY__CONFIG_H

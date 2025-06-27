@@ -1,5 +1,5 @@
-#ifndef EIGENQUATERNIONPARAMETERIZATION_H
-#define EIGENQUATERNIONPARAMETERIZATION_H
+#ifndef COMMON__GPL__EIGEN_QUATERNION_PARAMETERIZATION_H
+#define COMMON__GPL__EIGEN_QUATERNION_PARAMETERIZATION_H
 
 #include "ceres/local_parameterization.h"
 
@@ -34,4 +34,4 @@ void EigenQuaternionParameterization::EigenQuaternionProduct(const T z[4], const
 }  // namespace gpl
 }  // namespace common
 
-#endif
+#endif  // COMMON__GPL__EIGEN_QUATERNION_PARAMETERIZATION_H

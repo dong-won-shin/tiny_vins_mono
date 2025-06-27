@@ -1,5 +1,5 @@
-#ifndef CATACAMERA_H
-#define CATACAMERA_H
+#ifndef COMMON__CAMERA_MODELS__CATA_CAMERA_H
+#define COMMON__CAMERA_MODELS__CATA_CAMERA_H
 
 #include <opencv2/core/core.hpp>
 #include <string>
@@ -190,4 +190,4 @@ void CataCamera::spaceToPlane(const T* const params, const T* const q, const T* 
 }  // namespace camera_models
 }  // namespace common
 
-#endif
+#endif  // COMMON__CAMERA_MODELS__CATA_CAMERA_H

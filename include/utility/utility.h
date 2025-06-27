@@ -1,5 +1,5 @@
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef UTILITY__UTILITY_H
+#define UTILITY__UTILITY_H
 
 #include <libgen.h>
 #include <stdio.h>
@@ -176,4 +176,4 @@ std::vector<std::string> getImageFilesFromDirectory(const std::string& directory
 // Backward compatibility: allow existing code to use Utility class directly
 using Utility = utility::Utility;
 
-#endif  // UTILITY_H
+#endif  // UTILITY__UTILITY_H
