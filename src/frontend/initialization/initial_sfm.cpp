@@ -3,10 +3,10 @@
 namespace frontend {
 namespace initialization {
 
-GlobalSFM::GlobalSFM() {}
+InitialSFM::InitialSFM() {}
 
-void GlobalSFM::triangulatePoint(Eigen::Matrix<double, 3, 4>& Pose0, Eigen::Matrix<double, 3, 4>& Pose1,
-                                 Vector2d& point0, Vector2d& point1, Vector3d& point_3d) {
+void InitialSFM::triangulatePoint(Eigen::Matrix<double, 3, 4>& Pose0, Eigen::Matrix<double, 3, 4>& Pose1,
+                                  Vector2d& point0, Vector2d& point1, Vector3d& point_3d) {
     Matrix4d design_matrix = Matrix4d::Zero();
     design_matrix.row(0) = point0[0] * Pose0.row(2) - Pose0.row(0);
     design_matrix.row(1) = point0[1] * Pose0.row(2) - Pose0.row(1);
@@ -19,7 +19,7 @@ void GlobalSFM::triangulatePoint(Eigen::Matrix<double, 3, 4>& Pose0, Eigen::Matr
     point_3d(2) = triangulated_point(2) / triangulated_point(3);
 }
 
-bool GlobalSFM::solveFrameByPnP(Matrix3d& R_initial, Vector3d& P_initial, int i, vector<SFMFeature>& sfm_f) {
+bool InitialSFM::solveFrameByPnP(Matrix3d& R_initial, Vector3d& P_initial, int i, vector<SFMFeature>& sfm_f) {
     vector<cv::Point2f> pts_2_vector;
     vector<cv::Point3f> pts_3_vector;
     for (int j = 0; j < feature_num; j++) {
@@ -63,8 +63,8 @@ bool GlobalSFM::solveFrameByPnP(Matrix3d& R_initial, Vector3d& P_initial, int i,
     return true;
 }
 
-void GlobalSFM::triangulateTwoFrames(int frame0, Eigen::Matrix<double, 3, 4>& Pose0, int frame1,
-                                     Eigen::Matrix<double, 3, 4>& Pose1, vector<SFMFeature>& sfm_f) {
+void InitialSFM::triangulateTwoFrames(int frame0, Eigen::Matrix<double, 3, 4>& Pose0, int frame1,
+                                      Eigen::Matrix<double, 3, 4>& Pose1, vector<SFMFeature>& sfm_f) {
     assert(frame0 != frame1);
     for (int j = 0; j < feature_num; j++) {
         if (sfm_f[j].state == true)
@@ -93,9 +93,9 @@ void GlobalSFM::triangulateTwoFrames(int frame0, Eigen::Matrix<double, 3, 4>& Po
     }
 }
 
-bool GlobalSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int reference_frame_id, const Matrix3d relative_R,
-                          const Vector3d relative_T, vector<SFMFeature>& sfm_f,
-                          std::map<int, Vector3d>& sfm_tracked_points) {
+bool InitialSFM::construct(int frame_num, Quaterniond* q, Vector3d* T, int reference_frame_id,
+                           const Matrix3d relative_R, const Vector3d relative_T, vector<SFMFeature>& sfm_f,
+                           std::map<int, Vector3d>& sfm_tracked_points) {
     const auto latest_frame_id = frame_num - 1;
 
     feature_num = sfm_f.size();

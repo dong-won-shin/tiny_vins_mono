@@ -27,7 +27,7 @@ public:
 
 private:
     bool checkIMUExcitation(double threshold);
-    bool solveGlobalSfM();
+    bool solveInitialSfM();
     bool relativePose(Matrix3d& relative_R, Vector3d& relative_T, int& index);
     bool solvePnPForAllFrames(const Quaterniond Q[], const Vector3d T[],
                               const std::map<int, Vector3d>& sfm_tracked_points);

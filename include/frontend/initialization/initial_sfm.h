@@ -51,9 +51,9 @@ struct ReprojectionError3D {
     double observed_v;
 };
 
-class GlobalSFM {
+class InitialSFM {
 public:
-    GlobalSFM();
+    InitialSFM();
     bool construct(int frame_num, Quaterniond* q, Vector3d* T, int l, const Matrix3d relative_R,
                    const Vector3d relative_T, vector<SFMFeature>& sfm_f, std::map<int, Vector3d>& sfm_tracked_points);
 

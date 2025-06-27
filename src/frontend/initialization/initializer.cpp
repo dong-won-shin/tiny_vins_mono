@@ -23,9 +23,9 @@ bool Initializer::initialize() {
         return false;
     }
 
-    // Perform global SfM reconstruction
-    if (!solveGlobalSfM()) {
-        std::cout << "Global SfM reconstruction failed!" << std::endl;
+    // Perform initial SfM reconstruction
+    if (!solveInitialSfM()) {
+        std::cout << "Initial SfM reconstruction failed!" << std::endl;
         return false;
     }
 
@@ -110,8 +110,8 @@ bool Initializer::checkIMUExcitation(double threshold) {
     }
 }
 
-bool Initializer::solveGlobalSfM() {
-    std::cout << "Starting global SfM reconstruction..." << std::endl;
+bool Initializer::solveInitialSfM() {
+    std::cout << "Starting initial SfM reconstruction..." << std::endl;
 
     std::map<int, Vector3d> sfm_tracked_points;
 
@@ -142,7 +142,7 @@ bool Initializer::solveGlobalSfM() {
     // index of reference frame
     int l;
     if (!relativePose(relative_R, relative_T, l)) {
-        std::cout << "Global SfM failed: Not enough features or parallax. Move device "
+        std::cout << "Initial SfM failed: Not enough features or parallax. Move device "
                      "around!"
                   << std::endl;
         return false;
@@ -150,18 +150,18 @@ bool Initializer::solveGlobalSfM() {
 
     std::cout << "Found relative pose between frame " << l << " and latest frame" << std::endl;
 
-    // Perform global SfM reconstruction
+    // Perform initial SfM reconstruction
     Quaterniond Q[(*frame_count_) + 1];
     Vector3d T[(*frame_count_) + 1];
 
-    GlobalSFM sfm;
+    InitialSFM sfm;
     if (!sfm.construct((*frame_count_) + 1, Q, T, l, relative_R, relative_T, sfm_f, sfm_tracked_points)) {
-        std::cout << "Global SfM reconstruction failed!" << std::endl;
+        std::cout << "Initial SfM reconstruction failed!" << std::endl;
         *marginalization_flag_ = common::MarginalizationFlag::MARGIN_OLD_KEYFRAME;
         return false;
     }
 
-    std::cout << "Global SfM successful! Reconstructed " << sfm_tracked_points.size() << " 3D points" << std::endl;
+    std::cout << "Initial SfM successful! Reconstructed " << sfm_tracked_points.size() << " 3D points" << std::endl;
 
     // Solve PnP for all frames to get camera poses
     if (!solvePnPForAllFrames(Q, T, sfm_tracked_points)) {
@@ -169,7 +169,7 @@ bool Initializer::solveGlobalSfM() {
         return false;
     }
 
-    std::cout << "Global SfM completed" << std::endl;
+    std::cout << "Initial SfM completed" << std::endl;
     return true;
 }
 
