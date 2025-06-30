@@ -22,9 +22,9 @@ echo "Starting Tiny VINS Mono Docker container..."
 
 # Run the container with GUI support
 docker run -it --rm \
-    --name tiny-vins-mono \
     --env="DISPLAY=$DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
+    --env="GDK_DISABLE_MITSHM=1" \
     --env="XAUTHORITY=$XAUTH" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="$XAUTH:$XAUTH:rw" \
