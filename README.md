@@ -48,7 +48,7 @@ Before building the project, ensure you have the following dependencies installe
 sudo apt update
 
 # Install basic development tools
-sudo apt install build-essential cmake git
+sudo apt install build-essential cmake git pkg-config wget unzip python3 python3-pip python3-tk
 
 # Install Eigen3
 sudo apt install libeigen3-dev
@@ -59,12 +59,19 @@ sudo apt install libopencv-dev
 # Install yaml-cpp
 sudo apt install libyaml-cpp-dev
 
-# Install Pangolin dependencies
-sudo apt install libgl1-mesa-dev libglew-dev libpython2.7-dev pkg-config
-sudo apt install libegl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
-
 # Install Ceres Solver
 sudo apt install libceres-dev
+
+# Install Boost libraries
+sudo apt install libboost-all-dev
+
+# Install Pangolin dependencies
+sudo apt install libgl1-mesa-dev libglew-dev libepoxy-dev libglfw3-dev
+sudo apt install libegl1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
+sudo apt install libpython3-dev
+
+# Install X11 dependencies for GUI applications
+sudo apt install libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
 ```
 
 #### Install Pangolin from Source
@@ -72,18 +79,15 @@ sudo apt install libceres-dev
 **Note**: Pangolin might require additional graphics libraries and can have compilation issues on some systems. Install the required graphics dependencies first:
 
 ```bash
-# Install graphics dependencies
-sudo apt install libgl1-mesa-dev libglew-dev libepoxy-dev
-sudo apt install libglfw3-dev pkg-config libwayland-dev
-
 # Clone and build Pangolin
 git clone https://github.com/stevenlovegrove/Pangolin.git
 cd Pangolin
+git checkout v0.8  # Use latest stable version
 mkdir build && cd build
 
 # Configure with warning suppression if needed
 cmake -DCMAKE_CXX_FLAGS="-Wno-missing-braces" ..
-make -j4
+make -j$(nproc)  # Use all available CPU cores
 sudo make install
 
 # Add to library path
@@ -95,11 +99,19 @@ source ~/.bashrc
 ```bash
 git clone https://github.com/stevenlovegrove/Pangolin.git
 cd Pangolin
-git checkout v0.6  # Use stable version
+git checkout v0.6  # Use older stable version
 mkdir build && cd build
 cmake ..
-make -j4
+make -j$(nproc)
 sudo make install
+```
+
+#### Install Python Dependencies
+
+```bash
+# Install Python dependencies (if requirements.txt exists)
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
 ```
 
 ### Building the Project
@@ -119,7 +131,7 @@ sudo make install
 3. **Configure and build**
    ```bash
    cmake ..
-   make -j4
+   make -j$(nproc)  # Use all available CPU cores
    ```
 
 4. **Verify successful build**
@@ -153,7 +165,7 @@ mkdir -p data
 
 # Download V1_01_easy sequence (example)
 cd data
-wget http://robotics.ethz.ch/~asl-datasets/ijrr_euroc_mav_dataset/vicon_room1/V1_01_easy/V1_01_easy.zip
+wegt http://robotics.ethz.ch/~asl-datasets/ijrr_euroc_mav_dataset/vicon_room1/V1_01_easy/V1_01_easy.zip
 unzip V1_01_easy.zip
 ```
 

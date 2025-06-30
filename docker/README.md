@@ -30,10 +30,10 @@ Once inside the container:
 
 ```bash
 # Navigate to build directory (default working directory)
-cd /workspace/tiny_vins_mono/build
+cd /workspace/tiny_vins_mono
 
 # Run with config file
-./tiny_vins_mono ../config/config.yaml
+./build/tiny_vins_mono ../config/config.yaml
 ```
 
 ## Data and Configuration
@@ -71,20 +71,3 @@ If GUI doesn't work:
 - Docker installed
 - X11 server (for GUI applications)
 - At least 4GB RAM recommended
-- GPU support (optional, for better performance)
-
-## Development
-
-### Rebuilding After Code Changes
-```bash
-./build.sh
-```
-
-### Debugging
-```bash
-# Run with bash shell
-docker run -it --rm tiny-vins-mono:latest /bin/bash
-
-# Check build logs
-docker build -t tiny-vins-mono:latest -f Dockerfile .. --no-cache
-```
