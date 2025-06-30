@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     python3 \
     python3-pip \
+    python3-tk \
     && rm -rf /var/lib/apt/lists/*
 
 # Install core dependencies
@@ -70,15 +71,15 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 # Create working directory for the project
 WORKDIR /workspace/tiny_vins_mono
 
-# Copy project files
+# Copy project files (excluding .git and other sensitive files via .dockerignore)
 COPY . .
 
 # install Python dependencies
 RUN python3 -m pip install --upgrade pip && \
     python3 -m pip install -r /workspace/tiny_vins_mono/requirements.txt
 
-# Create build directory and build the project
-RUN mkdir -p build && \
+RUN rm -rf build && \
+    mkdir -p build && \
     cd build && \
     cmake .. && \
     make -j$(nproc)

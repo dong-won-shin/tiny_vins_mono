@@ -295,22 +295,18 @@ class TrajectoryComparator:
         ax1.set_title('3D Trajectory Comparison')
         ax1.legend()
         ax1.grid(True)
-        # Set equal aspect ratio for 3D axes
-        try:
-            ax1.set_box_aspect([1,1,1])
-        except Exception:
-            # Fallback for older matplotlib: set limits to make axes equal
-            xlim = ax1.get_xlim3d()
-            ylim = ax1.get_ylim3d()
-            zlim = ax1.get_zlim3d()
-            xmid = 0.5 * (xlim[0] + xlim[1])
-            ymid = 0.5 * (ylim[0] + ylim[1])
-            zmid = 0.5 * (zlim[0] + zlim[1])
-            max_range = max(xlim[1]-xlim[0], ylim[1]-ylim[0], zlim[1]-zlim[0]) / 2
-            ax1.set_xlim3d([xmid - max_range, xmid + max_range])
-            ax1.set_ylim3d([ymid - max_range, ymid + max_range])
-            ax1.set_zlim3d([zmid - max_range, zmid + max_range])
-        
+
+        xlim = ax1.get_xlim3d()
+        ylim = ax1.get_ylim3d()
+        zlim = ax1.get_zlim3d()
+        xmid = 0.5 * (xlim[0] + xlim[1])
+        ymid = 0.5 * (ylim[0] + ylim[1])
+        zmid = 0.5 * (zlim[0] + zlim[1])
+        max_range = max(xlim[1]-xlim[0], ylim[1]-ylim[0], zlim[1]-zlim[0]) / 2
+        ax1.set_xlim3d([xmid - max_range, xmid + max_range])
+        ax1.set_ylim3d([ymid - max_range, ymid + max_range])
+        ax1.set_zlim3d([zmid - max_range, zmid + max_range])
+
         # XY projection
         ax2 = fig.add_subplot(1, 3, 2)
         ax2.plot(self.aligned_gt['x'], self.aligned_gt['y'], 'b-', label='Ground Truth', linewidth=2)
@@ -346,7 +342,7 @@ class TrajectoryComparator:
             plt.close()
         
         # Calculate basic error statistics for results saving
-        stats = self.calculate_errors()
+        stats, _, _, _, _ = self.calculate_errors()
         return stats
     
     def save_comparison_results(self, stats, output_file=None):
@@ -483,29 +479,25 @@ def main():
         print(f"❌ Error reading config file {config_file}: {e}")
         sys.exit(1)
 
-    try:
-        # Create comparator and run comparison
-        comparator = TrajectoryComparator(dataset_path, optimized_pose_file, output_dir)
-        stats = comparator.run_comparison(
-            save_plots=args.save,
-            save_results=args.save,
-            show_plots=not args.no_display
-        )
-        
-        # Print summary
-        print("\n" + "="*60)
-        print("SUMMARY")
-        print("="*60)
-        print(f"Dataset: {os.path.basename(dataset_path)}")
-        print(f"Experiment: {os.path.basename(experiment_path)}")
-        print(f"Mean Position Error: {stats['mean_position_error']:.4f} m")
-        print(f"RMSE Position: {stats['rmse_position']:.4f} m")
-        print(f"Max Position Error: {stats['max_position_error']:.4f} m")
-        print("="*60)
-        
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        sys.exit(1)
+    # Create comparator and run comparison
+    comparator = TrajectoryComparator(dataset_path, optimized_pose_file, output_dir)
+    stats = comparator.run_comparison(
+        save_plots=args.save,
+        save_results=args.save,
+        show_plots=not args.no_display
+    )
+
+    # Print summary
+    print("\n" + "="*60)
+    print("SUMMARY")
+    print("="*60)
+    print(f"Dataset: {os.path.basename(dataset_path)}")
+    print(f"Experiment: {os.path.basename(experiment_path)}")
+    print(f"Mean Position Error: {stats['mean_position_error']:.4f} m")
+    print(f"RMSE Position: {stats['rmse_position']:.4f} m")
+    print(f"Max Position Error: {stats['max_position_error']:.4f} m")
+    print("="*60)
+
 
 if __name__ == "__main__":
     main() 
