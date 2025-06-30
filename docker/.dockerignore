@@ -1,35 +1,49 @@
-# Build directories
-build/
-build-*/
+# Git related files
+.git
+.gitignore
+.gitattributes
 
-# Log files
-*.log
+# Build artifacts
+build/
 logs/
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Documentation and other non-essential files
+README.md
+docs/
+*.md
+
+# Test files
+test/
+tests/
+*_test.cpp
+*_test.h
 
 # Cache files
 CMakeCache.txt
 CMakeFiles/
 *.cmake
-
-# IDE files
-.vscode/
-.idea/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Git
-.git/
-.gitignore
-
-# Temporary files
-*.tmp
-*.temp
-
-# Documentation
-*.md
-asset/
 
 # Docker files (avoid recursion)
 docker/
