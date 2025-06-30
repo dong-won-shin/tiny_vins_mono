@@ -1,9 +1,9 @@
 %YAML:1.0
 
-dataset_path: ./data/VIO_dataset/V1_01_easy
-# dataset_path: ./data/VIO_dataset/MH_01_easy
-# dataset_path: ./data/VIO_dataset/V2_01_easy
-# dataset_path: ./data/VIO_dataset/MH_02_easy
+dataset_path: ./data/V1_01_easy
+# dataset_path: ./data/MH_01_easy
+# dataset_path: ./data/V2_01_easy
+# dataset_path: ./data/MH_02_easy
 
 #processing parameters
 frame_skip: 2                   # skip frames for processing (0 = process all frames, 1 = skip every other frame, etc.)

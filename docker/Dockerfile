@@ -92,7 +92,7 @@ ENV QT_X11_NO_MITSHM=1
 RUN mkdir -p logs
 
 # Set the default working directory to build
-WORKDIR /workspace/tiny_vins_mono/build
+WORKDIR /workspace/tiny_vins_mono
 
 # Default command to show help or usage
 CMD ["echo", "Tiny VINS Mono Docker container is ready! Run: ./tiny_vins_mono ../config/config.yaml"]

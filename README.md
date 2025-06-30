@@ -4,6 +4,8 @@
 
 **Tiny VINS Mono** is a lightweight implementation of a monocular Visual-Inertial Navigation System (VINS). This project provides a real-time visual-inertial odometry solution that fuses camera and IMU (Inertial Measurement Unit) data to estimate 6-DOF pose (position and orientation) in 3D space. This algorithm is a refactored version of the well-known VINS-MONO system, designed for educational and research purposes.
 
+This project is under continuous development and improvement, with significant contributions and guidance from **Vibe Coding**. The development process focuses on creating a robust, well-documented, and educational implementation of visual-inertial odometry algorithms.
+
 ### Key Features
 
 - **Monocular Visual-Inertial Odometry**: Combines single camera and IMU data for robust pose estimation
@@ -147,10 +149,10 @@ dataset_folder/
 
 ```bash
 # Create data directory
-mkdir -p data/VIO_dataset
+mkdir -p data
 
 # Download V1_01_easy sequence (example)
-cd data/VIO_dataset
+cd data
 wget http://robotics.ethz.ch/~asl-datasets/ijrr_euroc_mav_dataset/vicon_room1/V1_01_easy/V1_01_easy.zip
 unzip V1_01_easy.zip
 ```
@@ -166,7 +168,7 @@ unzip V1_01_easy.zip
 2. **Update dataset path in config file**
    ```yaml
    # In config/my_config.yaml
-   dataset_path: ./data/VIO_dataset/V1_01_easy
+   dataset_path: ./data/V1_01_easy
    ```
 
 3. **Camera calibration parameters**
@@ -191,9 +193,9 @@ unzip V1_01_easy.zip
 
 2. **Expected output**
    ```
-   IMU file: ./data/VIO_dataset/V1_01_easy/mav0/imu0/data.csv
-   Image CSV file: ./data/VIO_dataset/V1_01_easy/mav0/cam0/data.csv
-   Image directory: ./data/VIO_dataset/V1_01_easy/mav0/cam0/data
+   IMU file: ./data/V1_01_easy/mav0/imu0/data.csv
+   Image CSV file: ./data/V1_01_easy/mav0/cam0/data.csv
+   Image directory: ./data/V1_01_easy/mav0/cam0/data
    Config file: ../config/config.yaml
    
    Starting Visualizer in main thread...

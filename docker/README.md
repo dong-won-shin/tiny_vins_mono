@@ -5,10 +5,8 @@ This directory contains Docker configuration files for running Tiny VINS Mono in
 ## Files Overview
 
 - `Dockerfile`: Main Docker image definition
-- `docker-compose.yml`: Docker Compose configuration with GUI support
 - `build.sh`: Script to build the Docker image
 - `run.sh`: Script to run the container with X11 forwarding
-- `.dockerignore`: Files to exclude from Docker build context
 
 ## Quick Start
 
@@ -21,20 +19,9 @@ cd docker
 
 ### 2. Run the Container
 
-#### Option A: Using the run script (Recommended for GUI)
+#### Using the run script (Recommended for GUI)
 ```bash
 ./run.sh
-```
-
-#### Option B: Using Docker Compose
-```bash
-docker-compose up -d
-docker exec -it tiny-vins-mono bash
-```
-
-#### Option C: Direct Docker run
-```bash
-docker run -it --rm tiny-vins-mono:latest
 ```
 
 ## Running the Application
@@ -60,8 +47,8 @@ The container automatically mounts:
 ### Preparing Dataset
 Place your EuRoC dataset in the `data` directory:
 ```bash
-mkdir -p data/VIO_dataset
-# Copy your dataset to data/VIO_dataset/
+mkdir -p data/
+# Copy your dataset to data/
 ```
 
 ## GUI Support
