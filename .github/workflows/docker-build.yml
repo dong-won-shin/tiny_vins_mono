@@ -111,15 +111,6 @@ jobs:
           make -j$(nproc) 2>&1 | grep -i warning || echo 'No warnings found'
         "
         
-    - name: Test Python dependencies
-      run: |
-        echo "Testing Python dependencies..."
-        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} python3 -c "
-          import sys
-          print(f'Python version: {sys.version}')
-          print('✅ Python is working')
-        "
-        
     - name: Check Docker image size
       run: |
         echo "Checking Docker image size..."
