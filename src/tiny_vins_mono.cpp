@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "vio_system.h"
-#include "utility/config.h"
+#include "config/config_manager.h"
 
 
 int main(int argc, char* argv[]) {
@@ -12,18 +12,19 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Create configuration instance
-    auto config = std::make_shared<utility::Config>();
-    
+    // Load configuration using ConfigManager
     std::string config_file = argv[1];
-    if (!config->loadFromYaml(config_file)) {
+    auto& config_manager = config::ConfigManager::getInstance();
+    
+    if (!config_manager.loadConfiguration(config_file)) {
         std::cout << "Failed to load config from " << config_file << std::endl;
         return 1;
     }
-    config->print();
+    
+    config_manager.printConfiguration();
 
     // Create VIO system with dependency injection
-    VIOSystem vio_system(config);
+    VIOSystem vio_system(config_manager.getConfig());
     
     if (!vio_system.initialize()) {
         std::cout << "Failed to initialize VIO system" << std::endl;

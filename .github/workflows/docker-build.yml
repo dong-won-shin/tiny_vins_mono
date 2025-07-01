@@ -2,9 +2,9 @@ name: Docker Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ master ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ master ]
   workflow_dispatch:
 
 env:
@@ -109,15 +109,6 @@ jobs:
           cd build &&
           cmake .. &&
           make -j$(nproc) 2>&1 | grep -i warning || echo 'No warnings found'
-        "
-        
-    - name: Test Python dependencies
-      run: |
-        echo "Testing Python dependencies..."
-        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} python3 -c "
-          import sys
-          print(f'Python version: {sys.version}')
-          print('✅ Python is working')
         "
         
     - name: Check Docker image size
