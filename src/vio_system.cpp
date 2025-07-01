@@ -70,60 +70,42 @@ void VIOSystem::vioInitialize() {
     result_logger_->initialize(config_filepath);
 }
 
-void VIOSystem::updateCameraPose(double timestamp) {
-    if (vio_estimator_->solver_flag_ == common::SolverFlag::NON_LINEAR) {
-        int window_size = config_->estimator.window_size;
-        Eigen::Vector3d body_position = vio_estimator_->sliding_window_[window_size].P;
-        Eigen::Matrix3d body_rotation = vio_estimator_->sliding_window_[window_size].R;
-        if (!body_position.allFinite() || !body_rotation.allFinite()) {
-            std::cerr << "Invalid pose data detected, skipping..." << std::endl;
-            return;
-        }
-        Eigen::Vector3d camera_position = body_position + body_rotation * vio_estimator_->t_ic_;
-        Eigen::Matrix3d camera_rotation = body_rotation * vio_estimator_->r_ic_;
 
-        if (visualizer_->isRunning()) {
-            visualizer_->updateCameraPose(camera_position, camera_rotation, timestamp);
-        }
+void VIOSystem::onFrameProcessed(const utility::MeasurementMsg& measurement, double& current_time, int32_t measurement_id) {
+    auto imu_msg = measurement.imu_msg;
+    auto image_msg = measurement.image_feature_msg;
 
-        result_logger_->addPose(camera_position, camera_rotation, timestamp);
+    // Process IMU data
+    processIMUData(imu_msg, image_msg, current_time);
 
-        static size_t last_printed_count = 0;
-        static std::vector<Eigen::Vector3d> temp_poses;
-        temp_poses.push_back(camera_position);
-        if (temp_poses.size() > last_printed_count && temp_poses.size() % 5 == 0) {
-            std::cout << "🎯 Frame " << temp_poses.size() << " | Time: " << std::fixed << std::setprecision(3)
-                      << timestamp << " | Cam Pos: [" << std::fixed << std::setprecision(2) << camera_position.x()
-                      << ", " << camera_position.y() << ", " << camera_position.z() << "]" << std::endl;
-            last_printed_count = temp_poses.size();
-        }
-        static size_t last_saved_count = 0;
-        if (temp_poses.size() > last_saved_count && temp_poses.size() % 50 == 0) {
-            result_logger_->saveTrajectoryToFile();
-            last_saved_count = temp_poses.size();
-        }
-    }
+    // Process image data
+    processImageData(image_msg);
+
+    // Update visualization
+    updateVisualization(image_msg.timestamp);
 }
 
-void VIOSystem::updateFeaturePoints3D() {
-    std::vector<Eigen::Vector3d> new_points;
-    if (vio_estimator_->solver_flag_ == common::SolverFlag::NON_LINEAR) {
-        new_points = vio_estimator_->getSlidingWindowMapPoints();
-    }
-    std::vector<Eigen::Vector3d> valid_points;
-    for (const auto& pt : new_points) {
-        if (pt.allFinite() && !std::isnan(pt.x()) && !std::isnan(pt.y()) && !std::isnan(pt.z())) {
-            valid_points.push_back(pt);
-        }
-    }
-    if (visualizer_->isRunning()) {
-        visualizer_->updateFeaturePoints3D(valid_points);
-    }
+void VIOSystem::onSequenceComplete() {
+    std::cout << "\n🎯 Saving final complete trajectory..." << std::endl;
+    result_logger_->saveTrajectoryToFile();
 }
 
-void VIOSystem::updateVisualization(double timestamp) {
-    updateCameraPose(timestamp);
-    updateFeaturePoints3D();
+void VIOSystem::vioProcess() {
+    const auto& image_file_data = measurement_processor_->getImageFileData();
+    double current_time = -1;
+    int32_t measurement_id = 0;
+    for (const auto& image_file_data_item : image_file_data) {
+        std::cout << "\nProcessing file: " << image_file_data_item.filename << std::endl;
+        if (measurement_id++ % (config_->frame_skip + 1) != 0) {
+            std::cout << "skip frame " << (measurement_id - 1) << std::endl;
+            continue;
+        }
+
+        utility::MeasurementMsg measurement = measurement_processor_->createMeasurementMsg(measurement_id, image_file_data_item);
+        onFrameProcessed(measurement, current_time, measurement_id);
+    }
+
+    onSequenceComplete();
 }
 
 void VIOSystem::processIMUData(const std::vector<utility::IMUMsg>& imu_msg, const utility::ImageFeatureMsg& image_msg, double& current_time) {
@@ -185,34 +167,58 @@ void VIOSystem::processImageData(const utility::ImageFeatureMsg& image_msg) {
     }
 }
 
-void VIOSystem::processSingleFrame(const utility::MeasurementMsg& measurement, double& current_time, int32_t measurement_id) {
-    auto imu_msg = measurement.imu_msg;
-    auto image_msg = measurement.image_feature_msg;
-
-    // Process IMU data
-    processIMUData(imu_msg, image_msg, current_time);
-
-    // Process image data
-    processImageData(image_msg);
-
-    updateVisualization(image_msg.timestamp);
+void VIOSystem::updateVisualization(double timestamp) {
+    updateCameraPose(timestamp);
+    updateFeaturePoints3D();
 }
 
-void VIOSystem::vioProcess() {
-    const auto& image_file_data = measurement_processor_->getImageFileData();
-    double current_time = -1;
-    int32_t measurement_id = 0;
-    for (const auto& image_file_data_item : image_file_data) {
-        std::cout << "\nProcessing file: " << image_file_data_item.filename << std::endl;
-        if (measurement_id++ % (config_->frame_skip + 1) != 0) {
-            std::cout << "skip frame " << (measurement_id - 1) << std::endl;
-            continue;
+void VIOSystem::updateCameraPose(double timestamp) {
+    if (vio_estimator_->solver_flag_ == common::SolverFlag::NON_LINEAR) {
+        int window_size = config_->estimator.window_size;
+        Eigen::Vector3d body_position = vio_estimator_->sliding_window_[window_size].P;
+        Eigen::Matrix3d body_rotation = vio_estimator_->sliding_window_[window_size].R;
+        if (!body_position.allFinite() || !body_rotation.allFinite()) {
+            std::cerr << "Invalid pose data detected, skipping..." << std::endl;
+            return;
+        }
+        Eigen::Vector3d camera_position = body_position + body_rotation * vio_estimator_->t_ic_;
+        Eigen::Matrix3d camera_rotation = body_rotation * vio_estimator_->r_ic_;
+
+        if (visualizer_->isRunning()) {
+            visualizer_->updateCameraPose(camera_position, camera_rotation, timestamp);
         }
 
-        MeasurementMsg measurement = measurement_processor_->createMeasurementMsg(measurement_id, image_file_data_item);
-        processSingleFrame(measurement, current_time, measurement_id);
-    }
+        result_logger_->addPose(camera_position, camera_rotation, timestamp);
 
-    std::cout << "\n🎯 Saving final complete trajectory..." << std::endl;
-    result_logger_->saveTrajectoryToFile();
+        static size_t last_printed_count = 0;
+        static std::vector<Eigen::Vector3d> temp_poses;
+        temp_poses.push_back(camera_position);
+        if (temp_poses.size() > last_printed_count && temp_poses.size() % 5 == 0) {
+            std::cout << "🎯 Frame " << temp_poses.size() << " | Time: " << std::fixed << std::setprecision(3)
+                      << timestamp << " | Cam Pos: [" << std::fixed << std::setprecision(2) << camera_position.x()
+                      << ", " << camera_position.y() << ", " << camera_position.z() << "]" << std::endl;
+            last_printed_count = temp_poses.size();
+        }
+        static size_t last_saved_count = 0;
+        if (temp_poses.size() > last_saved_count && temp_poses.size() % 50 == 0) {
+            result_logger_->saveTrajectoryToFile();
+            last_saved_count = temp_poses.size();
+        }
+    }
+}
+
+void VIOSystem::updateFeaturePoints3D() {
+    std::vector<Eigen::Vector3d> new_points;
+    if (vio_estimator_->solver_flag_ == common::SolverFlag::NON_LINEAR) {
+        new_points = vio_estimator_->getSlidingWindowMapPoints();
+    }
+    std::vector<Eigen::Vector3d> valid_points;
+    for (const auto& pt : new_points) {
+        if (pt.allFinite() && !std::isnan(pt.x()) && !std::isnan(pt.y()) && !std::isnan(pt.z())) {
+            valid_points.push_back(pt);
+        }
+    }
+    if (visualizer_->isRunning()) {
+        visualizer_->updateFeaturePoints3D(valid_points);
+    }
 }

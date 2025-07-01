@@ -35,12 +35,14 @@ private:
     // Private methods
     void vioInitialize();
     void vioProcess();
-    void updateCameraPose(double timestamp);
-    void updateFeaturePoints3D();
-    void updateVisualization(double timestamp);
-    void processSingleFrame(const utility::MeasurementMsg& measurement, double& current_time, int32_t measurement_id);
+    void onFrameProcessed(const utility::MeasurementMsg& measurement, double& current_time, int32_t measurement_id);
+    void onSequenceComplete();
+    
     void processIMUData(const std::vector<utility::IMUMsg>& imu_msg, const utility::ImageFeatureMsg& image_msg, double& current_time);
     void processImageData(const utility::ImageFeatureMsg& image_msg);
+    void updateVisualization(double timestamp);
+    void updateCameraPose(double timestamp);
+    void updateFeaturePoints3D();
 };
 
 #endif // VIO_SYSTEM_H

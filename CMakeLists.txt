@@ -97,6 +97,12 @@ target_link_libraries(estimator
     ${OpenCV_LIBS}
 )
 
+# Configuration management library
+add_library(config_manager
+    src/config/config_manager.cpp
+)
+target_link_libraries(config_manager utility)
+
 # Executable
 add_executable(tiny_vins_mono 
     src/tiny_vins_mono.cpp 
@@ -112,6 +118,7 @@ target_link_libraries(tiny_vins_mono
     estimator
     feature_tracker
     utility
+    config_manager
     ${Pangolin_LIBRARIES}
     stdc++fs
 )
