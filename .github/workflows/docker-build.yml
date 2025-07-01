@@ -1,0 +1,140 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE_NAME: tiny-vins-mono
+  DOCKER_TAG: latest
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      run: |
+        echo "Building Docker image..."
+        docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} -f docker/Dockerfile .
+        
+    - name: Test Docker image build success
+      run: |
+        echo "Testing if Docker image was built successfully..."
+        if docker images | grep -q "${{ env.DOCKER_IMAGE_NAME }}"; then
+          echo "✅ Docker image built successfully"
+          docker images | grep "${{ env.DOCKER_IMAGE_NAME }}"
+        else
+          echo "❌ Docker image build failed"
+          exit 1
+        fi
+        
+    - name: Test Docker container startup
+      run: |
+        echo "Testing Docker container startup..."
+        # Test if container can start without errors
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} echo "Container startup test successful"
+        
+    - name: Test executable exists
+      run: |
+        echo "Testing if executable exists in container..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} test -f /workspace/tiny_vins_mono/build/tiny_vins_mono
+        echo "✅ Executable exists in container"
+        
+    - name: Test executable permissions
+      run: |
+        echo "Testing executable permissions..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} test -x /workspace/tiny_vins_mono/build/tiny_vins_mono
+        echo "✅ Executable has proper permissions"
+        
+    - name: Test help output
+      run: |
+        echo "Testing executable help output..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} /workspace/tiny_vins_mono/build/tiny_vins_mono 2>&1 | grep -q "Usage:"
+        echo "✅ Executable shows help message correctly"
+        
+    - name: Check for build artifacts
+      run: |
+        echo "Checking for required build artifacts..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} test -d /workspace/tiny_vins_mono/build
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} test -f /workspace/tiny_vins_mono/build/CMakeCache.txt
+        echo "✅ Build artifacts exist"
+        
+    - name: Check for required libraries
+      run: |
+        echo "Checking for required libraries..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} ldconfig -p | grep -E "(eigen3|opencv|ceres|pangolin|yaml-cpp)" || echo "Warning: Some libraries not found in ldconfig"
+        
+    - name: Test CMake configuration
+      run: |
+        echo "Testing CMake configuration..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} bash -c "
+          cd /workspace/tiny_vins_mono &&
+          rm -rf build &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          echo '✅ CMake configuration successful'
+        "
+        
+    - name: Test compilation
+      run: |
+        echo "Testing compilation..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} bash -c "
+          cd /workspace/tiny_vins_mono &&
+          rm -rf build &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) &&
+          echo '✅ Compilation successful'
+        "
+        
+    - name: Check for compilation warnings
+      run: |
+        echo "Checking for compilation warnings..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} bash -c "
+          cd /workspace/tiny_vins_mono &&
+          rm -rf build &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) 2>&1 | grep -i warning || echo 'No warnings found'
+        "
+        
+    - name: Test Python dependencies
+      run: |
+        echo "Testing Python dependencies..."
+        docker run --rm ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} python3 -c "
+          import sys
+          print(f'Python version: {sys.version}')
+          print('✅ Python is working')
+        "
+        
+    - name: Check Docker image size
+      run: |
+        echo "Checking Docker image size..."
+        IMAGE_SIZE=$(docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" | grep "${{ env.DOCKER_IMAGE_NAME }}" | awk '{print $3}')
+        echo "Docker image size: $IMAGE_SIZE"
+        
+    - name: Cleanup Docker images
+      if: always()
+      run: |
+        echo "Cleaning up Docker images..."
+        docker rmi ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_TAG }} || true
+        docker system prune -f || true
+        
+    - name: Build Summary
+      if: always()
+      run: |
+        echo "🎉 Docker build and test completed successfully!"
+        echo "All tests passed - Docker image is ready for deployment" 

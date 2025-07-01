@@ -1,0 +1,67 @@
+name: Docker Quick Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  quick-build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Build and test Docker image
+      run: |
+        echo "🚀 Starting Docker build and test..."
+        
+        # Build Docker image
+        echo "📦 Building Docker image..."
+        docker build -t tiny-vins-mono:test -f docker/Dockerfile .
+        
+        # Quick tests
+        echo "🧪 Running quick tests..."
+        
+        # Test 1: Image exists
+        if ! docker images | grep -q "tiny-vins-mono"; then
+          echo "❌ Docker image build failed"
+          exit 1
+        fi
+        echo "✅ Docker image built successfully"
+        
+        # Test 2: Container can start
+        docker run --rm tiny-vins-mono:test echo "Container startup OK"
+        echo "✅ Container startup test passed"
+        
+        # Test 3: Executable exists and is runnable
+        docker run --rm tiny-vins-mono:test test -x /workspace/tiny_vins_mono/build/tiny_vins_mono
+        echo "✅ Executable exists and is runnable"
+        
+        # Test 4: Help message works
+        docker run --rm tiny-vins-mono:test /workspace/tiny_vins_mono/build/tiny_vins_mono 2>&1 | grep -q "Usage:"
+        echo "✅ Help message test passed"
+        
+        # Test 5: Fresh build works
+        echo "🔨 Testing fresh build..."
+        docker run --rm tiny-vins-mono:test bash -c "
+          cd /workspace/tiny_vins_mono &&
+          rm -rf build &&
+          mkdir build &&
+          cd build &&
+          cmake .. &&
+          make -j$(nproc) &&
+          echo '✅ Fresh build successful'
+        "
+        
+        echo "🎉 All tests passed! Docker image is ready."
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        docker rmi tiny-vins-mono:test || true
+        docker system prune -f || true 
