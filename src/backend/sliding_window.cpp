@@ -1,4 +1,5 @@
 #include "backend/sliding_window.h"
+#include <memory>
 
 namespace backend {
 
@@ -57,8 +58,7 @@ void SlidingWindow::pushBackPreintegration(int32_t index, double dt, const Eigen
 
 void SlidingWindow::createNewPreintegration(int32_t index, const Eigen::Vector3d& linear_acceleration,
                                             const Eigen::Vector3d& angular_velocity) {
-    delete sliding_window[index].pre_integration;
-    sliding_window[index].pre_integration = new backend::factor::IntegrationBase(
+    sliding_window[index].pre_integration = std::make_unique<backend::factor::IntegrationBase>(
         linear_acceleration, angular_velocity, sliding_window[index].Ba, sliding_window[index].Bg);
 }
 

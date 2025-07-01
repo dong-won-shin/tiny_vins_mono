@@ -9,7 +9,7 @@ void Frame::clear() {
     V = Eigen::Vector3d::Zero();
     Ba = Eigen::Vector3d::Zero();
     Bg = Eigen::Vector3d::Zero();
-    pre_integration = nullptr;
+    pre_integration.reset();
 
     dt_buf.clear();
     linear_acceleration_buf.clear();

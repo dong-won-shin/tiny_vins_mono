@@ -2,6 +2,7 @@
 #define COMMON__FRAME_H
 
 #include <Eigen/Dense>
+#include <memory>
 
 #include "backend/factor/integration_base.h"
 
@@ -20,7 +21,7 @@ public:
     Eigen::Vector3d V;
     Eigen::Vector3d Ba;
     Eigen::Vector3d Bg;
-    backend::factor::IntegrationBase* pre_integration;
+    std::unique_ptr<backend::factor::IntegrationBase> pre_integration;
 
     std::vector<double> dt_buf;
     std::vector<Eigen::Vector3d> linear_acceleration_buf;

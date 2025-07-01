@@ -69,7 +69,7 @@ void Optimizer::addIMUFactors(ceres::Problem& problem) {
         int j = i + 1;
         if ((*sliding_window_)[j].pre_integration->sum_dt > 10.0)
             continue;
-        backend::factor::IMUFactor* imu_factor = new backend::factor::IMUFactor((*sliding_window_)[j].pre_integration);
+        backend::factor::IMUFactor* imu_factor = new backend::factor::IMUFactor((*sliding_window_)[j].pre_integration.get());
         problem.AddResidualBlock(imu_factor, NULL, para_Pose[i], para_SpeedAndBiases[i], para_Pose[j],
                                  para_SpeedAndBiases[j]);
     }
@@ -273,7 +273,7 @@ void Optimizer::marginalizeNewGeneralFrame() {
 
 void Optimizer::addIMUFactorForMarginalization(factor::MarginalizationInfo* marginalization_info) {
     if ((*sliding_window_)[1].pre_integration->sum_dt < 10.0) {
-        factor::IMUFactor* imu_factor = new factor::IMUFactor((*sliding_window_)[1].pre_integration);
+        factor::IMUFactor* imu_factor = new factor::IMUFactor((*sliding_window_)[1].pre_integration.get());
         factor::ResidualBlockInfo* residual_block_info = new factor::ResidualBlockInfo(
             imu_factor, NULL,
             vector<double*>{para_Pose[0], para_SpeedAndBiases[0], para_Pose[1], para_SpeedAndBiases[1]},

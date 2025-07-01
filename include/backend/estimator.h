@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include <iostream>
+#include <memory>
 #include <mutex>
 
 #include "backend/optimizer.h"
@@ -24,8 +25,8 @@ public:
     void processIMU(double dt, const Eigen::Vector3d& linear_acceleration, const Eigen::Vector3d& angular_velocity);
     void processImage(const common::ImageData& image, double timestamp);
 
-    Matrix3d r_ic_;
-    Vector3d t_ic_;
+    Eigen::Matrix3d r_ic_;
+    Eigen::Vector3d t_ic_;
 
     SlidingWindow sliding_window_;
 
@@ -46,25 +47,25 @@ private:
     void cleanupOldImageFrames(double timestamp);
     void cleanupPreIntegration(common::ImageFrame& frame);
 
-    void propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
-                           const Vector3d& angular_velocity);
+    void propagateIMUState(int frame_index, double dt, const Eigen::Vector3d& linear_acceleration,
+                           const Eigen::Vector3d& angular_velocity);
     void storeLastPoseInSlidingWindow();
 
     bool first_imu_;
     bool failure_occur_;
 
     double initial_timestamp_;
-    Vector3d prev_acc_, prev_gyro_;
+    Eigen::Vector3d prev_acc_, prev_gyro_;
     int frame_count_;
 
-    Vector3d g_;
+    Eigen::Vector3d g_;
 
-    backend::factor::IntegrationBase* tmp_pre_integration_;
+    std::unique_ptr<backend::factor::IntegrationBase> tmp_pre_integration_;
 
     std::map<double, common::ImageFrame> all_image_frame_;
 
-    Matrix3d last_R_end_;
-    Vector3d last_P_end_;
+    Eigen::Matrix3d last_R_end_;
+    Eigen::Vector3d last_P_end_;
 
     // Core components
     Optimizer optimizer_;

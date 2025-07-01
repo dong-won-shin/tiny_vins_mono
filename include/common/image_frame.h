@@ -3,13 +3,11 @@
 
 #include <eigen3/Eigen/Dense>
 #include <map>
+#include <memory>
 #include <utility>
 #include <vector>
 
 #include "backend/factor/imu_factor.h"
-
-using namespace Eigen;
-using namespace std;
 
 namespace common {
 
@@ -27,7 +25,7 @@ public:
     /**
      * @brief Default constructor
      */
-    ImageFrame() : t(0.0), pre_integration(nullptr), is_key_frame(false) {}
+    ImageFrame() : t(0.0), is_key_frame(false) {}
 
     /**
      * @brief Constructor with feature points and timestamp
@@ -36,9 +34,9 @@ public:
      * @param _t Timestamp of the image frame
      */
     ImageFrame(const ImageData& _points, double _t)
-        : points(_points), t(_t), pre_integration(nullptr), is_key_frame(false) {
-        R = Matrix3d::Identity();
-        T = Vector3d::Zero();
+        : points(_points), t(_t), is_key_frame(false) {
+        R = Eigen::Matrix3d::Identity();
+        T = Eigen::Vector3d::Zero();
     }
 
     /**
@@ -47,26 +45,36 @@ public:
     ~ImageFrame() = default;
 
     /**
-     * @brief Copy constructor
+     * @brief Copy constructor - deleted due to unique_ptr
      */
-    ImageFrame(const ImageFrame& other)
-        : points(other.points),
+    ImageFrame(const ImageFrame& other) = delete;
+
+    /**
+     * @brief Assignment operator - deleted due to unique_ptr
+     */
+    ImageFrame& operator=(const ImageFrame& other) = delete;
+
+    /**
+     * @brief Move constructor
+     */
+    ImageFrame(ImageFrame&& other) noexcept
+        : points(std::move(other.points)),
           t(other.t),
-          R(other.R),
-          T(other.T),
-          pre_integration(other.pre_integration),
+          R(std::move(other.R)),
+          T(std::move(other.T)),
+          pre_integration(std::move(other.pre_integration)),
           is_key_frame(other.is_key_frame) {}
 
     /**
-     * @brief Assignment operator
+     * @brief Move assignment operator
      */
-    ImageFrame& operator=(const ImageFrame& other) {
+    ImageFrame& operator=(ImageFrame&& other) noexcept {
         if (this != &other) {
-            points = other.points;
+            points = std::move(other.points);
             t = other.t;
-            R = other.R;
-            T = other.T;
-            pre_integration = other.pre_integration;  // Note: shallow copy
+            R = std::move(other.R);
+            T = std::move(other.T);
+            pre_integration = std::move(other.pre_integration);
             is_key_frame = other.is_key_frame;
         }
         return *this;
@@ -97,8 +105,8 @@ public:
      * @brief Get pose as a 4x4 transformation matrix
      * @return 4x4 transformation matrix [R t; 0 1]
      */
-    Matrix4d getPoseMatrix() const {
-        Matrix4d pose = Matrix4d::Identity();
+    Eigen::Matrix4d getPoseMatrix() const {
+        Eigen::Matrix4d pose = Eigen::Matrix4d::Identity();
         pose.block<3, 3>(0, 0) = R;
         pose.block<3, 1>(0, 3) = T;
         return pose;
@@ -108,7 +116,7 @@ public:
      * @brief Set pose from a 4x4 transformation matrix
      * @param pose 4x4 transformation matrix
      */
-    void setPoseMatrix(const Matrix4d& pose) {
+    void setPoseMatrix(const Eigen::Matrix4d& pose) {
         R = pose.block<3, 3>(0, 0);
         T = pose.block<3, 1>(0, 3);
     }
@@ -123,13 +131,13 @@ public:
     double t;
 
     /// Rotation matrix (camera to world)
-    Matrix3d R;
+    Eigen::Matrix3d R;
 
     /// Translation vector (camera position in world frame)
-    Vector3d T;
+    Eigen::Vector3d T;
 
     /// IMU pre-integration data from previous frame to this frame
-    backend::factor::IntegrationBase* pre_integration;
+    std::unique_ptr<backend::factor::IntegrationBase> pre_integration;
 
     /// Flag indicating if this is a keyframe
     bool is_key_frame;

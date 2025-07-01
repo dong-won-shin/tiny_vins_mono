@@ -17,9 +17,9 @@ Estimator::Estimator()
 }
 
 void Estimator::setParameter() {
-    t_ic_ = g_config.camera.t_ic;
-    r_ic_ = g_config.camera.r_ic;
-    backend::factor::ProjectionFactor::sqrt_info = (g_config.camera.focal_length / 1.5) * Matrix2d::Identity();
+    t_ic_ = utility::g_config.camera.t_ic;
+    r_ic_ = utility::g_config.camera.r_ic;
+    backend::factor::ProjectionFactor::sqrt_info = (utility::g_config.camera.focal_length / 1.5) * Eigen::Matrix2d::Identity();
 
     // Set extrinsic parameters in optimizer
     optimizer_.setExtrinsicParameters(t_ic_, r_ic_);
@@ -30,15 +30,9 @@ void Estimator::clearState() {
         sliding_window_.clearSlidingWindow();
     }
 
-    t_ic_ = Vector3d::Zero();
-    r_ic_ = Matrix3d::Identity();
+    t_ic_ = Eigen::Vector3d::Zero();
+    r_ic_ = Eigen::Matrix3d::Identity();
 
-    for (auto& it : all_image_frame_) {
-        if (it.second.pre_integration != nullptr) {
-            delete it.second.pre_integration;
-            it.second.pre_integration = nullptr;
-        }
-    }
     all_image_frame_.clear();
 
     solver_flag_ = common::SolverFlag::INITIAL;
@@ -46,33 +40,30 @@ void Estimator::clearState() {
     frame_count_ = 0;
     initial_timestamp_ = 0;
 
-    if (tmp_pre_integration_ != nullptr)
-        delete tmp_pre_integration_;
-
-    tmp_pre_integration_ = nullptr;
+    tmp_pre_integration_.reset();
 
     feature_manager_.clearState();
 
     failure_occur_ = 0;
 }
 
-void Estimator::propagateIMUState(int frame_index, double dt, const Vector3d& linear_acceleration,
-                                  const Vector3d& angular_velocity) {
+void Estimator::propagateIMUState(int frame_index, double dt, const Eigen::Vector3d& linear_acceleration,
+                                  const Eigen::Vector3d& angular_velocity) {
     // Store IMU data in buffers
     sliding_window_.pushBackBuffer(frame_index, dt, linear_acceleration, angular_velocity);
 
     // Bias-corrected measurements
-    Vector3d bias_corrected_prev_acc =
+    Eigen::Vector3d bias_corrected_prev_acc =
         sliding_window_[frame_index].R * (prev_acc_ - sliding_window_[frame_index].Ba) - g_;
-    Vector3d bias_corrected_gyro = 0.5 * (prev_gyro_ + angular_velocity) - sliding_window_[frame_index].Bg;
+    Eigen::Vector3d bias_corrected_gyro = 0.5 * (prev_gyro_ + angular_velocity) - sliding_window_[frame_index].Bg;
 
     // update rotation: R = R * exp(gyro*dt)
     sliding_window_[frame_index].R *= Utility::deltaQ(bias_corrected_gyro * dt).toRotationMatrix();
 
     // Propagate position and velocity using trapezoidal integration
-    Vector3d bias_corrected_curr_acc =
+    Eigen::Vector3d bias_corrected_curr_acc =
         sliding_window_[frame_index].R * (linear_acceleration - sliding_window_[frame_index].Ba) - g_;
-    Vector3d bias_corrected_acc = 0.5 * (bias_corrected_prev_acc + bias_corrected_curr_acc);
+    Eigen::Vector3d bias_corrected_acc = 0.5 * (bias_corrected_prev_acc + bias_corrected_curr_acc);
 
     // Update position: P = P + V*dt + 0.5*a*dt^2
     // Update velocity: V = V + a*dt
@@ -92,9 +83,9 @@ void Estimator::processIMU(double dt, const Eigen::Vector3d& linear_acceleration
 
     // if pre_integrations[frame_count_] is not initialized, initialize it
     // this is generated at every new image frame
-    if (sliding_window_[frame_count_].pre_integration == nullptr) {
-        sliding_window_[frame_count_].pre_integration = new backend::factor::IntegrationBase{
-            prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg};
+    if (!sliding_window_[frame_count_].pre_integration) {
+        sliding_window_[frame_count_].pre_integration = std::make_unique<backend::factor::IntegrationBase>(
+            prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba, sliding_window_[frame_count_].Bg);
     }
 
     if (frame_count_ != 0) {
@@ -118,10 +109,10 @@ void Estimator::processImage(const common::ImageData& image, double timestamp) {
     sliding_window_[frame_count_].timestamp = timestamp;
 
     common::ImageFrame imageframe(image, timestamp);
-    imageframe.pre_integration = tmp_pre_integration_;
-    all_image_frame_.insert(make_pair(timestamp, imageframe));
-    tmp_pre_integration_ = new backend::factor::IntegrationBase{prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba,
-                                                                sliding_window_[frame_count_].Bg};
+    imageframe.pre_integration = std::move(tmp_pre_integration_);
+    all_image_frame_.insert(std::make_pair(timestamp, std::move(imageframe)));
+    tmp_pre_integration_ = std::make_unique<backend::factor::IntegrationBase>(prev_acc_, prev_gyro_, sliding_window_[frame_count_].Ba,
+                                                                sliding_window_[frame_count_].Bg);
 
     if (solver_flag_ == common::SolverFlag::INITIAL) {
         if (frame_count_ == WINDOW_SIZE) {
@@ -186,10 +177,7 @@ void Estimator::cleanupOldImageFrames(double timestamp) {
 }
 
 void Estimator::cleanupPreIntegration(common::ImageFrame& frame) {
-    if (frame.pre_integration) {
-        delete frame.pre_integration;
-        frame.pre_integration = nullptr;
-    }
+    frame.pre_integration.reset();
 }
 
 void Estimator::slideWindow() {
