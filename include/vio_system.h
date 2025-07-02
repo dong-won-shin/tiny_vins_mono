@@ -43,6 +43,14 @@ private:
     void updateVisualization(double timestamp);
     void updateCameraPose(double timestamp);
     void updateFeaturePoints3D();
+    
+    // IMU data processing helpers
+    Eigen::Vector3d extractAcceleration(const utility::IMUMsg& imu_data);
+    Eigen::Vector3d extractAngularVelocity(const utility::IMUMsg& imu_data);
+    void interpolateIMUData(const Eigen::Vector3d& prev_acc, const Eigen::Vector3d& prev_gyro,
+                           const utility::IMUMsg& current_imu,
+                           double dt1, double dt2,
+                           Eigen::Vector3d& interp_acc, Eigen::Vector3d& interp_gyro);
 };
 
 #endif // VIO_SYSTEM_H
