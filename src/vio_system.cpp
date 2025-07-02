@@ -109,39 +109,50 @@ void VIOSystem::vioProcess() {
 }
 
 void VIOSystem::processIMUData(const std::vector<utility::IMUMsg>& imu_msg, const utility::ImageFeatureMsg& image_msg, double& current_time) {
+    
+    double prev_linear_acc_x = 0.0, prev_linear_acc_y = 0.0, prev_linear_acc_z = 0.0, prev_angular_vel_x = 0.0, prev_angular_vel_y = 0.0, prev_angular_vel_z = 0.0;
+    double curr_linear_acc_x = 0.0, curr_linear_acc_y = 0.0, curr_linear_acc_z = 0.0, curr_angular_vel_x = 0.0, curr_angular_vel_y = 0.0, curr_angular_vel_z = 0.0;
+
     for (const auto& imu_data : imu_msg) {
         double t = imu_data.timestamp;
         double img_t = image_msg.timestamp;
-        double linear_acc_x = 0, linear_acc_y = 0, linear_acc_z = 0, angular_vel_x = 0, angular_vel_y = 0,
-               angular_vel_z = 0;
+
         if (t <= img_t) {
-            if (current_time < 0)
+            if (current_time < 0.0)
                 current_time = t;
             double dt = t - current_time;
             current_time = t;
-            linear_acc_x = imu_data.linear_acc_x;
-            linear_acc_y = imu_data.linear_acc_y;
-            linear_acc_z = imu_data.linear_acc_z;
-            angular_vel_x = imu_data.angular_vel_x;
-            angular_vel_y = imu_data.angular_vel_y;
-            angular_vel_z = imu_data.angular_vel_z;
-            vio_estimator_->processIMU(dt, Vector3d(linear_acc_x, linear_acc_y, linear_acc_z),
-                                     Vector3d(angular_vel_x, angular_vel_y, angular_vel_z));
+            curr_linear_acc_x = imu_data.linear_acc_x;
+            curr_linear_acc_y = imu_data.linear_acc_y;
+            curr_linear_acc_z = imu_data.linear_acc_z;
+            curr_angular_vel_x = imu_data.angular_vel_x;
+            curr_angular_vel_y = imu_data.angular_vel_y;
+            curr_angular_vel_z = imu_data.angular_vel_z;
+            vio_estimator_->processIMU(dt, Vector3d(curr_linear_acc_x, curr_linear_acc_y, curr_linear_acc_z),
+                                     Vector3d(curr_angular_vel_x, curr_angular_vel_y, curr_angular_vel_z));
         } else {
+            // linear interpolation between IMU and image
             double dt_1 = img_t - current_time;
             double dt_2 = t - img_t;
             current_time = img_t;
             double w1 = dt_2 / (dt_1 + dt_2);
             double w2 = dt_1 / (dt_1 + dt_2);
-            linear_acc_x = w1 * linear_acc_x + w2 * imu_data.linear_acc_x;
-            linear_acc_y = w1 * linear_acc_y + w2 * imu_data.linear_acc_y;
-            linear_acc_z = w1 * linear_acc_z + w2 * imu_data.linear_acc_z;
-            angular_vel_x = w1 * angular_vel_x + w2 * imu_data.angular_vel_x;
-            angular_vel_y = w1 * angular_vel_y + w2 * imu_data.angular_vel_y;
-            angular_vel_z = w1 * angular_vel_z + w2 * imu_data.angular_vel_z;
-            vio_estimator_->processIMU(dt_1, Vector3d(linear_acc_x, linear_acc_y, linear_acc_z),
-                                     Vector3d(angular_vel_x, angular_vel_y, angular_vel_z));
+            curr_linear_acc_x = w1 * prev_linear_acc_x + w2 * imu_data.linear_acc_x;
+            curr_linear_acc_y = w1 * prev_linear_acc_y + w2 * imu_data.linear_acc_y;
+            curr_linear_acc_z = w1 * prev_linear_acc_z + w2 * imu_data.linear_acc_z;
+            curr_angular_vel_x = w1 * prev_angular_vel_x + w2 * imu_data.angular_vel_x;
+            curr_angular_vel_y = w1 * prev_angular_vel_y + w2 * imu_data.angular_vel_y;
+            curr_angular_vel_z = w1 * prev_angular_vel_z + w2 * imu_data.angular_vel_z;
+            vio_estimator_->processIMU(dt_1, Vector3d(curr_linear_acc_x, curr_linear_acc_y, curr_linear_acc_z),
+                                     Vector3d(curr_angular_vel_x, curr_angular_vel_y, curr_angular_vel_z));
         }
+
+        prev_linear_acc_x = curr_linear_acc_x;
+        prev_linear_acc_y = curr_linear_acc_y;
+        prev_linear_acc_z = curr_linear_acc_z;
+        prev_angular_vel_x = curr_angular_vel_x;
+        prev_angular_vel_y = curr_angular_vel_y;
+        prev_angular_vel_z = curr_angular_vel_z;
     }
 }
 
