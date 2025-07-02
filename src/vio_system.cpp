@@ -109,50 +109,36 @@ void VIOSystem::vioProcess() {
 }
 
 void VIOSystem::processIMUData(const std::vector<utility::IMUMsg>& imu_msg, const utility::ImageFeatureMsg& image_msg, double& current_time) {
-    
-    double prev_linear_acc_x = 0.0, prev_linear_acc_y = 0.0, prev_linear_acc_z = 0.0, prev_angular_vel_x = 0.0, prev_angular_vel_y = 0.0, prev_angular_vel_z = 0.0;
-    double curr_linear_acc_x = 0.0, curr_linear_acc_y = 0.0, curr_linear_acc_z = 0.0, curr_angular_vel_x = 0.0, curr_angular_vel_y = 0.0, curr_angular_vel_z = 0.0;
+    Vector3d prev_acc = Vector3d::Zero();
+    Vector3d prev_gyro = Vector3d::Zero();
+    Vector3d curr_acc, curr_gyro;
 
     for (const auto& imu_data : imu_msg) {
-        double t = imu_data.timestamp;
-        double img_t = image_msg.timestamp;
+        const double imu_time = imu_data.timestamp;
+        const double image_time = image_msg.timestamp;
 
-        if (t <= img_t) {
-            if (current_time < 0.0)
-                current_time = t;
-            double dt = t - current_time;
-            current_time = t;
-            curr_linear_acc_x = imu_data.linear_acc_x;
-            curr_linear_acc_y = imu_data.linear_acc_y;
-            curr_linear_acc_z = imu_data.linear_acc_z;
-            curr_angular_vel_x = imu_data.angular_vel_x;
-            curr_angular_vel_y = imu_data.angular_vel_y;
-            curr_angular_vel_z = imu_data.angular_vel_z;
-            vio_estimator_->processIMU(dt, Vector3d(curr_linear_acc_x, curr_linear_acc_y, curr_linear_acc_z),
-                                     Vector3d(curr_angular_vel_x, curr_angular_vel_y, curr_angular_vel_z));
+        if (imu_time <= image_time) {
+            if (current_time < 0.0) {
+                current_time = imu_time;
+            }
+            const double dt = imu_time - current_time;
+            current_time = imu_time;
+            
+            curr_acc = extractAcceleration(imu_data);
+            curr_gyro = extractAngularVelocity(imu_data);
+            
+            vio_estimator_->processIMU(dt, curr_acc, curr_gyro);
         } else {
-            // linear interpolation between IMU and image
-            double dt_1 = img_t - current_time;
-            double dt_2 = t - img_t;
-            current_time = img_t;
-            double w1 = dt_2 / (dt_1 + dt_2);
-            double w2 = dt_1 / (dt_1 + dt_2);
-            curr_linear_acc_x = w1 * prev_linear_acc_x + w2 * imu_data.linear_acc_x;
-            curr_linear_acc_y = w1 * prev_linear_acc_y + w2 * imu_data.linear_acc_y;
-            curr_linear_acc_z = w1 * prev_linear_acc_z + w2 * imu_data.linear_acc_z;
-            curr_angular_vel_x = w1 * prev_angular_vel_x + w2 * imu_data.angular_vel_x;
-            curr_angular_vel_y = w1 * prev_angular_vel_y + w2 * imu_data.angular_vel_y;
-            curr_angular_vel_z = w1 * prev_angular_vel_z + w2 * imu_data.angular_vel_z;
-            vio_estimator_->processIMU(dt_1, Vector3d(curr_linear_acc_x, curr_linear_acc_y, curr_linear_acc_z),
-                                     Vector3d(curr_angular_vel_x, curr_angular_vel_y, curr_angular_vel_z));
+            const double dt_to_image = image_time - current_time;
+            current_time = image_time;
+            
+            interpolateIMUData(prev_acc, prev_gyro, imu_data, dt_to_image, imu_time - image_time, curr_acc, curr_gyro);
+            
+            vio_estimator_->processIMU(dt_to_image, curr_acc, curr_gyro);
         }
 
-        prev_linear_acc_x = curr_linear_acc_x;
-        prev_linear_acc_y = curr_linear_acc_y;
-        prev_linear_acc_z = curr_linear_acc_z;
-        prev_angular_vel_x = curr_angular_vel_x;
-        prev_angular_vel_y = curr_angular_vel_y;
-        prev_angular_vel_z = curr_angular_vel_z;
+        prev_acc = curr_acc;
+        prev_gyro = curr_gyro;
     }
 }
 
@@ -216,6 +202,29 @@ void VIOSystem::updateCameraPose(double timestamp) {
             last_saved_count = temp_poses.size();
         }
     }
+}
+
+Vector3d VIOSystem::extractAcceleration(const utility::IMUMsg& imu_data) {
+    return Vector3d(imu_data.linear_acc_x, imu_data.linear_acc_y, imu_data.linear_acc_z);
+}
+
+Vector3d VIOSystem::extractAngularVelocity(const utility::IMUMsg& imu_data) {
+    return Vector3d(imu_data.angular_vel_x, imu_data.angular_vel_y, imu_data.angular_vel_z);
+}
+
+void VIOSystem::interpolateIMUData(const Vector3d& prev_acc, const Vector3d& prev_gyro, 
+                                   const utility::IMUMsg& current_imu, 
+                                   double dt1, double dt2, 
+                                   Vector3d& interp_acc, Vector3d& interp_gyro) {
+    const double total_dt = dt1 + dt2;
+    const double w1 = dt2 / total_dt;
+    const double w2 = dt1 / total_dt;
+    
+    const Vector3d current_acc = extractAcceleration(current_imu);
+    const Vector3d current_gyro = extractAngularVelocity(current_imu);
+    
+    interp_acc = w1 * prev_acc + w2 * current_acc;
+    interp_gyro = w1 * prev_gyro + w2 * current_gyro;
 }
 
 void VIOSystem::updateFeaturePoints3D() {
