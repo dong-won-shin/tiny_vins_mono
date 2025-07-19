@@ -39,8 +39,11 @@
 
 build
 .vscode
-data
 compile_commands.json
 logs/*
 !.gitkeep
 .clang-format
+
+data/*
+!data/KITTI360/readme.md
+!data/EuRoC/readme.md
