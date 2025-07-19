@@ -128,6 +128,7 @@ add_executable(tiny_vins_mono
     src/vio_system.cpp
     src/utility/measurement_processor.cpp
     src/utility/visualizer.cpp
+    src/utility/imu_graph_visualizer.cpp
     src/utility/test_result_logger.cpp
 )
 target_link_libraries(tiny_vins_mono 

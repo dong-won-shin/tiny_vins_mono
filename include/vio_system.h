@@ -11,6 +11,7 @@
 #include "utility/measurement_processor.h"
 #include "utility/test_result_logger.h"
 #include "utility/visualizer.h"
+#include "utility/imu_graph_visualizer.h"
 
 class VIOSystem {
 public:
@@ -27,6 +28,7 @@ private:
     std::unique_ptr<MeasurementProcessor> measurement_processor_;
     std::unique_ptr<backend::Estimator> vio_estimator_;
     std::unique_ptr<Visualizer> visualizer_;
+    std::unique_ptr<utility::IMUGraphVisualizer> imu_graph_visualizer_;
     std::unique_ptr<utility::TestResultLogger> result_logger_;
 
     // Processing thread

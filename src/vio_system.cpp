@@ -11,6 +11,7 @@ VIOSystem::VIOSystem(std::shared_ptr<utility::Config> config)
     measurement_processor_ = std::make_unique<MeasurementProcessor>();
     vio_estimator_ = std::make_unique<backend::Estimator>();
     visualizer_ = std::make_unique<Visualizer>();
+    imu_graph_visualizer_ = std::make_unique<utility::IMUGraphVisualizer>();
     result_logger_ = std::make_unique<utility::TestResultLogger>();
 }
 
@@ -48,6 +49,9 @@ void VIOSystem::processSequence() {
 }
 
 void VIOSystem::shutdown() {
+    if (imu_graph_visualizer_) {
+        imu_graph_visualizer_->stop();
+    }
     if (vio_process_thread_ && vio_process_thread_->joinable()) {
         vio_process_thread_->join();
     }
@@ -67,6 +71,8 @@ void VIOSystem::vioInitialize() {
     measurement_processor_->initialize(imu_filepath, image_csv_filepath, image_dirpath, config_filepath);
     vio_estimator_->setParameter();
     visualizer_->initialize();
+    imu_graph_visualizer_->initialize(1000, 720, 300);
+    imu_graph_visualizer_->start();
     result_logger_->initialize(config_filepath);
 }
 
@@ -126,6 +132,11 @@ void VIOSystem::processIMUData(const std::vector<utility::IMUMsg>& imu_msg, cons
             
             curr_acc = extractAcceleration(imu_data);
             curr_gyro = extractAngularVelocity(imu_data);
+
+            // Update IMU graph visualization
+            if (imu_graph_visualizer_ && imu_graph_visualizer_->isRunning()) {
+                imu_graph_visualizer_->addIMUData(imu_time, curr_acc, curr_gyro);
+            }
             
             vio_estimator_->processIMU(dt, curr_acc, curr_gyro);
         } else {
@@ -133,6 +144,11 @@ void VIOSystem::processIMUData(const std::vector<utility::IMUMsg>& imu_msg, cons
             current_time = image_time;
             
             interpolateIMUData(prev_acc, prev_gyro, imu_data, dt_to_image, imu_time - image_time, curr_acc, curr_gyro);
+
+            // Update IMU graph visualization with interpolated data
+            if (imu_graph_visualizer_ && imu_graph_visualizer_->isRunning()) {
+                imu_graph_visualizer_->addIMUData(image_time, curr_acc, curr_gyro);
+            }
             
             vio_estimator_->processIMU(dt_to_image, curr_acc, curr_gyro);
         }
