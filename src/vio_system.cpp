@@ -100,8 +100,37 @@ void VIOSystem::vioProcess() {
     const auto& image_file_data = measurement_processor_->getImageFileData();
     double current_time = -1;
     int32_t measurement_id = 0;
-    for (const auto& image_file_data_item : image_file_data) {
-        std::cout << "\nProcessing file: " << image_file_data_item.filename << std::endl;
+    
+    // Get frame range parameters
+    int start_frame = config_->start_frame;
+    int end_frame = config_->end_frame;
+    int total_frames = static_cast<int>(image_file_data.size());
+    
+    // Validate frame range parameters
+    if (start_frame < 0) {
+        start_frame = 0;
+        std::cout << "Warning: start_frame < 0, setting to 0" << std::endl;
+    }
+    if (end_frame < 0 || end_frame >= total_frames) {
+        end_frame = total_frames - 1;
+        std::cout << "Info: end_frame set to " << end_frame << " (total frames: " << total_frames << ")" << std::endl;
+    }
+    if (start_frame > end_frame) {
+        std::cerr << "Error: start_frame (" << start_frame << ") > end_frame (" << end_frame << ")" << std::endl;
+        return;
+    }
+    
+    std::cout << "Processing frames " << start_frame << " to " << end_frame << " (total: " << (end_frame - start_frame + 1) << " frames)" << std::endl;
+    
+    for (int frame_idx = 0; frame_idx < total_frames; ++frame_idx) {
+        // Skip frames outside the specified range
+        if (frame_idx < start_frame || frame_idx > end_frame) {
+            continue;
+        }
+        
+        const auto& image_file_data_item = image_file_data[frame_idx];
+        std::cout << "\nProcessing file: " << image_file_data_item.filename << " (frame " << frame_idx << "/" << total_frames - 1 << ")" << std::endl;
+        
         if (measurement_id++ % (config_->frame_skip + 1) != 0) {
             std::cout << "skip frame " << (measurement_id - 1) << std::endl;
             continue;
@@ -194,11 +223,18 @@ void VIOSystem::updateCameraPose(double timestamp) {
             std::cerr << "Invalid pose data detected, skipping..." << std::endl;
             return;
         }
+        
+        // Camera pose (body + camera offset)
         Eigen::Vector3d camera_position = body_position + body_rotation * vio_estimator_->t_ic_;
         Eigen::Matrix3d camera_rotation = body_rotation * vio_estimator_->r_ic_;
 
+        // IMU pose (body frame - IMU is typically at body origin)
+        Eigen::Vector3d imu_position = body_position;
+        Eigen::Matrix3d imu_rotation = body_rotation;
+
         if (visualizer_->isRunning()) {
             visualizer_->updateCameraPose(camera_position, camera_rotation, timestamp);
+            visualizer_->updateIMUPose(imu_position, imu_rotation, timestamp);
         }
 
         result_logger_->addPose(camera_position, camera_rotation, timestamp);

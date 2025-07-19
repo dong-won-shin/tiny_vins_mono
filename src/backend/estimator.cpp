@@ -137,14 +137,6 @@ void Estimator::processImage(const common::ImageData& image, double timestamp) {
         }
     } else if (solver_flag_ == common::SolverFlag::NON_LINEAR) {
         solveOdometry();
-
-        if (failure_detector_.detectFailure(last_P_end_, last_R_end_)) {
-            failure_occur_ = 1;
-            clearState();
-            setParameter();
-            return;
-        }
-
         slideWindow();
         feature_manager_.removeFailures();
 
@@ -264,7 +256,7 @@ std::vector<Eigen::Vector3d> Estimator::getSlidingWindowMapPoints() const {
                     Eigen::Matrix3d R_wc = sliding_window_[frame_idx].R * r_ic_;
                     Eigen::Vector3d t_wc = sliding_window_[frame_idx].P + sliding_window_[frame_idx].R * t_ic_;
                     Eigen::Vector3d point_world = R_wc * point_3d + t_wc;
-                    if (point_world.norm() < 50.0 && point_world.allFinite()) {
+                    if (point_world.allFinite()) {
                         new_points.push_back(point_world);
                     }
                 }
