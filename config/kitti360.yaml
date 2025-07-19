@@ -1,6 +1,6 @@
 %YAML:1.0
 
-dataset_path: ./data/KITTI360/2013_05_28_drive_0000
+dataset_path: ./data/KITTI360/2013_05_28_drive_0010
 
 #processing parameters
 frame_skip: 0                   # skip frames for processing (0 = process all frames, 1 = skip every other frame, etc.)

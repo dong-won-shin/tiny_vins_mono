@@ -71,7 +71,7 @@ void VIOSystem::vioInitialize() {
     measurement_processor_->initialize(imu_filepath, image_csv_filepath, image_dirpath, config_filepath);
     vio_estimator_->setParameter();
     visualizer_->initialize();
-    imu_graph_visualizer_->initialize(1000, 720, 300);
+    imu_graph_visualizer_->initialize(1024, 768, 300);
     imu_graph_visualizer_->start();
     result_logger_->initialize(config_filepath);
 }
