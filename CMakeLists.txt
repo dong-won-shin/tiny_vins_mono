@@ -13,6 +13,25 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Set build type if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Disable all fast-math optimizations for numerical consistency
+add_compile_definitions(
+    EIGEN_FAST_MATH=0              # Disable Eigen's fast math
+    EIGEN_DONT_VECTORIZE=1         # Disable Eigen vectorization
+    EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT=1
+)
+
+# Force strict IEEE 754 compliance
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")    
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -DDEBUG")
+endif()
+
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Ceres REQUIRED)
