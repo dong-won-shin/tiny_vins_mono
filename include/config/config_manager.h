@@ -115,6 +115,8 @@ T ConfigManager::getParameter(const std::string& key, const T& default_value) co
     // Map common parameter keys to config fields
     if constexpr (std::is_same_v<T, int>) {
         if (key == "frame_skip") return static_cast<T>(config_->frame_skip);
+        if (key == "start_frame") return static_cast<T>(config_->start_frame);
+        if (key == "end_frame") return static_cast<T>(config_->end_frame);
         if (key == "estimator.window_size") return static_cast<T>(config_->estimator.window_size);
         if (key == "estimator.num_iterations") return static_cast<T>(config_->estimator.num_iterations);
         if (key == "feature_tracker.max_cnt") return static_cast<T>(config_->feature_tracker.max_cnt);
@@ -159,6 +161,8 @@ void ConfigManager::setParameter(const std::string& key, const T& value) {
     // Map parameter keys to config fields for setting
     if constexpr (std::is_same_v<T, int>) {
         if (key == "frame_skip") { config_->frame_skip = value; notifyChange(key); return; }
+        if (key == "start_frame") { config_->start_frame = value; notifyChange(key); return; }
+        if (key == "end_frame") { config_->end_frame = value; notifyChange(key); return; }
         if (key == "estimator.window_size") { config_->estimator.window_size = value; notifyChange(key); return; }
         if (key == "estimator.num_iterations") { config_->estimator.num_iterations = value; notifyChange(key); return; }
         if (key == "feature_tracker.max_cnt") { config_->feature_tracker.max_cnt = value; notifyChange(key); return; }

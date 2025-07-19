@@ -72,6 +72,8 @@ struct Config {
 
     // Processing parameters
     int frame_skip = 2;  // Skip frames for processing
+    int start_frame = 0;  // Start processing from this frame (0-based index)
+    int end_frame = -1;   // End processing at this frame (-1 = process all frames)
     std::string dataset_path = "";
     std::string config_filepath = "";
 
