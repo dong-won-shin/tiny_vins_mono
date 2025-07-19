@@ -104,7 +104,6 @@ void IMUGraphVisualizer::updateDataRange() {
 void IMUGraphVisualizer::visualizationThread() {
     cv::namedWindow(window_name_, cv::WINDOW_AUTOSIZE);
     cv::moveWindow(window_name_, 100, 1000);
-    cv::resizeWindow(window_name_, 1000, 720);
     
     while (running_.load()) {
         drawGraph();

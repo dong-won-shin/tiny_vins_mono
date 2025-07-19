@@ -1,5 +1,36 @@
 # Tiny VINS Mono
 
+## 🎉 New Feature Updates
+
+![update_demo](./asset/tiny_vins_mono_update.gif)
+
+### 🎯 IMU Graph Visualizer
+• Real-time IMU sensor data visualization in separate OpenCV window  
+• Acceleration and angular velocity plots with color-coded axes  
+• Auto-scaling and rolling time-series display for performance monitoring  
+
+### 📊 Frame Range Processing
+• Configurable start and end frame parameters for selective processing  
+• Automatic range validation with helpful error messages  
+• Clear progress tracking within specified frame range  
+
+### 🎥 Advanced Camera Views
+• Multiple camera modes: Free View, Top View, Follow Camera  
+• UI controls for easy mode switching  
+• Smooth transitions with proper camera positioning  
+
+### 🔗 Camera-IMU Rig Visualization
+• Camera and IMU trajectories with coordinate frames  
+• Real-time connection lines between sensor positions  
+• Complete sensor relationship visualization  
+
+### 🚗 KITTI-360 Dataset Support
+• Format conversion tools for autonomous driving scenarios  
+• Pre-converted samples and detailed documentation  
+• Urban driving data analysis support  
+
+---
+
 ## Introduction
 
 **Tiny VINS Mono** is a lightweight implementation of a monocular Visual-Inertial Navigation System (VINS). This project provides a real-time visual-inertial odometry solution that fuses camera and IMU (Inertial Measurement Unit) data to estimate 6-DOF pose (position and orientation) in 3D space. This algorithm is a refactored version of the well-known VINS-MONO system, designed for educational and research purposes.
