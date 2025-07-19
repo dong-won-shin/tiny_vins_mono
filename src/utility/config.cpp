@@ -95,6 +95,10 @@ bool Config::loadFromYaml(const std::string& yaml_path) {
         // Load processing parameters
         if (config["frame_skip"])
             frame_skip = config["frame_skip"].as<int>();
+        if (config["start_frame"])
+            start_frame = config["start_frame"].as<int>();
+        if (config["end_frame"])
+            end_frame = config["end_frame"].as<int>();
         if (config["dataset_path"])
             dataset_path = config["dataset_path"].as<std::string>();
         config_filepath = yaml_path;
@@ -124,6 +128,8 @@ void Config::print() const {
 
     std::cout << "Processing:" << std::endl;
     std::cout << "  frame_skip: " << frame_skip << std::endl;
+    std::cout << "  start_frame: " << start_frame << std::endl;
+    std::cout << "  end_frame: " << end_frame << std::endl;
 
     std::cout << "Camera:" << std::endl;
     std::cout << "  focal_length: " << camera.focal_length << std::endl;

@@ -7,6 +7,8 @@ dataset_path: ./data/V1_01_easy
 
 #processing parameters
 frame_skip: 2                   # skip frames for processing (0 = process all frames, 1 = skip every other frame, etc.)
+start_frame: 0                  # start processing from this frame (0-based index)
+end_frame: -1                   # end processing at this frame (-1 = process all frames)
 
 #camera calibration 
 model_type: PINHOLE
@@ -24,11 +26,6 @@ projection_parameters:
    cx: 3.630e+02
    cy: 2.481e+02
 
-# Extrinsic parameter between IMU and Camera.
-estimate_extrinsic: 0   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
-                        # 1  Have an initial guess about extrinsic parameters. We will optimize around your initial guess.
-                        # 2  Don't know anything about extrinsic parameters. You don't need to give R,T. We will try to calibrate it. Do some rotation movement at beginning.                        
-#If you choose 0 or 1, you should write down the following matrix.
 #Rotation from camera frame to imu frame, imu^R_cam
 extrinsicRotation: !!opencv-matrix
    rows: 3
